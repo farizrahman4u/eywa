@@ -81,9 +81,9 @@ def download():
     with open(meta_file_name, 'r') as f:
         manifest = json.load(f)['manifest']
     with gzip.open(file_name) as gzf:
-        print('Extracting ' + frequncy_file_name)
+        print('Extracting ' + frequency_file_name)
         file_size = manifest[0]['size']
-        with open(frequncy_file_name, 'w') as f:
+        with open(frequency_file_name, 'w') as f:
             f.write(gzf.read(file_size))
         print('Done.')
         print('Extracting ' + vectors_file_name)

@@ -1,5 +1,5 @@
 class Signal(object):
-	def __init__(self, data, previous=None, meta_data={}, user_id=None):
+	def __init__(self, data, previous=None, meta_data={}, user_id=None, node=None):
 		self.data = data
 		if user_id is not None:
 			if 'user_id' in meta_data and meta_data['user_id'] != user_id:
@@ -17,7 +17,7 @@ class Signal(object):
 						meta_data[k] = sig.meta_data[k]
 			if len(previous) == 1:
 				previous = previous[0]
-		else:
+		elif previous:
 			for k in previous.meta_data:
 				if k in meta_data:
 					if meta_data[k] != sig.meta_data[k]:
@@ -26,3 +26,8 @@ class Signal(object):
 				meta_data[k] = sig.meta_data[k]				
 		self.previous = previous
 		self.meta_data = meta_data
+		self.node = node
+
+	def copy(self, node=None):
+		return self.__class__(self.data, self, node=node)
+

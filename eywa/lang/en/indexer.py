@@ -5,6 +5,7 @@ from .filenames import vocab_file_name, vocab_db_file_name, inverse_vocab_db_fil
 from .filenames import frequency_file_name, frequency_db_file_name
 from .filenames import phrases_db_file_name, tokens_db_file_name
 from .filenames import interrupt_flag_file_name as flag_file
+from .filenames import vector_size_file_name
 import numpy as np
 import annoy
 import os
@@ -13,7 +14,10 @@ from .database import Database
 from .download_embeddings import download
 
 
-_required_files = [vector_index_file_name, frequency_db_file_name, phrases_db_file_name, tokens_db_file_name]
+_required_files = [vector_index_file_name, frequency_db_file_name,
+                   phrases_db_file_name, tokens_db_file_name,
+                   vector_size_file_name, vocab_db_file_name,
+                   inverse_vocab_db_file_name]
 
 
 def _is_downloaded():
@@ -22,8 +26,8 @@ def _is_downloaded():
 
 def _is_corrupt():
     s = sum([os.path.isfile(f) for f in _required_files])
-    if s > 0 and s < len(_required_files):
-        return True
+    return s > 0 and s < len(_required_files)
+   
 
 def _is_interrupted():
     return os.path.isfile(flag_file)
@@ -33,17 +37,19 @@ def _is_built():
     return all([os.path.isfile(f) for f in _required_files])
 
 def _clear():
-    for f in required_files:
+    for f in _required_files:
         if os.path.isfile(f):
             os.remove(f)
 
 def _build():
+    with open(flag_file, 'w') as f:
+        f.write(' ')
     vectors = np.load(vectors_file_name)[1:]
     metric = 'angular'
     num_trees = 10
     dim = vectors.shape[1]
-    with open(flag_file, 'r') as f:
-        f.write('0')
+    with open(vector_size_file_name, 'w') as f:
+        f.write(str(dim))
     print('Building tree...')
     annoy_index = annoy.AnnoyIndex(dim, metric)
     pbar = ProgressBar(len(vectors))
@@ -64,7 +70,11 @@ def _build():
         for i, w in enumerate(vocab):
             vocab_db[i] = w
             inverse_vocab_db[w] = i
-            token, sense = w.split('|')
+            try:
+                token, sense = w.split('|')
+            except Exception:
+                token = w
+                sense = ''
             if token in tokens_db:
                 v = tokens_db[token]
                 v.append(i)

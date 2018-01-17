@@ -4,23 +4,30 @@ from .filenames import vectors_file_name, vector_index_file_name, interrupt_flag
 from .filenames import vocab_db_file_name, inverse_vocab_db_file_name
 from .filenames import frequency_file_name, frequency_db_file_name
 from.filenames import phrases_db_file_name, tokens_db_file_name
+from .filenames import vector_size_file_name
 from .database import Database
+from .extractors import DateTimeExtractor#, NumberExtractor, EmailUrlExtractor
 from . import indexer
 from numpy.core.umath_tests import inner1d
 import numpy as np
 import annoy
+import re
 
 
+extractors = [DateTimeExtractor()]
 
 indexer.run()
 
-annoy_index = annoy.AnnoyIndex(300, 'angular')
+with open(vector_size_file_name, 'r') as f:
+    dim = int(f.read())
+annoy_index = annoy.AnnoyIndex(dim, 'angular')
 annoy_index.load(vector_index_file_name)
 vocab_db = Database(vocab_db_file_name)
 inverse_vocab_db = Database(inverse_vocab_db_file_name)
 frequency_db = Database(frequency_db_file_name)
 phrases_db = Database(phrases_db_file_name)
 frequency_db = Database(frequency_db_file_name)
+tokens_db = Database(tokens_db_file_name)
 
 
 def tokenizer(X):
@@ -68,8 +75,11 @@ def phraser(X):
     output = []
     while i < num_x:
         x = X[i]
-        phrases = phrases_db[x]
-        phrases = [vocab_db[p] for p in phrases]
+        if x in phrases_db:
+            phrases = phrases_db[x]
+            phrases = [vocab_db[p].split('|')[0] for p in phrases]
+        else:
+            phrases = [x]
         best_phrase = None
         best_phrase_prob = 0
         best_phrase_len = 0
@@ -77,9 +87,12 @@ def phraser(X):
             if phrase in _IGNORE_PHRASES:
                 continue
             tokens = phrase.split('_')
+            if X[i : i + len(tokens)] != tokens:
+                continue
             num_tokens = len(tokens)
             if num_tokens + i > num_x:
                 continue
+            '''
             if phrase in frequency_db:
                 freq_phrase = frequency_db[phrase]
             else:
@@ -92,6 +105,8 @@ def phraser(X):
                     freq_tokens.append(0)
             freq_tokens = np.mean(freq_tokens)
             prob = freq_phrase * num_tokens ** 3 / freq_tokens
+            '''
+            prob = num_tokens
             if prob > best_phrase_prob:
                 best_phrase_prob = prob
                 best_phrase = phrase
@@ -111,7 +126,7 @@ def get_embedding(word, sense_disambiguation='max', normalize=True, default=0):
             tokens_idxs = tokens_db[word]
             if not tokens_idxs:
                 if default == 0:
-                    emb = np.zeros(300)
+                    emb = np.zeros(dim)
                 elif default is None:
                     emb = None
             elif sense_disambiguation == 'max':
@@ -209,31 +224,67 @@ def get_frequency(word, sense_disambiguation='max'):
 
 
 class Token(object):
-    def __init__(self, text):
+    def __init__(self, text, entity=None):
         self.text = text
+        self.entity = entity
 
     def __str__(self):
         return self.text
 
     @property
     def embedding(self):
-        if not hasattr(self, '_embedding'):
-            self._embedding = get_embedding(self.text.lower(), default=None)
-        if self._embedding is None:
-            return np.zeros(300)
-        return self._embedding
+        try:
+            emb = self._embedding
+            if emb is None:
+                return np.zeros(dim)
+            return emb
+        except AttributeError:
+            emb = get_embedding(self.text.lower(), default=None)
+            self._embedding = emb
+            if emb is None:
+                return np.zeros(dim)
+            return emb
+
+    @property
+    def in_vocab(self):
+        try:
+            return self._in_vocab
+        except AttributeError:
+            _in_vocab = any(self.embedding)
+            self._in_vocab = _in_vocab
+            return _in_vocab
 
     @property
     def frequency(self):
-        if not hasattr(self, '_frequency'):
-            self._frequency = get_frequency(self.text.lower())
-        return self._frequency
+        try:
+            return self._frequency
+        except AttributeError:
+            freq = get_frequency(self.text.lower())
+            self._frequency = freq
+            return freq
 
 
 class Document(object):
     def __init__(self, text):
         self.text = text
-        self.tokens = [Token(w) for w in phraser(tokenizer(text))]
+        # Entity Extraction + tokenization
+        entity_table = {}
+        for ext in extractors:
+            entities = ext(text)
+            for ent in entities:
+                (ent_start_idx, ent_end_idx), ent_obj = ent
+                ent_id = 'notokenizeentity' + 'x' * len(entities)
+                entity_table[ent_id] = ent_obj
+                text_before_ent = text[:ent_start_idx]
+                text_after_ent = text[ent_end_idx:]
+                text = text_before_ent + ' ' + ent_id + ' ' + text_after_ent
+        tokens = [Token(w) for w in phraser(tokenizer(text))]
+        for t in tokens:
+            if t.text in entity_table:
+                ent = entity_table[t.text]
+                t.text = ent.source_string
+                t.entity = ent
+        self.tokens = tokens
 
     def __iter__(self):
         self.iter_index = 0
@@ -263,6 +314,8 @@ class Document(object):
 
     @property
     def embedding(self):
-        if not hasattr(self, '_embedding'):
+        try:
+            return self._embedding
+        except AttributeError:
             self._embedding = np.mean([t.embedding for t in self.tokens], 0)
-        return self._embedding
+            return self._embedding

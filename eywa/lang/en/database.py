@@ -17,6 +17,11 @@ def literal_eval(x):
     except:
         return x
 
+def _str(x):
+    try:
+        return str(x)
+    except:
+        return x.encode('utf-8')
 
 class Database(object):
 
@@ -25,16 +30,24 @@ class Database(object):
         self.db = dbm.open(file, 'c')
 
     def __setitem__(self, key, value):
-        self.db[str(key)] = str(value)
+        key = _str(key)
+        value = _str(value)
+        self.db[key] = value
 
     def __getitem__(self, key):
-        return literal_eval(self.db[str(key)])
+        key = _str(key)
+        val = self.db[key]
+        try:
+            val = literal_eval(val)
+        except:
+            pass
+        return val
 
     def __getattr__(self, attr):
         return getattr(self.db, attr)
 
     def __contains__(self, key):
-        return str(key) in self.db
+        return _str(key) in self.db
 
     def __len__(self):
         return len(self.db)

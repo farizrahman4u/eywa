@@ -3,7 +3,7 @@ from setuptools import find_packages
 import os
 
 
-install_requires = ['numpy']
+install_requires = ['numpy', 'dateparser', 'mkdocs', 'mkdocs-material']
 dependency_links = []
 
 if os.name == 'nt':

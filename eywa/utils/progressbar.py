@@ -112,5 +112,5 @@ class ProgressBar(object):
 
         self.last_update = now
 
-    def update(self, n, values=None):
+    def update(self, n=1, values=None):
         self.set_value(self.seen_so_far + n, values)
