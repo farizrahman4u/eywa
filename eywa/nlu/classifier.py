@@ -67,5 +67,6 @@ class Classifier(object):
         if self._changed:
             self._compile()
             self._changed = False
-        pass
+        x = Document(x)
+        
 

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from ....entities import Number
 from .extractor import Extractor
 import re
 

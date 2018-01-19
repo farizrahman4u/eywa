@@ -21,5 +21,10 @@ class Email(Entity):
 class Url(Entity):
 	pass
 
+
 class PhoneNumber(Entity):
+	pass
+
+
+class Number(Entity):
 	pass

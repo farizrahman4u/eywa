@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from ....entities import Email, PhoneNumber, Url
 from .extractor import RegexExtractor
 import re
@@ -15,9 +16,9 @@ class EmailExtractor(RegexExtractor):
 
 class PhoneNumberExtractor(RegexExtractor):
      def __init__(self):
-        super(EmailExtractor, self).__init__(phone_regex, PhoneNumber)
+        super(PhoneNumberExtractor, self).__init__(phone_regex, PhoneNumber)
 
 
 class UrlExtractor(RegexExtractor):
      def __init__(self):
-        super(EmailExtractor, self).__init__(url_regex, Url)
+        super(UrlExtractor, self).__init__(url_regex, Url)

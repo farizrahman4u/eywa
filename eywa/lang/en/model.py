@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 
+from ...entities import DateTime, Number, PhoneNumber, Email, Url
 from .filenames import vectors_file_name, vector_index_file_name, interrupt_flag_file_name
 from .filenames import vocab_db_file_name, inverse_vocab_db_file_name
 from .filenames import frequency_file_name, frequency_db_file_name
 from.filenames import phrases_db_file_name, tokens_db_file_name
 from .filenames import vector_size_file_name
 from .database import Database
-from .extractors import DateTimeExtractor#, NumberExtractor, EmailUrlExtractor
+from .extractors import DateTimeExtractor, PhoneNumberExtractor, EmailExtractor, UrlExtractor,  NumberExtractor
 from . import indexer
 from numpy.core.umath_tests import inner1d
 import numpy as np
@@ -14,7 +15,7 @@ import annoy
 import re
 
 
-extractors = [DateTimeExtractor()]
+extractors = [DateTimeExtractor(), PhoneNumberExtractor(), EmailExtractor(), UrlExtractor(), NumberExtractor()]
 
 indexer.run()
 
@@ -223,6 +224,17 @@ def get_frequency(word, sense_disambiguation='max'):
     return freq
 
 
+## Entity type -> embedding mapping
+
+entity_embedding = {
+    DateTime : 'time',
+    Number : 'one',
+    Email : 'email',
+    Url : 'website',
+    PhoneNumber : 'phone',
+}
+
+
 class Token(object):
     def __init__(self, text, entity=None):
         self.text = text
@@ -239,11 +251,20 @@ class Token(object):
                 return np.zeros(dim)
             return emb
         except AttributeError:
-            emb = get_embedding(self.text.lower(), default=None)
+            if self.entity:
+                emb = get_embedding(entity_embedding[type(self.entity)], default=None)
+            else:
+                emb = get_embedding(self.text.lower(), default=None)
             self._embedding = emb
             if emb is None:
                 return np.zeros(dim)
             return emb
+
+    @property
+    def type(self):
+        if self.entity:
+            return self.entity.type
+        return None
 
     @property
     def in_vocab(self):
@@ -271,13 +292,19 @@ class Document(object):
         entity_table = {}
         for ext in extractors:
             entities = ext(text)
-            for ent in entities:
+            diff = 0
+            for e in range(len(entities)):
+                ent = entities[e]
                 (ent_start_idx, ent_end_idx), ent_obj = ent
-                ent_id = 'notokenizeentity' + 'x' * len(entities)
+                ent_start_idx += diff
+                ent_end_idx += diff
+                ent_id = 'notokenizeentity' + 'x' * len(entity_table)
+                diff += len(ent_id) - ent_end_idx + ent_start_idx + 2
                 entity_table[ent_id] = ent_obj
                 text_before_ent = text[:ent_start_idx]
                 text_after_ent = text[ent_end_idx:]
                 text = text_before_ent + ' ' + ent_id + ' ' + text_after_ent
+                print(text)
         tokens = [Token(w) for w in phraser(tokenizer(text))]
         for t in tokens:
             if t.text in entity_table:
@@ -301,8 +328,8 @@ class Document(object):
         if type(key) is int:
             return self.tokens[key]
         else:
-            for token in tokens:
-                if token.text == key:
+            for token in self.tokens:
+                if token.text ==  key:
                     return token
             raise IndexError('Token not found ' + key)
  
@@ -319,3 +346,30 @@ class Document(object):
         except AttributeError:
             self._embedding = np.mean([t.embedding for t in self.tokens], 0)
             return self._embedding
+
+    def __repr__(self):
+        line1 = ''
+        line2 = ''
+        for w in self.tokens:
+            if w.entity:
+                txt1 = w.text
+                txt2 = w.entity.type
+                if len(txt1) > len(txt2):
+                    diff = len(txt1) - len(txt2)
+                    left_spaces = int(diff / 2)
+                    right_spaces = diff - left_spaces
+                    txt2 = ' ' * left_spaces + txt2 + ' ' * right_spaces
+                elif len(txt2) > len(txt1):
+                    diff = len(txt2) - len(txt1)
+                    left_spaces = int(diff / 2)
+                    right_spaces = diff - left_spaces
+                    txt1 = ' ' * left_spaces + txt1 + ' ' * right_spaces
+                line1 += txt1 + ' '
+                line2 += txt2 + ' '
+            else:
+                txt = w.text
+                line1 += txt + ' '
+                line2 += ' ' * len(txt) + ' '
+        return line1[:-1] + '\n' + line2[:-1]
+
+                

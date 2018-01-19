@@ -20,7 +20,7 @@ class RegexExtractor(Extractor):
 
     def __call__(self, text):
         y = []
-        matches = email_regex.finditer(text)
+        matches = self.compiled_regex.finditer(text)
         for match in matches:
             start, end = match.start(), match.end()
             string = text[start : end]
