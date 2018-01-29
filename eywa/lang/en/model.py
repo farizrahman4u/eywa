@@ -284,9 +284,15 @@ class Token(object):
             self._frequency = freq
             return freq
 
+    def __eq__(self, text):
+        if type(text) in (Document, Token):
+            text = text.text
+        return self.text == text
 
 class Document(object):
     def __init__(self, text):
+        if type(text) in (Document, Token):
+            text = text.text
         self.text = text
         # Entity Extraction + tokenization
         entity_table = {}
@@ -325,19 +331,39 @@ class Document(object):
         return token
 
     def __getitem__(self, key):
-        if type(key) is int:
+        if type(key) is slice:
+            tokens = self.tokens[key]
+            doc = Document('')
+            doc.tokens = tokens
+            doc.text = ' '.join([t.text for t in tokens])
+            return doc
+        elif type(key) is int:
             return self.tokens[key]
         else:
-            for token in self.tokens:
-                if token.text ==  key:
-                    return token
-            raise IndexError('Token not found ' + key)
+            key = key.lower()
+            tokens = [t for t in self.tokens if t.text.lower() == key]
+            return tokens
  
+    def __contains__(self, word):
+        word = word.lower()
+        for token in self.tokens:
+            if token.text.lower() == word:
+                return True
+        return False
+
     def __len__(self):
         return len(self.tokens)
 
     def __str__(self):
         return self.text
+
+    @property
+    def embeddings(self):
+        try:
+            return self._embeddings
+        except AttributeError:
+            self._embeddings = np.array([t.embedding for t in self.tokens])
+            return self._embeddings
 
     @property
     def embedding(self):
@@ -372,4 +398,7 @@ class Document(object):
                 line2 += ' ' * len(txt) + ' '
         return line1[:-1] + '\n' + line2[:-1]
 
-                
+    def __eq__(self, text):
+        if type(text) in (Document, Token):
+            text = text.text
+        return self.text == text

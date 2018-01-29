@@ -16,3 +16,12 @@ def vector_sequence_similarity(x, y):
     m1 = z.max(axis=0).sum()
     m2 = z.max(axis=1).sum()
     return 0.5 * (m1 + m2) / (nx + ny)
+
+
+def batch_vector_sequence_similarity(X, y):
+    # TODO: vectorize
+    if len(y) == 0:
+        return [int(len(x) == 0) for x in X]
+    return [0 if len(x) == 0 else vector_sequence_similarity(x, y) for x in X]
+
+
