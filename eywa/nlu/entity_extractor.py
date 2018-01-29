@@ -1,4 +1,4 @@
-from ..math import batch_vector_sequence_similarity
+from ..math import batch_vector_sequence_similarity, euclid_similarity
 from ..lang import Document, Token
 import numpy as np
 
@@ -117,7 +117,8 @@ class EntityExtractor(object):
                     right = x[i:]
                     left_score = np.max(batch_vector_sequence_similarity(lefts_embs, left.embeddings))
                     right_score = np.max(batch_vector_sequence_similarity(rights_embs, right.embeddings))
-                    value_score = np.max(np.dot([v.embedding for v in kk['values']], t.embedding))
+                    value_score = np.max([euclid_similarity(v.embedding, t.embedding) for v in kk['values']])
+                    #value_score = np.mean(np.dot([v.embedding for v in kk['values']], t.embedding))
                     left_right_weight = self.weights[0]
                     word_neighbor_weight = self.weights[1]
                     neighbor_score = left_right_weight * left_score + (1. - left_right_weight) * right_score
