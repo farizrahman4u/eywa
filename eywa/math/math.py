@@ -4,12 +4,13 @@ import numpy as np
 def soft_identity_matrix(nx, ny):
      return 1. / np.array([[abs(i - j) + 1 for j in range(ny)] for i in range(nx)])
 
-def vector_sequence_similarity(x, y):
+
+def vector_sequence_similarity(x, y, locality=0.5):
     nx = len(x)
     ny = len(y)
     x = np.expand_dims(x, 1)
     z = 1. - ((x - y) ** 2).sum(2) ** 0.5
-    z *= soft_identity_matrix(nx, ny)
+    z *= locality * (soft_identity_matrix(nx, ny) - 1) + 1.
     m1 = z.max(axis=0).sum()
     m2 = z.max(axis=1).sum()
     return 0.5 * (m1 + m2) / (nx + ny)    
@@ -39,3 +40,16 @@ def euclid_distance(x, y):
 
 def euclid_similarity(x, y):
     return 1. - ((x - y) ** 2).sum() ** 0.5
+
+
+def softmax(x):
+    assert x.ndim == 1
+    e = np.exp(x - x.max())
+    s = e.sum()
+    if s:
+        e /= s
+    return e
+
+
+def frequencies_to_weights(x):
+    return softmax(1. - softmax(x))

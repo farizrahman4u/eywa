@@ -73,6 +73,8 @@ class EntityExtractor(object):
                         consts[None] = [i]
 
     def predict(self, x, keys=None):
+        if type(x) in (list, tuple):
+            return type(x)(map(self.predict, x))
         if self._changed:
             self.compile()
             self._changed = False
@@ -133,7 +135,7 @@ class EntityExtractor(object):
                 consts_keys = consts.keys()
                 scores = []
                 for ck in consts:
-                    docs = [C[i] for i in consts[ck]]
+                    docs = [X[i] for i in consts[ck]]
                     embs = [doc.embeddings for doc in docs]
                     score = np.max(batch_vector_sequence_similarity(embs, x_embs))
                     scores.append(score)

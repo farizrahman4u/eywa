@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from ...entities import DateTime, Number, PhoneNumber, Email, Url
+from ...math import frequencies_to_weights
 from .filenames import vectors_file_name, vector_index_file_name, interrupt_flag_file_name
 from .filenames import vocab_db_file_name, inverse_vocab_db_file_name
 from .filenames import frequency_file_name, frequency_db_file_name
@@ -122,14 +123,15 @@ def phraser(X):
 
 
 def get_embedding(word, sense_disambiguation='max', normalize=True, default=0):
+    if default == 0:
+        emb = np.zeros(dim)
+    elif default is None:
+        emb = None
     if '|' not in word:
         if word in tokens_db:
             tokens_idxs = tokens_db[word]
             if not tokens_idxs:
-                if default == 0:
-                    emb = np.zeros(dim)
-                elif default is None:
-                    emb = None
+                pass
             elif sense_disambiguation == 'max':
                 emb = annoy_index.get_item_vector(tokens_idxs[0])
             elif sense_disambiguation == 'avg':
@@ -243,6 +245,9 @@ class Token(object):
     def __str__(self):
         return self.text
 
+    def __repr__(self):
+        return self.text
+
     @property
     def embedding(self):
         try:
@@ -310,7 +315,6 @@ class Document(object):
                 text_before_ent = text[:ent_start_idx]
                 text_after_ent = text[ent_end_idx:]
                 text = text_before_ent + ' ' + ent_id + ' ' + text_after_ent
-                print(text)
         tokens = [Token(w) for w in phraser(tokenizer(text))]
         for t in tokens:
             if t.text in entity_table:
@@ -364,6 +368,7 @@ class Document(object):
         except AttributeError:
             self._embeddings = np.array([t.embedding for t in self.tokens])
             return self._embeddings
+
 
     @property
     def embedding(self):

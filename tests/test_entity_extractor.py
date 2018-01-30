@@ -1,12 +1,10 @@
 from eywa.nlu import EntityExtractor
 
-x = ['i live in india', 'i kind of live in china', 'i live in england', 'england is where i live']
-y = ['india', 'china', 'england', 'england']
-
-y = [{'place': p} for p in y]
+x = ['what is the weather in tokyo', 'what is the weather', 'what is the weather like in kochi']
+y = [{'intent': 'weather', 'place': 'tokyo'}, {'intent': 'weather', 'place': 'here'}, {'intent': 'weather', 'place': 'kochi'}]
 
 ex = EntityExtractor()
 ex.fit(x, y)
-x2 = ['paris is where i live']
-for i in x2:
-    print(ex.predict(i))
+
+x_test = 'what is the weather in london like'
+print(ex.predict(x_test))
