@@ -11,18 +11,17 @@ class EvolutionaryStrategies(Learner):
 		self.lr = lr
 		self.std = std
 
-	def __call__(self, f, W, X, Y, loss='mse', epochs=100):
-		_f_r = loss_to_reward_map[loss]
-		f_reward = lambda : np.sum([_f_r(f(W, x), y) for x, y in zip(X, Y)])
+	def __call__(self, f, W):
+
 		for e in range(epochs):
-			curr_reward = f_reward()
+			curr_reward = f()
 			mutations = np.random.randn(*(self.npop,) + W.shape)
 			jittered = self.std * mutations
 			rewards = np.zeros(self.npop)
 			for m in range(self.npop):
 				delta = jittered[m]
 				W += delta
-				rewards[m] = f_reward()
+				rewards[m] = f()
 				W -= delta
 			rewards -= curr_reward
 			norm_rewards = (rewards - rewards.mean())
