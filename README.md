@@ -6,7 +6,7 @@ Open source framework for building conversational agents [WIP]
 The `Document` object is used to represent strings. It does smart tokenization and entity extraction for known types: date/time, number, phone number, email, url.
 
 ```python
->>> from eywa.lang import Document
+from eywa.lang import Document
 
 x = 'my dob is dec 18 1996'
 doc = Document(x)
