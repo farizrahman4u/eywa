@@ -11,7 +11,7 @@ class EvolutionaryStrategies(Learner):
 		self.lr = lr
 		self.std = std
 
-	def __call__(self, f, W):
+	def __call__(self, f, W, epochs=100):
 
 		for e in range(epochs):
 			curr_reward = f()

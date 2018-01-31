@@ -5,7 +5,15 @@ def soft_identity_matrix(nx, ny):
      return 1. / np.array([[abs(i - j) + 1 for j in range(ny)] for i in range(nx)])
 
 
-def _vector_sequence_similarity(x, y, locality=0.5):
+def vector_sequence_similarity(x, y, locality=0.5, metric='dot'):
+    assert metric in ('dot', 'euclid')
+    if metric == 'dot':
+        return _vector_sequence_similarity_dot(x, y, locality)
+    elif metric == 'euclid':
+        return _vector_sequence_similarity_euclid(x, y, locality)
+
+
+def _vector_sequence_similarity_euclid(x, y, locality=0.5):
     nx = len(x)
     ny = len(y)
     x = np.expand_dims(x, 1)
@@ -13,9 +21,9 @@ def _vector_sequence_similarity(x, y, locality=0.5):
     z *= locality * (soft_identity_matrix(nx, ny) - 1) + 1.
     m1 = z.max(axis=0).sum()
     m2 = z.max(axis=1).sum()
-    return (m1 + m2) / (nx + ny)    
+    return (m1 + m2) / (nx + ny)  
 
-def vector_sequence_similarity(x, y, locality=0.5):
+def _vector_sequence_similarity_dot(x, y, locality=0.5):
     nx = len(x)
     ny = len(y)
     z = x.dot(y.T)

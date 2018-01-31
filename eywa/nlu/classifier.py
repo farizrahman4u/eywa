@@ -1,13 +1,15 @@
 from ..lang import Document
-from ..math import vector_sequence_similarity, euclid_similarity
+from ..math import vector_sequence_similarity, euclid_similarity, softmax
 from collections import defaultdict
 import numpy as np
 
 class Classifier(object):
 
     def __init__(self):
+        self.X = []
+        self.Y = []
         self.data = {}
-        self.weights = np.array([0.5])
+        self.weights = np.array([0.5, .1, .1, 1., .05])
         pass
 
     def fit(self, X, Y):
@@ -18,14 +20,17 @@ class Classifier(object):
             Y = [Y] * len(X)
         for x, y in  zip(X, Y):
             x = Document(x)
+            # need these for quick eval
+            self.X.append(x)
+            self.Y.append(y)
             if y in self.data:
                 self.data[y].append(x)
             else:
                 self.data[y] = [x]
 
-    def predict(self, x):
+    def predict(self, x, return_probs=False):
         if type(x) in (list, tuple):
-            return type(x)(map(self.predict, x))
+            return type(x)([self.predict(i, return_probs) for i in x])
         if type(x) is not Document:
             x = Document(x)
         classes = self.data.keys()
@@ -36,7 +41,11 @@ class Classifier(object):
                 if score > scores[i]:
                     scores[i] = score
         #scores /= np.array([len(self.data[c]) for c in classes])
+        if return_probs:
+            scores = softmax(scores)
+            return {z[0]: z[1] for z in zip(classes, scores)}
         return classes[np.argmax(scores)]
+
 
     def _similarity(self, x1, x2):
         return euclid_similarity(x1.embedding, x2.embedding)
@@ -46,5 +55,28 @@ class Classifier(object):
         #    return 1
         if len(x1) == 0 or len(x2) == 0:
             return 0
-        return vector_sequence_similarity(x1.embeddings, x2.embeddings, self.weights[0])
+        score1 = lambda : euclid_similarity(x1.embedding, x2.embedding)
+        score2 = lambda : np.dot(x1.embedding, x2.embedding)
+        score3 = lambda : vector_sequence_similarity(x1.embeddings, x2.embeddings, self.weights[0], 'dot')
+        score4 = lambda : vector_sequence_similarity(x1.embeddings, x2.embeddings, self.weights[0], 'euclid')
+        scores = [score1, score2, score3, score4]
+        score_weights = self.weights[1:5]
+        score = 0.
+        for s, w in zip(scores, score_weights):
+            if w > 0.05:
+                score += s()
+        return score * 0.25
 
+    def evaluate(self, X=None, Y=None):
+        if X is None:
+            X = self.X
+            Y = self.Y
+        acc = 0.
+        err = 0.
+        Y_pred = self.predict(X, True)
+        for y, y_pred in zip(Y, Y_pred):
+            if y == max(y_pred, key=y_pred.__getitem__):
+                acc += 1.
+            err -= np.log(y_pred[y])
+        acc /= len(X)
+        return err, acc

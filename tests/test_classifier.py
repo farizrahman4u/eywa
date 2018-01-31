@@ -1,5 +1,6 @@
 from eywa.nlu import Classifier
 from eywa.lang import *
+from eywa.learn import ES
 
 
 x_hotel = ['book a hotel', 'need a nice place to stay', 'any motels near by']
