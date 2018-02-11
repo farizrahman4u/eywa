@@ -1,7 +1,6 @@
+from ..utils import ProgressBar
 from .learner import Learner
 import numpy as np
-
-loss_to_reward_map = {'mse': lambda x, y: -np.sum((x - y) ** 2)}
 
 
 class EvolutionaryStrategies(Learner):
@@ -12,23 +11,27 @@ class EvolutionaryStrategies(Learner):
 		self.std = std
 
 	def __call__(self, f, W, epochs=100):
-
+		pbar = ProgressBar(epochs)
+		rewards = np.zeros(self.npop)
+		const = self.lr / (self.npop * self.std)
 		for e in range(epochs):
 			curr_reward = f()
 			mutations = np.random.randn(*(self.npop,) + W.shape)
 			jittered = self.std * mutations
-			rewards = np.zeros(self.npop)
-			for m in range(self.npop):
-				delta = jittered[m]
+			rewards *= 0
+			for m, delta in enumerate(jittered):
 				W += delta
 				rewards[m] = f()
 				W -= delta
 			rewards -= curr_reward
-			norm_rewards = (rewards - rewards.mean())
 			std_rewards = rewards.std()
-			if std_rewards:
-				norm_rewards /= std_rewards
-			W += self.lr * np.dot(mutations.T, norm_rewards) / (self.npop * self.std)
+			rewards -= rewards.mean()
+			try:
+				rewards /= std_rewards
+			except Exception:
+				pass
+			W += const * np.dot(mutations.T, rewards)
+			pbar.update()
 
 
 ES = EvolutionaryStrategies
