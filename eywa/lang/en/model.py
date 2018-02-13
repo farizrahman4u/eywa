@@ -181,6 +181,7 @@ def get_embedding(word, sense_disambiguation='max', normalize=True, default=0):
 
 
 def get_frequency(word, sense_disambiguation='max'):
+    freq = 0
     if '|' not in word:
         if word in tokens_db:
             tokens_idxs = tokens_db[word]
@@ -349,6 +350,8 @@ class Document(object):
             return tokens
  
     def __contains__(self, word):
+        if type(word) in (Document, Token):
+            word = word.text
         word = word.lower()
         for token in self.tokens:
             if token.text.lower() == word:
