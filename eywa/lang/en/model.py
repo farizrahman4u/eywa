@@ -14,14 +14,19 @@ from numpy.core.umath_tests import inner1d
 import numpy as np
 import annoy
 import re
+import os
 
 
 extractors = [DateTimeExtractor(), PhoneNumberExtractor(), EmailExtractor(), UrlExtractor(), NumberExtractor()]
 
+
 indexer.run()
+
 
 with open(vector_size_file_name, 'r') as f:
     dim = int(f.read())
+
+
 annoy_index = annoy.AnnoyIndex(dim, 'angular')
 annoy_index.load(vector_index_file_name)
 vocab_db = Database(vocab_db_file_name)
@@ -30,6 +35,7 @@ frequency_db = Database(frequency_db_file_name)
 phrases_db = Database(phrases_db_file_name)
 frequency_db = Database(frequency_db_file_name)
 tokens_db = Database(tokens_db_file_name)
+
 
 
 def tokenizer(X):
@@ -249,6 +255,13 @@ class Token(object):
     def __repr__(self):
         return self.text
 
+    def _lower(self):
+        try:
+            return self.__lower
+        except AttributeError:
+            self.__lower = self.text.lower()
+            return self.__lower
+
     @property
     def embedding(self):
         try:
@@ -293,7 +306,7 @@ class Token(object):
     def __eq__(self, text):
         if type(text) in (Document, Token):
             text = text.text
-        return self.text == text
+        return self._lower() == text.lower()
 
 class Document(object):
     def __init__(self, text):
@@ -354,7 +367,7 @@ class Document(object):
             word = word.text
         word = word.lower()
         for token in self.tokens:
-            if token.text.lower() == word:
+            if token._lower() == word:
                 return True
         return False
 
@@ -410,3 +423,12 @@ class Document(object):
         if type(text) in (Document, Token):
             text = text.text
         return self.text == text
+
+def _get_filepath(f):
+    return os.path.abspath(os.path.join(__file__, os.pardir)) + '/' + f
+
+_stop_words_filepath = _get_filepath('stop_words.txt')
+
+with open(_stop_words_filepath, 'r') as f:
+    stop_words = eval(f.read())
+    stop_words = Document(' '.join(stop_words))
