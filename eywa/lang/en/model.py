@@ -42,8 +42,18 @@ def tokenizer(X):
     return [x.strip() for x in re.split('(\W+)?', X) if x.strip()]
 
 
+caps = "([A-Z])"
+digits = "([0-9])"
+prefixes = "(Mr|St|Mrs|Ms|Dr|Prof|Capt|Cpt|Lt|Mt)[.]"
+suffixes = "(Inc|Ltd|Jr|Sr|Co)"
+starters = "(Mr|Mrs|Ms|Dr|He\s|She\s|It\s|They\s|Their\s|Our\s|We\s|But\s|However\s|That\s|This\s|Wherever)"
+acronyms = "([A-Z][.][A-Z][.](?:[A-Z][.])?)"
+websites = "[.](com|net|org|io|gov|me|edu)"
+
+
 def split_into_sentences(text):
     orig_text = text
+    if "..." in text: text = text.replace("...","<prd><prd><prd>")
     text = " " + text + "  "
     text = text.replace("\n"," ")
     text = re.sub(digits + "[.]" + digits,"\\1<prd>\\2",text)
@@ -192,8 +202,7 @@ def get_frequency(word, sense_disambiguation='max'):
         if word in tokens_db:
             tokens_idxs = tokens_db[word]
             if not tokens_idxs:
-                if default == 0:
-                    freq = 0
+                freq = 0
             elif sense_disambiguation == 'max':
                 freq = frequency_db[tokens_idxs[0]]
             elif sense_disambiguation == 'avg':
@@ -229,7 +238,7 @@ def get_frequency(word, sense_disambiguation='max'):
         freq = frequency_db[word_index]
     else:
         word, sense = word.split('|')
-        freq = get_frequency(word, sense, False)
+        freq = get_frequency(word, sense)
     return freq
 
 
@@ -273,7 +282,7 @@ class Token(object):
             if self.entity:
                 emb = get_embedding(entity_embedding[type(self.entity)], default=None)
             else:
-                emb = get_embedding(self.text.lower(), default=None)
+                emb = get_embedding(self._lower(), default=None)
             self._embedding = emb
             if emb is None:
                 return np.zeros(dim)
