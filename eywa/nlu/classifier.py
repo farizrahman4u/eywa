@@ -47,9 +47,6 @@ class Classifier(object):
         return classes[np.argmax(scores)]
 
 
-    def _similarity(self, x1, x2):
-        return euclid_similarity(x1.embedding, x2.embedding)
-
     def similarity(self, x1, x2):
         #if x1 == x2:
         #    return 1

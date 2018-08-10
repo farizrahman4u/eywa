@@ -27,9 +27,11 @@ def _vector_sequence_similarity_dot(x, y, locality=0.5):
     nx = len(x)
     ny = len(y)
     z = x.dot(y.T)
+    '''
     mag = ((x ** 2).sum(1, keepdims=True) *
           (y ** 2).sum(1, keepdims=True).T) ** 0.5
     z /= mag
+    '''
     z *= locality * (soft_identity_matrix(nx, ny) - 1) + 1.
     m1 = z.max(axis=0).sum()
     m2 = z.max(axis=1).sum()
@@ -50,12 +52,10 @@ def euclid_similarity(x, y):
     return 1. - ((x - y) ** 2).sum() ** 0.5
 
 
-def softmax(x):
-    assert x.ndim == 1
+def softmax(x, axis=None):
     e = np.exp(x - x.max())
-    s = e.sum()
-    if s:
-        e /= s
+    s = e.sum(axis=axis, keepdims=True)
+    e /= s
     return e
 
 
