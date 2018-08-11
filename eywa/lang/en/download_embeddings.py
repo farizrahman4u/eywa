@@ -7,6 +7,7 @@ import json
 import shutil
 import numpy as np
 from .filenames import frequency_file_name, vectors_file_name, vocab_file_name
+from .filenames import interrupt_flag_file_name as flag_file
 from ...utils import lang_en_embeddings_dir as emb_dir
 from ...utils import ProgressBar
 
@@ -49,7 +50,9 @@ def _download_file(url, file_name):
     if not file_exists:
         factor = int(math.floor(math.log(file_size)/math.log(1024)))
         display_file_size = str(file_size / 1024 ** factor) + ['B','KB','MB','GB','TB','PB'][factor]
-        print("Downloading: " + file_name + " Size: " + display_file_size)
+        print("Source: " + url)
+        print("Destination " + file_name)
+        print("Size: " + display_file_size)
         file_size_dl = 0
         block_sz = 8192
         f = open(file_name, 'wb')
@@ -71,7 +74,6 @@ def _download_file(url, file_name):
 
 
 def download():
-
     print('Downloading embeddings...')
     _download_file(url, file_name)
     print('Done.')
