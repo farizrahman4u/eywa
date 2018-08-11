@@ -68,6 +68,7 @@ def _build():
         vocab = json.load(f)[1:]
         pbar = ProgressBar(len(vocab))
         for i, w in enumerate(vocab):
+            w = w.encode('utf-8')
             vocab_db[i] = w
             inverse_vocab_db[w] = i
             try:
@@ -96,7 +97,11 @@ def _build():
     phrases_db.close()
     frequency_db = Database(frequency_db_file_name)
     with open(frequency_file_name, 'r') as f:
-        freqs = json.load(f)
+        freqs = f.read()
+    typos = ('|NOWN', '|NOUN'), ('|NMUN', '|NOUN')
+    for typo in typos:
+        freqs = freqs.replace(*typo)
+    freqs = json.loads(freqs)
     freqs = {str(inverse_vocab_db[x[0]]): str(x[1]) for x in freqs}
     inverse_vocab_db.close()
     frequency_db.update(freqs)
@@ -106,8 +111,9 @@ def _build():
 
 
 def run():
-    if _is_built():
+    if _is_built() and not _is_interrupted():
         return
+
     if _is_interrupted():
         _clear()
         print('Seems the previous build was interrupted. Restarting build...')

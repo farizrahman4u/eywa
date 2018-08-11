@@ -80,7 +80,7 @@ def download():
 
     print('Extracting...')
     with tarfile.open(file_name, 'r:gz') as tf:
-        tf.extractall()
+        tf.extractall(emb_dir)
     print('Done.')
     os.remove(os.path.join(dir_name, 'meta.json'))
     files = os.listdir(dir_name)
@@ -92,8 +92,8 @@ def download():
     os.rename(os.path.join(emb_dir, 'freqs.json'), frequency_file_name)
     print('Converting embeddings...')
     with open(os.path.join(emb_dir, 'vectors.bin'), 'rb') as f:
-        num_vectors = struct.unpack('i', f.read(4))
-        vector_dim = struct.unpack('i', f.read(4))
+        num_vectors = struct.unpack('i', f.read(4))[0]
+        vector_dim = struct.unpack('i', f.read(4))[0]
         vectors = [struct.unpack('f' * vector_dim, f.read(4 * vector_dim)) for _ in range(num_vectors)]
         np.save(vectors_file_name, vectors)
         del vectors
