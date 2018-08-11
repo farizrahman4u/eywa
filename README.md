@@ -11,7 +11,7 @@ from eywa.lang import Document
 x = 'my dob is dec 18 1996'
 doc = Document(x)
 '''
->>> x
+>>> doc
 my dob is dec 18 1996
            DateTime
 '''
