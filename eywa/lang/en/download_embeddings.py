@@ -1,9 +1,10 @@
 import os
 import sys
 import math
-import gzip
+import tarfile
 import struct
 import json
+import shutil
 import numpy as np
 from .filenames import frequency_file_name, vectors_file_name, vocab_file_name
 from ...utils import lang_en_embeddings_dir as emb_dir
@@ -19,10 +20,11 @@ import requests
 
 # script to download and unzip embeddings
 
-url = 'http://index.spacy.io/models/reddit_vectors-1.1.0/archive.gz'
-meta_url = 'http://index.spacy.io/models/reddit_vectors-1.1.0/meta.json'
-file_name = os.path.join(emb_dir, url.split('/')[-1])
-meta_file_name = os.path.join(emb_dir + '/' + meta_url.split('/')[-1])
+url = 'https://github.com/explosion/sense2vec/releases/download/v1.0.0a0/reddit_vectors-1.1.0.tar.gz'
+file_name = url.split('/')[-1]
+dir_name = os.path.join(emb_dir, file_name[:-7])
+file_name = os.path.join(emb_dir, file_name)
+
 
 
 
@@ -69,33 +71,28 @@ def _download_file(url, file_name):
 
 
 def download():
-    print('Downloading meta data...')
-    _download_file(meta_url, meta_file_name)
-    print('Done.')
 
     print('Downloading embeddings...')
     _download_file(url, file_name)
     print('Done.')
 
     print('Extracting...')
-    with open(meta_file_name, 'r') as f:
-        manifest = json.load(f)['manifest']
-    with gzip.open(file_name) as gzf:
-        print('Extracting ' + frequency_file_name)
-        file_size = manifest[0]['size']
-        with open(frequency_file_name, 'w') as f:
-            f.write(gzf.read(file_size))
-        print('Done.')
-        print('Extracting ' + vectors_file_name)
-        file_size = manifest[1]['size']
-        num_vectors, = struct.unpack('i', gzf.read(4))
-        vector_dim, = struct.unpack('i', gzf.read(4))
-        vectors = [struct.unpack('f' * vector_dim, gzf.read(4 * vector_dim)) for _ in range(num_vectors)]
+    with tarfile.open(file_name, 'r:gz') as tf:
+        tf.extractall()
+    print('Done.')
+    os.remove(os.path.join(dir_name, 'meta.json'))
+    files = os.listdir(dir_name)
+    for f in files:
+        src_f = os.path.join(dir_name, f)
+        dest_f = os.path.join(emb_dir, f)
+        shutil.move(src_f, dest_f)
+    os.rename(os.path.join(emb_dir, 'strings.json'), vocab_file_name)
+    os.rename(os.path.join(emb_dir, 'freqs.json'), frequency_file_name)
+    print('Converting embeddings...')
+    with open(os.path.join(emb_dir, 'vectors.bin'), 'rb') as f:
+        num_vectors = struct.unpack('i', f.read(4))
+        vector_dim = struct.unpack('i', f.read(4))
+        vectors = [struct.unpack('f' * vector_dim, f.read(4 * vector_dim)) for _ in range(num_vectors)]
         np.save(vectors_file_name, vectors)
         del vectors
-        print('Done.')
-        print('Extracting ' + vocab_file_name)
-        file_size = manifest[2]['size']
-        with open(vocab_file_name, 'w') as f:
-            f.write(gzf.read(file_size))
-        print('Done.')
+    print('Done.')
