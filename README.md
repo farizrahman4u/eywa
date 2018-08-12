@@ -70,3 +70,12 @@ x_test = 'what is the weather in london like'
 print(ex.predict(x_test))
 ```
 
+## Pattern
+
+```python
+from eywa.nlu import Pattern
+
+p = Pattern('[fruit: apple, banana] is my favourite fruit')  # create variable [apple] with samples {apple, babana}
+
+p('i like grapes')  # >> {'fruit' : 'grapes'}
+```
