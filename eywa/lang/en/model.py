@@ -432,6 +432,14 @@ class Document(object):
         if type(text) in (Document, Token):
             text = text.text
         return self.text == text
+    
+    @property
+    def sentences(self):
+        try:
+            return self._sentences
+        except AttributeError:
+            self._sentences = [Document(s) for s in split_into_sentences(self.text)]
+            return self._sentences
 
 def _get_filepath(f):
     return os.path.abspath(os.path.join(__file__, os.pardir)) + '/' + f
