@@ -1,7 +1,7 @@
 from ..lang import Document
 from ..math import vector_sequence_similarity, euclid_similarity, softmax
-from collections import defaultdict
 import numpy as np
+
 
 class Classifier(object):
 
@@ -18,7 +18,7 @@ class Classifier(object):
             Y = [Y]
         if type(Y) not in (list, tuple):
             Y = [Y] * len(X)
-        for x, y in  zip(X, Y):
+        for x, y in zip(X, Y):
             x = Document(x)
             # need these for quick eval
             self.X.append(x)
@@ -40,22 +40,21 @@ class Classifier(object):
                 score = self.similarity(x, x2)
                 if score > scores[i]:
                     scores[i] = score
-        #scores /= np.array([len(self.data[c]) for c in classes])
+        # scores /= np.array([len(self.data[c]) for c in classes])
         if return_probs:
             scores = softmax(scores)
             return {z[0]: z[1] for z in zip(classes, scores)}
         return classes[np.argmax(scores)]
 
-
     def similarity(self, x1, x2):
-        #if x1 == x2:
+        # if x1 == x2:
         #    return 1
         if len(x1) == 0 or len(x2) == 0:
             return 0
-        score1 = lambda : euclid_similarity(x1.embedding, x2.embedding)
-        score2 = lambda : np.dot(x1.embedding, x2.embedding)
-        score3 = lambda : vector_sequence_similarity(x1.embeddings, x2.embeddings, self.weights[0], 'dot')
-        score4 = lambda : vector_sequence_similarity(x1.embeddings, x2.embeddings, self.weights[0], 'euclid')
+        score1 = lambda: euclid_similarity(x1.embedding, x2.embedding)
+        score2 = lambda: np.dot(x1.embedding, x2.embedding)
+        score3 = lambda: vector_sequence_similarity(x1.embeddings, x2.embeddings, self.weights[0], 'dot')
+        score4 = lambda: vector_sequence_similarity(x1.embeddings, x2.embeddings, self.weights[0], 'euclid')
         scores = [score1, score2, score3, score4]
         score_weights = self.weights[1:5]
         score = 0.
@@ -82,7 +81,7 @@ class Classifier(object):
         config = {}
         config['X'] = [str(x) for x in self.X]
         config['Y'] = self.Y[:]
-        config['weights'] = [float(w) for w in self.weights] 
+        config['weights'] = [float(w) for w in self.weights]
         return config
 
     @classmethod
