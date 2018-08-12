@@ -49,8 +49,12 @@ class Pattern(object):
             else:
                 if c == '[':
                     flag = True
+                elif c == ']':
+                    raise Exception('Unbalanced ]')
                 else:
                     y += c
+        if flag:
+            raise Exception('Unbalanced [')
         self.examples = var_to_examples
         self.vars = var_to_examples.keys()
         y = Document(y)

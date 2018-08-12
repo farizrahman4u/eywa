@@ -319,6 +319,10 @@ class Token(object):
 
 class Document(object):
     def __init__(self, text):
+        if type(text) in (list, tuple):
+            self.text = ' '.join([str(w) for w in text])
+            self.tokens = tokens
+            return
         if type(text) in (Document, Token):
             text = text.text
         self.text = text
@@ -360,10 +364,7 @@ class Document(object):
     def __getitem__(self, key):
         if type(key) is slice:
             tokens = self.tokens[key]
-            doc = Document('')
-            doc.tokens = tokens
-            doc.text = ' '.join([t.text for t in tokens])
-            return doc
+            return Document(tokens)
         elif type(key) is int:
             return self.tokens[key]
         else:
