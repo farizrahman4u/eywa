@@ -11,7 +11,7 @@ class Template(object):
             for t in templates:
                 self._add_template(t)
         else:
-            self._add_template(t)
+            self._add_template(templates)
             self._list_out = False
         self._create_template_to_index_key_map()
 
@@ -46,9 +46,10 @@ class Template(object):
         templates = self.templates
         for t in templates:
             ikm = []
-            _template_to_index_key_map.append([])
+            _template_to_index_key_map.append(ikm)
             for j, w in enumerate(t):
-                if str(w).startswith('_eywa_var_'):
+                w = str(w)
+                if w.startswith('_eywa_var_'):
                     varname = w[10:]
                     ikm.append((j, varname))
         self._template_to_index_key_map = _template_to_index_key_map

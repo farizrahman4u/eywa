@@ -321,7 +321,7 @@ class Document(object):
     def __init__(self, text):
         if type(text) in (list, tuple):
             self.text = ' '.join([str(w) for w in text])
-            self.tokens = tokens
+            self.tokens = list(text)
             return
         if type(text) in (Document, Token):
             text = text.text
