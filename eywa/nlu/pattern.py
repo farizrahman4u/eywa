@@ -4,6 +4,8 @@ from ..math import softmax
 import numpy as np
 
 
+
+
 class Pattern(object):
 
     def __init__(self, pattern):
@@ -11,13 +13,12 @@ class Pattern(object):
         self._get_var_contexts()
         self.weights = np.array([0.5, .1, .1, 1., .05])
 
-
-
     def _set_pattern(self, pattern):
         # Converts 'hey there [name: jack, james]' to 'hey there _eywa_var_name'
         # saves the examples to a dict.
         # No nested [] allowed.
 
+        self._pattern = pattern  # for serialization
         var_to_examples = {}
         y = ''
         buff = ''
@@ -116,7 +117,6 @@ class Pattern(object):
 
     def __call__(self, input):
         input = Document(input)
-        pattern = self.pattern
         vars = self.vars
         m = len(vars)
         n = len(input)
@@ -136,8 +136,19 @@ class Pattern(object):
                 var_examples = examples[var]
                 if var_examples:
                     scores = [f2(ve, inp_j) for ve in var_examples]
-                    score += max(scores)
+                    score += sum(scores)
                 matrix[i, j] = score
         matrix *= softmax(matrix, 0)
         val_ids = np.argmax(matrix, 1)
         return {vars[i] : str(input[int(val_ids[i])]) for i in range(m)}
+
+    def serialize(self):
+        config = {'pattern' : self._pattern}
+        config['weights'] = [float(w) for w in self.weights]
+        return config
+
+    @classmethod
+    def deserialize(cls, config):
+        p = cls(config['pattern'])
+        p.weights = np.array(config['weights'])
+        return p

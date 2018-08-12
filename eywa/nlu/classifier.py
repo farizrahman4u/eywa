@@ -77,3 +77,17 @@ class Classifier(object):
             err -= np.log(y_pred[y])
         acc /= len(X)
         return err, acc
+
+    def serialize(self):
+        config = {}
+        config['X'] = [str(x) for x in self.X]
+        config['Y'] = self.Y[:]
+        config['weights'] = [float(w) for w in self.weights] 
+        return config
+
+    @classmethod
+    def deserialize(cls, config):
+        clf = cls()
+        clf.fit(config['X'], config['Y'])
+        clf.weights = np.array(config['weights'])
+        return clf

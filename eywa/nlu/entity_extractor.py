@@ -23,15 +23,6 @@ class EntityExtractor(object):
             self.Y.append(y)
         self._changed = True
 
-    def similarity(self, x1, x2):
-        if x1 == x2:
-            return 1
-        if len(x1) == 0 or len(x2) == 0:
-            return 0
-        vs1 = np.array([w.embedding for w in x1])
-        vs2 = np.array([w.embedding for w in x2])
-        return vector_sequence_similarity(vs1, vs2)
-
     def compile(self):
         # create a profile for each 'key'
         keys = set()
@@ -47,18 +38,23 @@ class EntityExtractor(object):
                     types = kk['types']
                     v = y[k]
                     indices = []
+                    types_add = types.add
+                    indicies_app = indices.append
                     for j, t in enumerate(x):
                         if t.text == v:
-                            indices.append(j)
-                            types.add(t.type)
+                            indices_app(j)
+                            types_add(t.type)
                     if indices:
                         kk['picks'].append(i)
+                        lefts_app = kk['lefts'].append
+                        rights_app = kk['rights'].append
+                        values_app = kk['values'].append
                         for ind in indices:
                             left = x[:ind]
                             right = x[ind:]
-                            kk['lefts'].append(left)
-                            kk['rights'].append(right)
-                            kk['values'].append(Token(v))
+                            lefts_app(left)
+                            rights_app(right)
+                            values_app(Token(v))
                     else:
                         consts = kk['consts']
                         if v in consts:
@@ -141,9 +137,17 @@ class EntityExtractor(object):
                     scores.append(score)
                 y[k] = consts_keys[np.argmax(scores)]
         return y
-            
+    
+    def serialize(self):
+        config = {}
+        config['X'] = [str(x) for x in self.X]
+        config['Y'] = self.Y[:]
+        config['weights'] = [float(w) for w in self.weights] 
+        return config
 
-                    
-
-
-        
+    @classmethod
+    def deserialize(cls, config):
+        ee = cls()
+        ee.fit(config['X'], config['Y'])
+        ee.weights = np.array(config['weights'])
+        return ee
