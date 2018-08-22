@@ -12,6 +12,10 @@ class Classifier(object):
         self.weights = np.array([0.5, .1, .1, 1., .05])
         pass
 
+    @property
+    def classes(self):
+        return self.data.keys()
+
     def fit(self, X, Y):
         if type(X) in (str, Document):
             X = [X]
@@ -43,7 +47,7 @@ class Classifier(object):
         #scores /= np.array([len(self.data[c]) for c in classes])
         if return_probs:
             scores = softmax(scores)
-            return {z[0]: z[1] for z in zip(classes, scores)}
+            return {z[0]: float(z[1]) for z in zip(classes, scores)}
         return classes[np.argmax(scores)]
 
 

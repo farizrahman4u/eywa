@@ -34,7 +34,7 @@ class Node(object):
         if name in self.outputs:
             raise Exception('Port ' + name  + ' already exists for node'
                             ' ' + self.name + '.')
-        self.outputs[port] = []
+        self.outputs[name] = []
         if hasattr(self, '_output_nodes_cache'):
             del self._output_nodes_cache
 

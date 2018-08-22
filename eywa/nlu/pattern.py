@@ -14,7 +14,7 @@ class Pattern(object):
         self.weights = np.array([0.5, .1, .1, 1., .05])
 
     def _set_pattern(self, pattern):
-        # Converts 'hey there [name: jack, james]' to 'hey there _eywa_var_name'
+        # Converts 'hey there [name: jack, james, !apple, !building]' to 'hey there _eywa_var_name'
         # saves the examples to a dict.
         # No nested [] allowed.
 
@@ -35,7 +35,16 @@ class Pattern(object):
                         if varname in var_to_examples:
                             raise Exception('Multpile definitions for variable {}. '.format(varname) +
                             'Examples should be provided for the first occurence.')
-                        examples = [Document(e) for e in examples]
+                        positives = []
+                        negatives = []
+                        p_app = positives.append
+                        n_app = negatives.append
+                        for e in examples:
+                            if e[0] == '!':
+                                n_app(Document(e[1:]))
+                            else:
+                                p_app(Document(e))
+                        examples = [positives, negatives]
                         var_to_examples[varname] = examples
                     else:
                         varname = buff
@@ -129,18 +138,21 @@ class Pattern(object):
         examples = self.examples
         input_contexts = self._get_all_contexts(input)
         matrix = np.zeros((m, n))
+        contexts = self.contexts
         for i in range(m):
             for j in range(n):
                 var = vars[i]
                 inp_j = input[j : j + 1]
-                var_contexts = self.contexts[var]
+                var_contexts = contexts[var]
                 token_context = input_contexts[j]
                 scores = [f1(vc, token_context) for vc in var_contexts]
                 score = max(scores)
                 var_examples = examples[var]
+                pos_examples, neg_examples = var_examples
                 if var_examples:
-                    scores = [f2(ve, inp_j) for ve in var_examples]
-                    score += sum(scores)
+                    pos_score = sum([f2(ve, inp_j) for ve in pos_examples])
+                    neg_score = sum([f2(ve, inp_j) for ve in neg_examples])
+                    score += pos_score - neg_score
                 matrix[i, j] = score
         matrix *= softmax(matrix, 0)
         val_ids = np.argmax(matrix, 1)

@@ -279,6 +279,9 @@ class Token(object):
                 return np.zeros(dim)
             return emb
         except AttributeError:
+            if self.text.startswith('_eywa_'):
+                self._embedding = None
+                return np.zeros(dim)
             if self.entity:
                 emb = get_embedding(entity_embedding[type(self.entity)], default=None)
             else:
@@ -401,7 +404,7 @@ class Document(object):
         try:
             return self._embedding
         except AttributeError:
-            self._embedding = np.mean([t.embedding for t in self.tokens], 0)
+            self._embedding = np.mean(self.embeddings, 0)
             return self._embedding
 
     def __repr__(self):

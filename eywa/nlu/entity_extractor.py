@@ -16,6 +16,10 @@ class EntityExtractor(object):
         self.weights = np.array([0.5, 0.5, 0.5])
         pass
 
+    @property
+    def entities(self):
+        return self.keys.keys()
+
     def fit(self, X, Y):
         for x, y in zip(X, Y):
             x = Document(x)
@@ -39,7 +43,7 @@ class EntityExtractor(object):
                     v = y[k]
                     indices = []
                     types_add = types.add
-                    indicies_app = indices.append
+                    indices_app = indices.append
                     for j, t in enumerate(x):
                         if t.text == v:
                             indices_app(j)
