@@ -12,7 +12,10 @@ import os
 import json
 from .database import Database
 from .download_embeddings import download
+import sys
 
+
+py3 = sys.version_info[0] == 3
 
 _required_files = [vector_index_file_name, frequency_db_file_name,
                    phrases_db_file_name, tokens_db_file_name,
@@ -57,18 +60,20 @@ def _build():
         annoy_index.add_item(*x)
         pbar.update()
     annoy_index.build(num_trees)
+    print('Saving index... this might take a while.')
     annoy_index.save(vector_index_file_name)
     print('Done.')
     print('Creating databases...')
-    vocab_db = Database(vocab_db_file_name)
-    inverse_vocab_db = Database(inverse_vocab_db_file_name)
-    tokens_db = Database(tokens_db_file_name)
-    phrases_db = Database(phrases_db_file_name)
+    vocab_db = Database(vocab_db_file_name, new=True)
+    inverse_vocab_db = Database(inverse_vocab_db_file_name, new=True)
+    tokens_db = Database(tokens_db_file_name, new=True)
+    phrases_db = Database(phrases_db_file_name, new=True)
     with open(vocab_file_name, 'r') as f:
         vocab = json.load(f)[1:]
         pbar = ProgressBar(len(vocab))
         for i, w in enumerate(vocab):
-            w = w.encode('utf-8')
+            if not py3:
+                w = w.encode('utf-8')
             vocab_db[i] = w
             inverse_vocab_db[w] = i
             try:
