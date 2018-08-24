@@ -92,8 +92,8 @@ def phraser(X):
     output = []
     while i < num_x:
         x = X[i]
-        if x in phrases_db:
-            phrases = phrases_db[x]
+        phrases = phrases_db.get(x)
+        if phrases is not None:
             phrases = [vocab_db[p].split('|')[0] for p in phrases]
         else:
             phrases = [x]
@@ -357,6 +357,13 @@ class Document(object):
         return self
 
     def next(self):
+        if self.iter_index == len(self.tokens):
+            raise StopIteration()
+        token = self.tokens[self.iter_index]
+        self.iter_index += 1
+        return token
+
+    def __next__(self):
         if self.iter_index == len(self.tokens):
             raise StopIteration()
         token = self.tokens[self.iter_index]
