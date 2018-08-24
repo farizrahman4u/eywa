@@ -29,12 +29,11 @@ with open(vector_size_file_name, 'r') as f:
 
 annoy_index = annoy.AnnoyIndex(dim, 'angular')
 annoy_index.load(vector_index_file_name)
-vocab_db = Database(vocab_db_file_name)
-inverse_vocab_db = Database(inverse_vocab_db_file_name)
-frequency_db = Database(frequency_db_file_name)
-phrases_db = Database(phrases_db_file_name)
-frequency_db = Database(frequency_db_file_name)
-tokens_db = Database(tokens_db_file_name)
+vocab_db = Database(vocab_db_file_name, key_type=int, value_type=str)
+inverse_vocab_db = Database(inverse_vocab_db_file_name, key_type=str, value_type=int)
+frequency_db = Database(frequency_db_file_name, key_type=int, value_type=int)
+phrases_db = Database(phrases_db_file_name, key_type=str, value_type=list)
+tokens_db = Database(tokens_db_file_name, key_type=str, value_type=list)
 
 
 
@@ -449,6 +448,7 @@ def _get_filepath(f):
     return os.path.abspath(os.path.join(__file__, os.pardir)) + '/' + f
 
 _stop_words_filepath = _get_filepath('stop_words.txt')
+
 
 with open(_stop_words_filepath, 'r') as f:
     stop_words = eval(f.read())

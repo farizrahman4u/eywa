@@ -1,9 +1,14 @@
 from setuptools import setup
 from setuptools import find_packages
 import os
+import sys
 
 
-install_requires = ['numpy', 'dateparser', 'mkdocs', 'mkdocs-material']
+install_requires = ['numpy', 'dateparser',]# 'mkdocs', 'mkdocs-material']
+
+if sys.version_info[0] == 2:
+      install_requires.append('pysqlite')
+
 dependency_links = []
 
 if os.name == 'nt':
