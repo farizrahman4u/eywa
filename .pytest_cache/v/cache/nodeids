@@ -1,8 +1,0 @@
-[
-  "tests/test_classifier.py::test_classifier_basic", 
-  "tests/test_classifier.py::test_classifier_serialization", 
-  "tests/test_entity_extractor.py::test_entity_extractor_basic", 
-  "tests/test_entity_extractor.py::test_entity_extractor_serialization", 
-  "tests/test_pattern.py::test_pattern", 
-  "tests/test_pattern.py::test_pattern_serialization"
-]
