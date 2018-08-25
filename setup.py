@@ -14,7 +14,8 @@ dependency_links = []
 if os.name == 'nt':
       os.system('python -m easy_install annoy-1.8.0-py2.7-win-amd64.egg')
 else:
-      dependency_links.append("git+ssh://git@github.com/farizrahman4u/annoy.git")
+      #dependency_links.append("git+ssh://git@github.com/farizrahman4u/annoy.git")
+      install_requires.append('annoy')
 
 setup(
       name='eywa',
