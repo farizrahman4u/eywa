@@ -63,7 +63,7 @@ class Pattern(object):
         if flag:
             raise Exception('Unbalanced [')
         self.examples = var_to_examples
-        self.vars = var_to_examples.keys()
+        self.vars = list(var_to_examples.keys())
         y = Document(y)
         self.pattern = y
         self.pattern_contexts = self._get_all_contexts(self.pattern)
