@@ -4,8 +4,6 @@ from ..math import softmax
 import numpy as np
 
 
-
-
 class Pattern(object):
 
     def __init__(self, pattern):
