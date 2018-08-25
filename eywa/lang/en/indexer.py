@@ -60,14 +60,13 @@ def _build():
         annoy_index.add_item(*x)
         pbar.update()
     annoy_index.build(num_trees)
-    print('Saving index... this might take a while.')
     annoy_index.save(vector_index_file_name)
     print('Done.')
     print('Creating databases...')
-    vocab_db = Database(vocab_db_file_name, new=True)
-    inverse_vocab_db = Database(inverse_vocab_db_file_name, new=True)
-    tokens_db = Database(tokens_db_file_name, new=True)
-    phrases_db = Database(phrases_db_file_name, new=True)
+    vocab_db = Database(vocab_db_file_name, key_type=int, value_type=str, new=True)
+    inverse_vocab_db = Database(inverse_vocab_db_file_name, key_type=str, value_type=int, new=True)
+    tokens_db = Database(tokens_db_file_name, key_type=str, value_type=list, new=True, cached=True)
+    phrases_db = Database(phrases_db_file_name, key_type=str, value_type=list, new=True, cached=True)
     with open(vocab_file_name, 'r') as f:
         vocab = json.load(f)[1:]
         pbar = ProgressBar(len(vocab))
@@ -81,8 +80,8 @@ def _build():
             except Exception:
                 token = w
                 sense = ''
-            if token in tokens_db:
-                v = tokens_db[token]
+            v = tokens_db.get(token)
+            if v:
                 v.append(i)
                 tokens_db[token] = v
             else:
@@ -90,8 +89,8 @@ def _build():
             if '_' in token:
                 sub_tokens = token.split('_')
                 x = sub_tokens[0]
-                if x in phrases_db:
-                    v = phrases_db[x]
+                v = phrases_db.get(x)
+                if v:
                     v.append(i)
                     phrases_db[x] = v
                 else:
@@ -100,14 +99,23 @@ def _build():
     vocab_db.close()
     tokens_db.close()
     phrases_db.close()
-    frequency_db = Database(frequency_db_file_name)
+    frequency_db = Database(frequency_db_file_name, key_type=int, value_type=int, new=True)
     with open(frequency_file_name, 'r') as f:
         freqs = f.read()
     typos = ('|NOWN', '|NOUN'), ('|NMUN', '|NOUN')
     for typo in typos:
         freqs = freqs.replace(*typo)
     freqs = json.loads(freqs)
-    freqs = {str(inverse_vocab_db[x[0]]): str(x[1]) for x in freqs}
+    print('')
+    print('Converting words to indices...')
+    pbar = ProgressBar(len(freqs))
+    if not py3:
+        # We reopen the database in unicode key mode to avoid unicode->str->unicode roundtrip.
+        inverse_vocab_db.close()
+        inverse_vocab_db = Database(inverse_vocab_db_file_name, key_type=unicode, value_type=int)
+    for i, x in enumerate(freqs):
+        x[0] = inverse_vocab_db[x[0]]
+        pbar.update()
     inverse_vocab_db.close()
     frequency_db.update(freqs)
     frequency_db.close()

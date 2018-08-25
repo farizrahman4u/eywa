@@ -1,15 +1,21 @@
 from setuptools import setup
 from setuptools import find_packages
 import os
+import sys
 
 
-install_requires = ['numpy', 'dateparser', 'mkdocs', 'mkdocs-material']
+install_requires = ['numpy', 'dateparser', 'requests',]# 'mkdocs', 'mkdocs-material']
+
+if sys.version_info[0] == 2:
+      install_requires.append('pysqlite')
+
 dependency_links = []
 
 if os.name == 'nt':
       os.system('python -m easy_install annoy-1.8.0-py2.7-win-amd64.egg')
 else:
-      dependency_links.append("git+ssh://git@github.com/farizrahman4u/annoy.git")
+      #dependency_links.append("git+ssh://git@github.com/farizrahman4u/annoy.git")
+      install_requires.append('annoy')
 
 setup(
       name='eywa',

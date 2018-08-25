@@ -29,12 +29,11 @@ with open(vector_size_file_name, 'r') as f:
 
 annoy_index = annoy.AnnoyIndex(dim, 'angular')
 annoy_index.load(vector_index_file_name)
-vocab_db = Database(vocab_db_file_name)
-inverse_vocab_db = Database(inverse_vocab_db_file_name)
-frequency_db = Database(frequency_db_file_name)
-phrases_db = Database(phrases_db_file_name)
-frequency_db = Database(frequency_db_file_name)
-tokens_db = Database(tokens_db_file_name)
+vocab_db = Database(vocab_db_file_name, key_type=int, value_type=str)
+inverse_vocab_db = Database(inverse_vocab_db_file_name, key_type=str, value_type=int)
+frequency_db = Database(frequency_db_file_name, key_type=int, value_type=int)
+phrases_db = Database(phrases_db_file_name, key_type=str, value_type=list)
+tokens_db = Database(tokens_db_file_name, key_type=str, value_type=list)
 
 
 
@@ -93,8 +92,8 @@ def phraser(X):
     output = []
     while i < num_x:
         x = X[i]
-        if x in phrases_db:
-            phrases = phrases_db[x]
+        phrases = phrases_db.get(x)
+        if phrases is not None:
             phrases = [vocab_db[p].split('|')[0] for p in phrases]
         else:
             phrases = [x]
@@ -364,6 +363,13 @@ class Document(object):
         self.iter_index += 1
         return token
 
+    def __next__(self):
+        if self.iter_index == len(self.tokens):
+            raise StopIteration()
+        token = self.tokens[self.iter_index]
+        self.iter_index += 1
+        return token
+
     def __getitem__(self, key):
         if type(key) is slice:
             tokens = self.tokens[key]
@@ -449,6 +455,7 @@ def _get_filepath(f):
     return os.path.abspath(os.path.join(__file__, os.pardir)) + '/' + f
 
 _stop_words_filepath = _get_filepath('stop_words.txt')
+
 
 with open(_stop_words_filepath, 'r') as f:
     stop_words = eval(f.read())
