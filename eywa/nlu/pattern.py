@@ -4,14 +4,12 @@ from ..math import softmax
 import numpy as np
 
 
-
-
 class Pattern(object):
 
     def __init__(self, pattern):
         self._set_pattern(pattern)
         self._get_var_contexts()
-        self.weights = np.array([0.5, .1, .1, 1., .05])
+        self.weights = np.array([0.5, .1, .1, 1., .05, 0.2])
 
     def _set_pattern(self, pattern):
         # Converts 'hey there [name: jack, james, !apple, !building]' to 'hey there _eywa_var_name'
@@ -139,6 +137,7 @@ class Pattern(object):
         input_contexts = self._get_all_contexts(input)
         matrix = np.zeros((m, n))
         contexts = self.contexts
+        w = self.weights[5] * 10
         for i in range(m):
             for j in range(n):
                 var = vars[i]
@@ -150,9 +149,9 @@ class Pattern(object):
                 var_examples = examples[var]
                 pos_examples, neg_examples = var_examples
                 if var_examples:
-                    pos_score = sum([f2(ve, inp_j) for ve in pos_examples])
+                    pos_score = max([f2(ve, inp_j) for ve in pos_examples])
                     neg_score = sum([f2(ve, inp_j) for ve in neg_examples])
-                    score += pos_score - neg_score
+                    score += w * pos_score - neg_score
                 matrix[i, j] = score
         matrix *= softmax(matrix, 0)
         val_ids = np.argmax(matrix, 1)
