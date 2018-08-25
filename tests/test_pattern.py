@@ -17,8 +17,8 @@ def test_pattern_serialization():
     test_inputs = ['i like grape']
 
     for test_input in test_inputs:
-        p1_out = p1('i like grape')
-        p2_out = p2('i like grape')
+        p1_out = p1(test_input)
+        p2_out = p2(test_input)
         assert p1_out == p2_out
 
 
