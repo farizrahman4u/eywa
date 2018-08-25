@@ -6,8 +6,8 @@ import sys
 
 install_requires = ['numpy', 'dateparser', 'requests',]# 'mkdocs', 'mkdocs-material']
 
-#if sys.version_info[0] == 2:
-#      install_requires.append('pysqlite')
+if sys.version_info[0] == 2:
+      install_requires.append('pysqlite')
 
 dependency_links = []
 
