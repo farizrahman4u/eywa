@@ -3,15 +3,18 @@ dist: trusty
 language: python
 matrix:
     include:
-      - python: 2.7
+        - python: 2.7
           env: TEST_MODE=PEP8
-      - python: 2.7
-      - python: 3.6
+        - python: 2.7
+          env: PYTHONWARNINGS=ignore
+        - python: 3.6
+          env: PYTHONWARNINGS=ignore
 install:
   - pip install annoy
+
 script:
-  - if [["$TEST_MODE" == "PEP8"]]; then
+  - if [[ "$TEST_MODE" == "PEP8" ]]; then
       PYTHONPATH=$PWD:$PYTHONPATH py.test --pep8 -m pep8 -n0;
     else
-      PYTHONPATH=$PWD:$PYTHONPATH py.test tests/;
+      PYTHONPATH=$PWD:$PYTHONPATH py.test tests/ ;
     fi
