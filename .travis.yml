@@ -1,22 +1,14 @@
 sudo: required
 dist: trusty
 language: python
+
 matrix:
     include:
         - python: 2.7
-          env: TEST_MODE=PEP8
-        - python: 2.7
-          env: PYTHONWARNINGS=ignore
         - python: 3.6
-          env: PYTHONWARNINGS=ignore
+
 install:
-  - pip install annoy
-  - pip install dateparser
   - pip install -e .[tests]
 
 script:
-  - if [[ "$TEST_MODE" == "PEP8" ]]; then
-      PYTHONPATH=$PWD:$PYTHONPATH py.test --pep8 -m pep8 -n0;
-    else
-      PYTHONPATH=$PWD:$PYTHONPATH py.test tests/ ;
-    fi
+  - pytest
