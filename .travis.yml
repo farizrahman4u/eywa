@@ -12,6 +12,7 @@ matrix:
 install:
   - pip install annoy
   - pip install dateparser
+  - pip install -e .[tests]
 
 script:
   - if [[ "$TEST_MODE" == "PEP8" ]]; then
