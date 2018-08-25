@@ -11,6 +11,7 @@ matrix:
           env: PYTHONWARNINGS=ignore
 install:
   - pip install annoy
+  - pip install dateparser
 
 script:
   - if [[ "$TEST_MODE" == "PEP8" ]]; then
