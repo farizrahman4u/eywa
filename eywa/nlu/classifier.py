@@ -14,7 +14,7 @@ class Classifier(object):
 
     @property
     def classes(self):
-        return self.data.keys()
+        return list(self.data.keys())
 
     def fit(self, X, Y):
         if type(X) in (str, Document):
@@ -37,7 +37,7 @@ class Classifier(object):
             return type(x)([self.predict(i, return_probs) for i in x])
         if type(x) is not Document:
             x = Document(x)
-        classes = self.data.keys()
+        classes = list(self.data.keys())
         scores = np.zeros(len(classes))
         for i, k in enumerate(classes):
             for x2 in self.data[k]:

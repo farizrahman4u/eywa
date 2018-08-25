@@ -18,7 +18,7 @@ class EntityExtractor(object):
 
     @property
     def entities(self):
-        return self.keys.keys()
+        return list(self.keys.keys())
 
     def fit(self, X, Y):
         for x, y in zip(X, Y):
