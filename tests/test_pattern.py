@@ -4,12 +4,12 @@ import pytest
 def test_pattern():
 
     p = Pattern('[fruit : apple, banana] is my favourite fruit')
-    assert p(' i like grape') == {'fruit' : 'grape'}
+    assert p('i like grapes') == {'fruit' : 'grape'}
 
 def test_pattern_serialization():
 
     p1 = Pattern('[fruit : apple, banana] is my favourite fruit')
-    p1(' i like grape') 
+    p1('i like grapes') 
 
     config = p1.serialize()
     p2 = Pattern.deserialize(config)

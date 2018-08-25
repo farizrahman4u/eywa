@@ -401,7 +401,10 @@ class Document(object):
         try:
             return self._embeddings
         except AttributeError:
-            self._embeddings = np.array([t.embedding for t in self.tokens])
+            if len(self.tokens) == 0:
+                self._embeddings = np.zeros((0, dim))
+            else:
+                self._embeddings = np.array([t.embedding for t in self.tokens])
             return self._embeddings
 
 
@@ -410,7 +413,10 @@ class Document(object):
         try:
             return self._embedding
         except AttributeError:
-            self._embedding = np.mean(self.embeddings, 0)
+            if len(self.tokens) == 0:
+                self._embedding = np.zeros(dim)
+            else:
+                self._embedding = np.mean(self.embeddings, 0)
             return self._embedding
 
     def __repr__(self):
