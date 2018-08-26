@@ -35,7 +35,7 @@ def set_backend(backend, save_to_config=True):
         except Exception:
             pass
     if _BACKEND is not None and _BACKEND != backend:
-        sys.stderr.write("Setting backend to {}.".format(backend))
+        sys.stderr.write("Setting backend to {}.\n".format(backend))
     _BACKEND = backend
     module = 'eywa.math.{}_backend'.format(backend)
     entries = importlib.import_module(module).__dict__
@@ -63,6 +63,7 @@ def _find_backend():
     if backend is None:
         backend = _default_backend
     set_backend(backend, save_to_config)
+
 
 
 _find_backend()
