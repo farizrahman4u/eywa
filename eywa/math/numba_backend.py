@@ -24,16 +24,16 @@ def _soft_identity_matrix(matrix, nx, ny):
 
 @jit(nopython=False, fastmath=True, parallel=parallel)
 def  soft_identity_matrix(nx, ny):
-    m = np.zeros((nx, ny), dtype='float32')
+    m = np.empty((nx, ny), dtype='float32')
     _soft_identity_matrix(m, nx, ny)
     return m
 
 
 @jit(nopython=True, fastmath=True, parallel=parallel)
-def _vector_sequence_similarity_euclid(x, y, locality=0.5):
+def __vector_sequence_similarity_euclid(x, y, z, nx, ny, locality=0.5):
     nx = len(x)
     ny = len(y)
-    z = np.array([[0. for __ in range(ny)] for _ in range(nx)])
+    #z = np.array([[0. for __ in range(ny)] for _ in range(nx)])
     m1 = 0.
     m2 = 0.
     for i in prange(nx):
@@ -48,6 +48,14 @@ def _vector_sequence_similarity_euclid(x, y, locality=0.5):
     for j in prange(ny):
         m1 += z[:, j].max()
     return (m1 + m2) / (nx + ny)
+
+
+@jit
+def _vector_sequence_similarity_euclid(x, y, locality=0.5):
+    nx = len(x)
+    ny = len(y)
+    z = np.empty((nx, ny), dtype='float32')
+    return __vector_sequence_similarity_euclid(x, y, z, nx, ny, locality=locality)
 
 
 @jit(nopython=True, fastmath=True, parallel=parallel)
