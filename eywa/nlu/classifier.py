@@ -3,7 +3,11 @@ from ..math import vector_sequence_similarity, euclid_similarity, softmax
 from collections import defaultdict
 import numpy as np
 
+
 class Classifier(object):
+    """
+    Classifies a document into a given document into user defined categories
+    """
 
     def __init__(self):
         self.X = []

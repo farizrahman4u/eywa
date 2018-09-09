@@ -253,6 +253,14 @@ entity_embedding = {
 
 
 class Token(object):
+    """
+    Instance of a sequence of characters in some
+    particular document that are grouped together
+
+    # Arguments
+        text: String object that is to be tokenized.
+        entity: String which is a named entity.
+    """
     def __init__(self, text, entity=None):
         self.text = text
         self.entity = entity
@@ -319,7 +327,16 @@ class Token(object):
             text = text.text
         return self._lower() == text.lower()
 
+
 class Document(object):
+    """
+    Class for doing smart tokenization and
+    entity extraction for known types.
+
+    # Arguments
+        text: String object that is to be tokenized.
+    """
+
     def __init__(self, text):
         if type(text) in (list, tuple):
             self.text = ' '.join([str(w) for w in text])

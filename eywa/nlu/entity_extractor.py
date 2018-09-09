@@ -4,6 +4,9 @@ import numpy as np
 
 
 class EntityExtractor(object):
+    """
+    Extracts user defined entities from documents
+    """
 
     def __init__(self):
         self.X = []

@@ -5,6 +5,9 @@ import numpy as np
 
 
 class Pattern(object):
+    """
+    Semantic pattern matching
+    """
 
     def __init__(self, pattern):
         self._set_pattern(pattern)
