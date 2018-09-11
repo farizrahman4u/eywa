@@ -38,7 +38,7 @@ tokens_db = Database(tokens_db_file_name, key_type=str, value_type=list)
 
 
 def tokenizer(X):
-    return [x.strip() for x in re.split('(\W+)?', X) if x.strip()]
+    return [x.strip() for x in re.split('(\W+)', X) if x.strip()]
 
 
 caps = "([A-Z])"
