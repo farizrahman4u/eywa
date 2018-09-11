@@ -9,7 +9,9 @@ matrix:
         - python: 3.6
           env: EYWA_MATH_BACKEND=numba
 install:
+  - pip install flake8
   - pip install -e .[tests]
 
 script:
+  - flake8 ./
   - py.test
