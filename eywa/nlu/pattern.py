@@ -113,13 +113,15 @@ class Pattern(object):
         #if x1 == x2:
         #    return 1
         if len(x1) == 0 or len(x2) == 0:
-            return 0
+            return 0.
+        weights = self.weights
+        w0 = weights[0]
         score1 = lambda : euclid_similarity(x1.embedding, x2.embedding)
         score2 = lambda : np.dot(x1.embedding, x2.embedding)
-        score3 = lambda : vector_sequence_similarity(x1.embeddings, x2.embeddings, self.weights[0], 'dot')
-        score4 = lambda : vector_sequence_similarity(x1.embeddings, x2.embeddings, self.weights[0], 'euclid')
+        score3 = lambda : vector_sequence_similarity(x1.embeddings, x2.embeddings, w0, 'dot')
+        score4 = lambda : vector_sequence_similarity(x1.embeddings, x2.embeddings, w0, 'euclid')
         scores = [score1, score2, score3, score4]
-        score_weights = self.weights[1:5]
+        score_weights = weights[1:5]
         score = 0.
         for s, w in zip(scores, score_weights):
             if w > 0.05:
