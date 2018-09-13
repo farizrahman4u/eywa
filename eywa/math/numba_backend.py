@@ -134,15 +134,15 @@ def batch_vector_sequence_similarity(X, y):
         return [int(len(x) == 0) for x in X]
     return _batch_vector_sequence_similarity(X, y)
 
-@jit(nopython=True)
+@jit
 def euclid_distance(x, y):
     return (np.subtract(x, y) ** 2).sum() ** 0.5
 
-@jit(nopython=True)
+@jit
 def euclid_similarity(x, y):
     return np.subtract(1., (np.subtract(x, y) ** 2).sum() ** 0.5)
 
-@jit(nopython=True)
+@jit
 def softmax(x, axis=None):
     e = np.exp(x - x.max())
     s = e.sum(axis=axis, keepdims=True)
