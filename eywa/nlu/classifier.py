@@ -44,7 +44,7 @@ class Classifier(object):
         scores = np.zeros(len(classes))
         for i, k in enumerate(classes):
             for x2 in self.data[k]:
-                score = self.similarity(x, x2)
+                score = self._similarity(x, x2)
                 if score > scores[i]:
                     scores[i] = score
         #scores /= np.array([len(self.data[c]) for c in classes])
