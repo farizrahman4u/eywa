@@ -3,6 +3,9 @@ from ..lang import Document, Token
 import numpy as np
 
 
+np_max = np.max
+np_argmax = np.argmax
+
 class EntityExtractor(object):
 
     def __init__(self):
@@ -17,10 +20,12 @@ class EntityExtractor(object):
         return list(self.keys.keys())
 
     def fit(self, X, Y):
+        x_app = self.X.append
+        y_app = self.Y.append
         for x, y in zip(X, Y):
             x = Document(x)
-            self.X.append(x)
-            self.Y.append(y)
+            x_app(x)
+            y_app(y)
         self._changed = True
 
     def compile(self):
@@ -80,8 +85,9 @@ class EntityExtractor(object):
         y = {}
         x_embs = x.embeddings
         X = self.X
+        self_keys = self.keys
         for k in keys:
-            kk = self.keys[k]
+            kk = self_keys[k]
             types = kk['types']
             if len(types) == 1:
                 entity_type = list(types)[0]
@@ -101,9 +107,9 @@ class EntityExtractor(object):
             else:
                 pick_embs = [X[i].embeddings for i in picks]
                 non_pick_embs = [X[i].embeddings for i in non_picks]
-                pick_score = np.max(batch_vector_sequence_similarity(pick_embs, x_embs))
+                pick_score = np_max(batch_vector_sequence_similarity(pick_embs, x_embs))
                 if non_pick_embs:
-                    non_pick_score = np.max(batch_vector_sequence_similarity(non_pick_embs, x_embs))
+                    non_pick_score = np_max(batch_vector_sequence_similarity(non_pick_embs, x_embs))
                 else:
                     non_pick_score = 0.
                 vals = [self.Y[i][k] for i in pick_idxs]
@@ -126,9 +132,9 @@ class EntityExtractor(object):
                     rights_embs = [d.embeddings for d in kk['rights']]
                     left = x[:i]
                     right = x[i:]
-                    left_score = np.max(batch_vector_sequence_similarity(lefts_embs, left.embeddings))
-                    right_score = np.max(batch_vector_sequence_similarity(rights_embs, right.embeddings))
-                    value_score = np.max([euclid_similarity(v.embedding, t.embedding) for v in kk['values']])
+                    left_score = np_max(batch_vector_sequence_similarity(lefts_embs, left.embeddings))
+                    right_score = np_max(batch_vector_sequence_similarity(rights_embs, right.embeddings))
+                    value_score = np_max([euclid_similarity(v.embedding, t.embedding) for v in kk['values']])
                     #value_score = np.mean(np.dot([v.embedding for v in kk['values']], t.embedding))
                     left_right_weight = self.weights[0]
                     word_neighbor_weight = self.weights[1]
@@ -138,7 +144,7 @@ class EntityExtractor(object):
                         entity_type_weight = self.weights[2]
                         token_score *= 1. + entity_type_weight
                     token_scores.append(token_score)
-                y[k] = x[int(np.argmax(token_scores))].text
+                y[k] = x[int(np_argmax(token_scores))].text
             else:
                 consts = kk['consts']
                 if consts:
@@ -147,13 +153,13 @@ class EntityExtractor(object):
                     for ck in consts:
                         docs = [X[i] for i in consts[ck]]
                         embs = [doc.embeddings for doc in docs]
-                        score = np.max(batch_vector_sequence_similarity(embs, x_embs))
+                        score = np_max(batch_vector_sequence_similarity(embs, x_embs))
                         scores.append(score)
-                    y[k] = consts_keys[np.argmax(scores)]
+                    y[k] = consts_keys[int(np_argmax(scores))]
                 else:
                     docs = [X[i] for i in pick_idxs]
                     embs = [doc.embeddings for doc in docs]
-                    best_val_id = np.argmax(batch_vector_sequence_similarity(embs, x_embs))
+                    best_val_id = np_argmax(batch_vector_sequence_similarity(embs, x_embs))
                     y[k] = vals[best_val_id]
         return y
     
