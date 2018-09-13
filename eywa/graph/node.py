@@ -32,7 +32,7 @@ class Node(object):
 
     def add_port(self, name):
         if name in self.outputs:
-            raise Exception('Port ' + name  + ' already exists for node'
+            raise Exception('Port ' + name + ' already exists for node'
                             ' ' + self.name + '.')
         self.outputs[name] = []
         if hasattr(self, '_output_nodes_cache'):
@@ -60,10 +60,3 @@ class Node(object):
                     _output_nodes_cache.append(n)
             self._output_nodes_cache = _output_nodes_cache
             return _output_nodes_cache
-
-
-        
-
-
-
-

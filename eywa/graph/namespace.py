@@ -1,5 +1,6 @@
 _namespace = {}
 
+
 def get_node(name):
     try:
         return _namespace[name]

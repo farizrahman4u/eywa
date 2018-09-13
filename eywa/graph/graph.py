@@ -1,4 +1,6 @@
 from .node import Node
+
+
 class Graph(Node):
 
     def __init__(self, input, output, *args, **kwargs):
@@ -17,7 +19,7 @@ class Graph(Node):
             stack += node_outs
         if self.output not in nodes:
             raise Exception('Disconnected graph. Unable to reach '
-            + self.output.name + ' from ' + self.input.name + '.')
+                            + self.output.name + ' from ' + self.input.name + '.')
         for node in nodes:
             node.parents.add(self)
         self.nodes = nodes
