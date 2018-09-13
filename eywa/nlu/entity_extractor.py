@@ -123,19 +123,6 @@ class EntityExtractor(object):
                     right = x[i:]
                     token_score = get_token_score(t.embedding, left.embeddings, right.embeddings,
                                                   lefts_embs, rights_embs, vals_embs, bool(entity_type), weights)
-                    '''
-                    left_score = np_max(batch_vector_sequence_similarity(lefts_embs, left.embeddings))
-                    right_score = np_max(batch_vector_sequence_similarity(rights_embs, right.embeddings))
-                    value_score = np_max([euclid_similarity(v.embedding, t.embedding) for v in kk['values']])
-                    #value_score = np.mean(np.dot([v.embedding for v in kk['values']], t.embedding))
-                    left_right_weight = self.weights[0]
-                    word_neighbor_weight = self.weights[1]
-                    neighbor_score = left_right_weight * left_score + (1. - left_right_weight) * right_score
-                    token_score = word_neighbor_weight * value_score + (1. - word_neighbor_weight) * neighbor_score
-                    if entity_type:
-                        entity_type_weight = self.weights[2]
-                        token_score *= 1. + entity_type_weight
-                    '''
                     token_scores.append(token_score)
                 y[k] = x[int(np_argmax(token_scores))].text
             else:
