@@ -6,9 +6,8 @@ matrix:
     include:
         - python: 3.6
           env: EYWA_MATH_BACKEND=numpy
-        - python: 3.6:
+        - python: 3.6
           env: EYWA_MATH_BACKEND=numba
-
 install:
   - pip install -e .[tests]
 
