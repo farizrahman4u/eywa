@@ -8,13 +8,9 @@ class EntityExtractor(object):
     def __init__(self):
         self.X = []
         self.Y = []
-        # info about entities
-        # coloumns:
-        # #entity #pick? #entity_type_counts #values
         self.keys = {}
         self._changed = False
-        self.weights = np.array([0.5, 0.5, 0.5])
-        pass
+        self.weights = np.array([0.5, 0.5, 0.5, 0.5])
 
     @property
     def entities(self):
@@ -102,13 +98,26 @@ class EntityExtractor(object):
                     non_picks.append(i)
             if not picks:
                 pick = False
-            elif not non_picks:
-                pick = True
             else:
                 pick_embs = [X[i].embeddings for i in picks]
                 non_pick_embs = [X[i].embeddings for i in non_picks]
                 pick_score = np.max(batch_vector_sequence_similarity(pick_embs, x_embs))
-                non_pick_score = np.max(batch_vector_sequence_similarity(non_pick_embs, x_embs))
+                if non_pick_embs:
+                    non_pick_score = np.max(batch_vector_sequence_similarity(non_pick_embs, x_embs))
+                else:
+                    non_pick_score = 0.
+                vals = [self.Y[i][k] for i in pick_idxs]
+                n = len(vals)
+                c = len(set(vals))
+                variance = float(c) / n
+                pick_bias = self.weights[3]
+                s = pick_score + non_pick_score
+                pick_score /= s
+                non_pick_score /= s
+                pick_score *= pick_bias
+                pick_score *= variance
+                non_pick_score *= 1. - pick_bias
+                non_pick_score += 1. - variance
                 pick = pick_score >= non_pick_score
             if pick:
                 token_scores = []
@@ -132,14 +141,20 @@ class EntityExtractor(object):
                 y[k] = x[int(np.argmax(token_scores))].text
             else:
                 consts = kk['consts']
-                consts_keys = consts.keys()
-                scores = []
-                for ck in consts:
-                    docs = [X[i] for i in consts[ck]]
+                if consts:
+                    consts_keys = consts.keys()
+                    scores = []
+                    for ck in consts:
+                        docs = [X[i] for i in consts[ck]]
+                        embs = [doc.embeddings for doc in docs]
+                        score = np.max(batch_vector_sequence_similarity(embs, x_embs))
+                        scores.append(score)
+                    y[k] = consts_keys[np.argmax(scores)]
+                else:
+                    docs = [X[i] for i in pick_idxs]
                     embs = [doc.embeddings for doc in docs]
-                    score = np.max(batch_vector_sequence_similarity(embs, x_embs))
-                    scores.append(score)
-                y[k] = consts_keys[np.argmax(scores)]
+                    best_val_id = np.argmax(batch_vector_sequence_similarity(embs, x_embs))
+                    y[k] = vals[best_val_id]
         return y
     
     def serialize(self):
