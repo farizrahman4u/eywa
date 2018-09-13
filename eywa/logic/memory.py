@@ -47,5 +47,3 @@ class Memory(object):
             if w not in q and w not in stop_words:
                 answers.append(w)
         return min(answers, key=lambda x: x.frequency)
-
-
