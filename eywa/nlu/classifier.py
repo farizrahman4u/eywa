@@ -22,15 +22,18 @@ class Classifier(object):
             Y = [Y]
         if type(Y) not in (list, tuple):
             Y = [Y] * len(X)
+        X_app = self.X.append
+        Y_app = self.Y.append
+        data = self.data
         for x, y in  zip(X, Y):
             x = Document(x)
             # need these for quick eval
-            self.X.append(x)
-            self.Y.append(y)
-            if y in self.data:
-                self.data[y].append(x)
+            X_app(x)
+            Y_app(y)
+            if y in data:
+                data[y].append(x)
             else:
-                self.data[y] = [x]
+                data[y] = [x]
 
     def predict(self, x, return_probs=False):
         if type(x) in (list, tuple):
@@ -51,17 +54,19 @@ class Classifier(object):
         return classes[np.argmax(scores)]
 
 
-    def similarity(self, x1, x2):
+    def _similarity(self, x1, x2):
         #if x1 == x2:
         #    return 1
         if len(x1) == 0 or len(x2) == 0:
-            return 0
+            return 0.
+        weights = self.weights
+        w0 = weights[0]
         score1 = lambda : euclid_similarity(x1.embedding, x2.embedding)
         score2 = lambda : np.dot(x1.embedding, x2.embedding)
-        score3 = lambda : vector_sequence_similarity(x1.embeddings, x2.embeddings, self.weights[0], 'dot')
-        score4 = lambda : vector_sequence_similarity(x1.embeddings, x2.embeddings, self.weights[0], 'euclid')
+        score3 = lambda : vector_sequence_similarity(x1.embeddings, x2.embeddings, w0, 'dot')
+        score4 = lambda : vector_sequence_similarity(x1.embeddings, x2.embeddings, w0, 'euclid')
         scores = [score1, score2, score3, score4]
-        score_weights = self.weights[1:5]
+        score_weights = weights[1:5]
         score = 0.
         for s, w in zip(scores, score_weights):
             if w > 0.05:
