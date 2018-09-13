@@ -3,6 +3,9 @@ Open source framework for building conversational agents [WIP]
 
 [![Build Status](https://travis-ci.org/farizrahman4u/eywa.svg?branch=master)](https://travis-ci.org/farizrahman4u/eywa)
 
+
+[TODO list for contributors](https://github.com/farizrahman4u/eywa/projects/1)
+
 -----
 
 ## Document
