@@ -1,7 +1,7 @@
 # eywa
 Open source framework for building conversational agents [WIP]
 
-![Build status](https://api.travis-ci.com/farizrahman4u/eywa.svg?branch=master)
+[![Build Status](https://travis-ci.org/farizrahman4u/eywa.svg?branch=master)](https://travis-ci.org/farizrahman4u/eywa)
 
 -----
 
