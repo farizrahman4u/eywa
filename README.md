@@ -1,6 +1,10 @@
 # eywa
 Open source framework for building conversational agents [WIP]
 
+![Build status](https://api.travis-ci.com/farizrahman4u/eywa.svg?branch=master)
+
+-----
+
 ## Document
 
 The `Document` object is used to represent strings. It does smart tokenization and entity extraction for known types: date/time, number, phone number, email, url.
