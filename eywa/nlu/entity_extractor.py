@@ -1,4 +1,5 @@
 from ..math import batch_vector_sequence_similarity, euclid_similarity
+from ..math import should_pick, get_token_score
 from ..lang import Document, Token
 import numpy as np
 
@@ -86,6 +87,7 @@ class EntityExtractor(object):
         x_embs = x.embeddings
         X = self.X
         self_keys = self.keys
+        weights = self.weights
         for k in keys:
             kk = self_keys[k]
             types = kk['types']
@@ -93,7 +95,6 @@ class EntityExtractor(object):
                 entity_type = list(types)[0]
             else:
                 entity_type = None
-
             pick_idxs = kk['picks']
             picks = []
             non_picks = []
@@ -107,31 +108,22 @@ class EntityExtractor(object):
             else:
                 pick_embs = [X[i].embeddings for i in picks]
                 non_pick_embs = [X[i].embeddings for i in non_picks]
-                pick_score = np_max(batch_vector_sequence_similarity(pick_embs, x_embs))
-                if non_pick_embs:
-                    non_pick_score = np_max(batch_vector_sequence_similarity(non_pick_embs, x_embs))
-                else:
-                    non_pick_score = 0.
                 vals = [self.Y[i][k] for i in pick_idxs]
                 n = len(vals)
                 c = len(set(vals))
                 variance = float(c) / n
-                pick_bias = self.weights[3]
-                s = pick_score + non_pick_score
-                pick_score /= s
-                non_pick_score /= s
-                pick_score *= pick_bias
-                pick_score *= variance
-                non_pick_score *= 1. - pick_bias
-                non_pick_score += 1. - variance
-                pick = pick_score >= non_pick_score
+                pick = should_pick(x_embs, pick_embs, non_pick_embs, variance, weights)
             if pick:
                 token_scores = []
+                lefts_embs = [d.embeddings for d in kk['lefts']]
+                rights_embs = [d.embeddings for d in kk['rights']]
+                vals_embs = [v.embedding for v in kk['values']]
                 for i, t in enumerate(x):
-                    lefts_embs = [d.embeddings for d in kk['lefts']]
-                    rights_embs = [d.embeddings for d in kk['rights']]
                     left = x[:i]
                     right = x[i:]
+                    token_score = get_token_score(t.embedding, left.embeddings, right.embeddings,
+                                                  lefts_embs, rights_embs, vals_embs, bool(entity_type), weights)
+                    '''
                     left_score = np_max(batch_vector_sequence_similarity(lefts_embs, left.embeddings))
                     right_score = np_max(batch_vector_sequence_similarity(rights_embs, right.embeddings))
                     value_score = np_max([euclid_similarity(v.embedding, t.embedding) for v in kk['values']])
@@ -143,6 +135,7 @@ class EntityExtractor(object):
                     if entity_type:
                         entity_type_weight = self.weights[2]
                         token_score *= 1. + entity_type_weight
+                    '''
                     token_scores.append(token_score)
                 y[k] = x[int(np_argmax(token_scores))].text
             else:

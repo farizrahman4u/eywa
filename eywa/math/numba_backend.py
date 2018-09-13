@@ -152,3 +152,39 @@ def softmax(x, axis=None):
 @jit
 def frequencies_to_weights(x):
     return softmax(1. - softmax(x))
+
+
+# entity extractor
+
+@jit
+def should_pick(x_embs, pick_embs, non_pick_embs, variance, weights):
+    npicks = len(pick_embs)
+    scores = batch_vector_sequence_similarity(pick_embs + non_pick_embs, x_embs)
+    pick_score = max(scores[:npicks])
+    if non_pick_embs:
+        non_pick_score = max(scores[npicks:])
+    else:
+        non_pick_score = 0.
+    pick_bias = weights[3]
+    s = pick_score + non_pick_score
+    pick_score /= s
+    non_pick_score /= s
+    pick_score *= pick_bias
+    pick_score *= variance
+    non_pick_score *= 1. - pick_bias
+    non_pick_score += 1. - variance
+    return pick_score >= non_pick_score
+
+@jit
+def get_token_score(token_emb, token_left_embs, token_right_embs, lefts_embs, rights_embs, vals_embs, is_entity, weights):
+    left_score = max(batch_vector_sequence_similarity(lefts_embs, token_left_embs))
+    right_score = max(batch_vector_sequence_similarity(rights_embs, token_right_embs))
+    value_score = max([euclid_similarity(val_emb, token_emb) for val_emb in vals_embs])
+    left_right_weight = weights[0]
+    word_neighbor_weight = weights[1]
+    neighbor_score = left_right_weight * left_score + (1. - left_right_weight) * right_score
+    token_score = word_neighbor_weight * value_score + (1. - word_neighbor_weight) * neighbor_score
+    if is_entity:
+        token_score *= 1. + weights[2]
+    return token_score
+    
