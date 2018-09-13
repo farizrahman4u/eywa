@@ -134,15 +134,15 @@ def batch_vector_sequence_similarity(X, y):
         return [int(len(x) == 0) for x in X]
     return _batch_vector_sequence_similarity(X, y)
 
-@jit
+@jit(nopython=True)
 def euclid_distance(x, y):
-    return ((x - y) ** 2).sum() ** 0.5
+    return (np.subtract(x, y) ** 2).sum() ** 0.5
 
-@jit
+@jit(nopython=True)
 def euclid_similarity(x, y):
-    return 1. - ((x - y) ** 2).sum() ** 0.5
+    return np.subtract(1., (np.subtract(x, y) ** 2).sum() ** 0.5)
 
-@jit
+@jit(nopython=True)
 def softmax(x, axis=None):
     e = np.exp(x - x.max())
     s = e.sum(axis=axis, keepdims=True)
@@ -159,7 +159,7 @@ def frequencies_to_weights(x):
 @jit
 def should_pick(x_embs, pick_embs, non_pick_embs, variance, weights):
     npicks = len(pick_embs)
-    scores = batch_vector_sequence_similarity(pick_embs + non_pick_embs, x_embs)
+    scores = _batch_vector_sequence_similarity(pick_embs + non_pick_embs, x_embs)
     pick_score = max(scores[:npicks])
     if non_pick_embs:
         non_pick_score = max(scores[npicks:])
@@ -177,9 +177,12 @@ def should_pick(x_embs, pick_embs, non_pick_embs, variance, weights):
 
 @jit
 def get_token_score(token_emb, token_left_embs, token_right_embs, lefts_embs, rights_embs, vals_embs, is_entity, weights):
-    left_score = max(batch_vector_sequence_similarity(lefts_embs, token_left_embs))
-    right_score = max(batch_vector_sequence_similarity(rights_embs, token_right_embs))
-    value_score = max([euclid_similarity(val_emb, token_emb) for val_emb in vals_embs])
+    left_score = max(_batch_vector_sequence_similarity(lefts_embs, token_left_embs))
+    right_score = max(_batch_vector_sequence_similarity(rights_embs, token_right_embs))
+    value_scores = []
+    for val_emb in vals_embs:
+         value_scores.append(np.subtract(1., (np.subtract(val_emb, token_emb) ** 2).sum() ** 0.5))
+    value_score = max(value_scores)
     left_right_weight = weights[0]
     word_neighbor_weight = weights[1]
     neighbor_score = left_right_weight * left_score + (1. - left_right_weight) * right_score
