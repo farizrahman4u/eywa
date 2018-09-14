@@ -2,7 +2,7 @@ from numpy import *
 
 
 def soft_identity_matrix(nx, ny):
-     return 1. / array([[abs(i - j) + 1 for j in range(ny)] for i in range(nx)])
+    return 1. / array([[abs(i - j) + 1 for j in range(ny)] for i in range(nx)])
 
 
 def vector_sequence_similarity(x, y, locality=0.5, metric='dot'):
@@ -21,7 +21,8 @@ def _vector_sequence_similarity_euclid(x, y, locality=0.5):
     z *= locality * (soft_identity_matrix(nx, ny) - 1) + 1.
     m1 = z.max(axis=0).sum()
     m2 = z.max(axis=1).sum()
-    return (m1 + m2) / (nx + ny)  
+    return (m1 + m2) / (nx + ny)
+
 
 def _vector_sequence_similarity_dot(x, y, locality=0.5):
     nx = len(x)
@@ -47,6 +48,7 @@ def batch_vector_sequence_similarity(X, y):
 
 def euclid_distance(x, y):
     return ((x - y) ** 2).sum() ** 0.5
+
 
 def euclid_similarity(x, y):
     return 1. - sum((subtract(x, y) ** 2), -1) ** 0.5
