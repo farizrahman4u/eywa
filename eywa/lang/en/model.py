@@ -339,10 +339,10 @@ class Document(object):
             self.text = text.text
             self.tokens = text.tokens[:]
             emb = getattr(text, '_embedding', None)
-            if emb is not None
+            if emb is not None:
                 self._embedding = emb
             embs = getattr(text, '_embeddings', None)
-            if embs is not None
+            if embs is not None:
                 self._embeddings = embs
             return
         if type(text) is Token:
