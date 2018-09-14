@@ -142,7 +142,22 @@ class EntityExtractor(object):
                     best_val_id = np_argmax(batch_vector_sequence_similarity(embs, x_embs))
                     y[k] = vals[best_val_id]
         return y
-    
+
+    def evaluate(self, X=None, Y=None):
+        if X is None:
+            X = self.X
+            Y = self.Y
+        errors = 0
+        n = 0
+        for x, y in zip(X, Y):
+            y_pred = self.predict(x)
+            for k in y:
+                n += 1
+                if y[k] != y_pred[k]:
+                    errors += 1
+        accuracy = 1. - float(errors) / n
+        return errors, accuracy
+
     def serialize(self):
         config = {}
         config['X'] = [str(x) for x in self.X]
