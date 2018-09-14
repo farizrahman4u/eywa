@@ -30,7 +30,7 @@ def _is_downloaded():
 def _is_corrupt():
     s = sum([os.path.isfile(f) for f in _required_files])
     return s > 0 and s < len(_required_files)
-   
+
 
 def _is_interrupted():
     return os.path.isfile(flag_file)
@@ -39,10 +39,12 @@ def _is_interrupted():
 def _is_built():
     return all([os.path.isfile(f) for f in _required_files])
 
+
 def _clear():
     for f in _required_files:
         if os.path.isfile(f):
             os.remove(f)
+
 
 def _build():
     with open(flag_file, 'w') as f:
@@ -64,9 +66,23 @@ def _build():
     print('Done.')
     print('Creating databases...')
     vocab_db = Database(vocab_db_file_name, key_type=int, value_type=str, new=True)
-    inverse_vocab_db = Database(inverse_vocab_db_file_name, key_type=str, value_type=int, new=True)
-    tokens_db = Database(tokens_db_file_name, key_type=str, value_type=list, new=True, cached=True)
-    phrases_db = Database(phrases_db_file_name, key_type=str, value_type=list, new=True, cached=True)
+    inverse_vocab_db = Database(
+        inverse_vocab_db_file_name,
+        key_type=str,
+        value_type=int,
+        new=True)
+    tokens_db = Database(
+        tokens_db_file_name,
+        key_type=str,
+        value_type=list,
+        new=True,
+        cached=True)
+    phrases_db = Database(
+        phrases_db_file_name,
+        key_type=str,
+        value_type=list,
+        new=True,
+        cached=True)
     with open(vocab_file_name, 'r') as f:
         vocab = json.load(f)[1:]
         pbar = ProgressBar(len(vocab))
@@ -99,7 +115,11 @@ def _build():
     vocab_db.close()
     tokens_db.close()
     phrases_db.close()
-    frequency_db = Database(frequency_db_file_name, key_type=int, value_type=int, new=True)
+    frequency_db = Database(
+        frequency_db_file_name,
+        key_type=int,
+        value_type=int,
+        new=True)
     with open(frequency_file_name, 'r') as f:
         freqs = f.read()
     typos = ('|NOWN', '|NOUN'), ('|NMUN', '|NOUN')
@@ -110,9 +130,13 @@ def _build():
     print('Converting words to indices...')
     pbar = ProgressBar(len(freqs))
     if not py3:
-        # We reopen the database in unicode key mode to avoid unicode->str->unicode roundtrip.
+        # We reopen the database in unicode key mode to avoid
+        # unicode->str->unicode roundtrip.
         inverse_vocab_db.close()
-        inverse_vocab_db = Database(inverse_vocab_db_file_name, key_type=unicode, value_type=int)
+        inverse_vocab_db = Database(
+            inverse_vocab_db_file_name,
+            key_type=unicode,
+            value_type=int)
     for i, x in enumerate(freqs):
         x[0] = inverse_vocab_db[x[0]]
         pbar.update()

@@ -8,7 +8,7 @@ from .filenames import frequency_file_name, frequency_db_file_name
 from.filenames import phrases_db_file_name, tokens_db_file_name
 from .filenames import vector_size_file_name
 from .database import Database
-from .extractors import DateTimeExtractor, PhoneNumberExtractor, EmailExtractor, UrlExtractor,  NumberExtractor
+from .extractors import DateTimeExtractor, PhoneNumberExtractor, EmailExtractor, UrlExtractor, NumberExtractor
 from . import indexer
 from numpy.core.umath_tests import inner1d
 import numpy as np
@@ -18,7 +18,12 @@ import os
 import ast
 
 
-extractors = [DateTimeExtractor(), PhoneNumberExtractor(), EmailExtractor(), UrlExtractor(), NumberExtractor()]
+extractors = [
+    DateTimeExtractor(),
+    PhoneNumberExtractor(),
+    EmailExtractor(),
+    UrlExtractor(),
+    NumberExtractor()]
 
 
 indexer.run()
@@ -37,7 +42,6 @@ phrases_db = Database(phrases_db_file_name, key_type=str, value_type=list)
 tokens_db = Database(tokens_db_file_name, key_type=str, value_type=list)
 
 
-
 def tokenizer(X):
     return [x.strip() for x in re.split('(\W+)', X) if x.strip()]
 
@@ -46,35 +50,49 @@ caps = "([A-Z])"
 digits = "([0-9])"
 prefixes = "(Mr|St|Mrs|Ms|Dr|Prof|Capt|Cpt|Lt|Mt)[.]"
 suffixes = "(Inc|Ltd|Jr|Sr|Co)"
-starters = "(Mr|Mrs|Ms|Dr|He\s|She\s|It\s|They\s|Their\s|Our\s|We\s|But\s|However\s|That\s|This\s|Wherever)"
+starters = r"(Mr|Mrs|Ms|Dr|He\s|She\s|It\s|They\s|Their\s|Our\s|We\s|But\s|However\s|That\s|This\s|Wherever)"
 acronyms = "([A-Z][.][A-Z][.](?:[A-Z][.])?)"
 websites = "[.](com|net|org|io|gov|me|edu)"
 
 
 def split_into_sentences(text):
     orig_text = text
-    if "..." in text: text = text.replace("...","<prd><prd><prd>")
+    if "..." in text:
+        text = text.replace("...", "<prd><prd><prd>")
     text = " " + text + "  "
-    text = text.replace("\n"," ")
-    text = re.sub(digits + "[.]" + digits,"\\1<prd>\\2",text)
-    text = re.sub(prefixes,"\\1<prd>",text)
-    text = re.sub(websites,"<prd>\\1",text)
-    if "Ph.D" in text: text = text.replace("Ph.D.","Ph<prd>D<prd>")
-    text = re.sub("\s" + caps + "[.] "," \\1<prd> ",text)
-    text = re.sub(acronyms+" "+starters,"\\1<stop> \\2",text)
-    text = re.sub(caps + "[.]" + caps + "[.]" + caps + "[.]","\\1<prd>\\2<prd>\\3<prd>",text)
-    text = re.sub(caps + "[.]" + caps + "[.]","\\1<prd>\\2<prd>",text)
-    text = re.sub(" "+suffixes+"[.] "+starters," \\1<stop> \\2",text)
-    text = re.sub(" "+suffixes+"[.]"," \\1<prd>",text)
-    text = re.sub(" " + caps + "[.]"," \\1<prd>",text)
-    if "”" in text: text = text.replace(".”","”.")
-    if "\"" in text: text = text.replace(".\"","\".")
-    if "!" in text: text = text.replace("!\"","\"!")
-    if "?" in text: text = text.replace("?\"","\"?")
-    text = text.replace(".",".<stop>")
-    text = text.replace("?","?<stop>")
-    text = text.replace("!","!<stop>")
-    text = text.replace("<prd>",".")
+    text = text.replace("\n", " ")
+    text = re.sub(digits + "[.]" + digits, "\\1<prd>\\2", text)
+    text = re.sub(prefixes, "\\1<prd>", text)
+    text = re.sub(websites, "<prd>\\1", text)
+    if "Ph.D" in text:
+        text = text.replace("Ph.D.", "Ph<prd>D<prd>")
+    text = re.sub(r"\s" + caps + "[.] ", " \\1<prd> ", text)
+    text = re.sub(acronyms + " " + starters, "\\1<stop> \\2", text)
+    text = re.sub(
+        caps +
+        "[.]" +
+        caps +
+        "[.]" +
+        caps +
+        "[.]",
+        "\\1<prd>\\2<prd>\\3<prd>",
+        text)
+    text = re.sub(caps + "[.]" + caps + "[.]", "\\1<prd>\\2<prd>", text)
+    text = re.sub(" " + suffixes + "[.] " + starters, " \\1<stop> \\2", text)
+    text = re.sub(" " + suffixes + "[.]", " \\1<prd>", text)
+    text = re.sub(" " + caps + "[.]", " \\1<prd>", text)
+    if "”" in text:
+        text = text.replace(".”", "”.")
+    if "\"" in text:
+        text = text.replace(".\"", "\".")
+    if "!" in text:
+        text = text.replace("!\"", "\"!")
+    if "?" in text:
+        text = text.replace("?\"", "\"?")
+    text = text.replace(".", ".<stop>")
+    text = text.replace("?", "?<stop>")
+    text = text.replace("!", "!<stop>")
+    text = text.replace("<prd>", ".")
     sentences = text.split("<stop>")
     sentences = sentences[:-1]
     sentences = [s.strip() for s in sentences]
@@ -105,7 +123,7 @@ def phraser(X):
             if phrase in _IGNORE_PHRASES:
                 continue
             tokens = phrase.split('_')
-            if X[i : i + len(tokens)] != tokens:
+            if X[i: i + len(tokens)] != tokens:
                 continue
             num_tokens = len(tokens)
             if num_tokens + i > num_x:
@@ -151,7 +169,8 @@ def get_embedding(word, sense_disambiguation='max', normalize=True, default=0):
             elif sense_disambiguation == 'max':
                 emb = annoy_index.get_item_vector(tokens_idxs[0])
             elif sense_disambiguation == 'avg':
-                emb = np.mean([annoy_index.get_item_vector(i) for i in tokens_idxs], 0)
+                emb = np.mean([annoy_index.get_item_vector(i)
+                               for i in tokens_idxs], 0)
             else:
                 emb = None
                 for tidx in tokens_idxs:
@@ -174,7 +193,8 @@ def get_embedding(word, sense_disambiguation='max', normalize=True, default=0):
             if sense_disambiguation == 'max':
                 emb = annoy_index.get_item_vector(phrases_idxs[0])
             elif sense_disambiguation == 'avg':
-                emb = np.mean([annoy_index.get_item_vector(i) for i in phrases_idxs], 0)
+                emb = np.mean([annoy_index.get_item_vector(i)
+                               for i in phrases_idxs], 0)
             else:
                 emb = None
                 for pidx in phrases_idxs:
@@ -182,7 +202,8 @@ def get_embedding(word, sense_disambiguation='max', normalize=True, default=0):
                     if p.split('|')[1] == sense_disambiguation:
                         emb = annoy_index.get_item_vector(pidx)
                 if emb is None:
-                    emb = np.mean([annoy_index.get_item_vector(i) for i in phrases_idxs], 0)
+                    emb = np.mean([annoy_index.get_item_vector(i)
+                                   for i in phrases_idxs], 0)
     elif word in inverse_vocab_db:
         word_index = inverse_vocab_db[word]
         emb = annoy_index.get_item_vector(word_index)
@@ -242,14 +263,14 @@ def get_frequency(word, sense_disambiguation='max'):
     return freq
 
 
-## Entity type -> embedding mapping
+# Entity type -> embedding mapping
 
 entity_embedding = {
-    DateTime : 'time',
-    Number : 'one',
-    Email : 'email',
-    Url : 'website',
-    PhoneNumber : 'phone',
+    DateTime: 'time',
+    Number: 'one',
+    Email: 'email',
+    Url: 'website',
+    PhoneNumber: 'phone',
 }
 
 
@@ -292,7 +313,8 @@ class Token(object):
                 self._embedding = None
                 return np.zeros(dim)
             if self.entity:
-                emb = get_embedding(entity_embedding[type(self.entity)], default=None)
+                emb = get_embedding(
+                    entity_embedding[type(self.entity)], default=None)
             else:
                 emb = get_embedding(self._lower(), default=None)
             self._embedding = emb
@@ -328,6 +350,7 @@ class Token(object):
         if type(text) in (Document, Token):
             text = text.text
         return self._lower() == text.lower()
+
 
 class Document(object):
     def __init__(self, text):
@@ -391,16 +414,16 @@ class Document(object):
         return token
 
     def __getitem__(self, key):
-        if type(key) is slice:
+        if isinstance(key, slice):
             tokens = self.tokens[key]
             return Document(tokens)
-        elif type(key) is int:
+        elif isinstance(key, int):
             return self.tokens[key]
         else:
             key = key.lower()
             tokens = [t for t in self.tokens if t.text.lower() == key]
             return tokens
- 
+
     def __contains__(self, word):
         if type(word) in (Document, Token):
             word = word.text
@@ -426,7 +449,6 @@ class Document(object):
             else:
                 self._embeddings = np.array([t.embedding for t in self.tokens])
             return self._embeddings
-
 
     @property
     def embedding(self):
@@ -468,7 +490,7 @@ class Document(object):
         if type(text) in (Document, Token):
             text = text.text
         return self.text == text
-    
+
     @property
     def sentences(self):
         try:
@@ -486,6 +508,7 @@ def todoc(x):
 
 def _get_filepath(f):
     return os.path.abspath(os.path.join(__file__, os.pardir)) + '/' + f
+
 
 _stop_words_filepath = _get_filepath('stop_words.txt')
 

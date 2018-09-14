@@ -24,15 +24,17 @@ class Pattern(object):
         for c in pattern:
             if flag:
                 if c == '[':
-                    raise Exception('Invalid token \'[\'. Nested [] are not allowed.')
+                    raise Exception(
+                        'Invalid token \'[\'. Nested [] are not allowed.')
                 if c == ']':
                     if ':' in buff:
                         varname, examples = buff.split(':')
                         varname = varname.strip()
                         examples = examples.replace(' ', '').split(',')
                         if varname in var_to_examples:
-                            raise Exception('Multpile definitions for variable {}. '.format(varname) +
-                                            'Examples should be provided for the first occurence.')
+                            raise Exception(
+                                'Multpile definitions for variable {}. '.format(varname) +
+                                'Examples should be provided for the first occurence.')
                         positives = []
                         negatives = []
                         p_app = positives.append
@@ -67,7 +69,10 @@ class Pattern(object):
         y = Document(y)
         self.pattern = y
         self.pattern_contexts = self._get_all_contexts(self.pattern)
-        self.var_ids = [i for i in range(len(y)) if str(y[i]).startswith('_eywa_var_')]
+        self.var_ids = [
+            i for i in range(
+                len(y)) if str(
+                y[i]).startswith('_eywa_var_')]
 
     def _get_var_contexts(self):
         contexts = {}
@@ -115,10 +120,16 @@ class Pattern(object):
             return 0.
         weights = self.weights
         w0 = weights[0]
-        score1 = lambda : euclid_similarity(x1.embedding, x2.embedding)
-        score2 = lambda : np.dot(x1.embedding, x2.embedding)
-        score3 = lambda : vector_sequence_similarity(x1.embeddings, x2.embeddings, w0, 'dot')
-        score4 = lambda : vector_sequence_similarity(x1.embeddings, x2.embeddings, w0, 'euclid')
+
+        def score1(): return euclid_similarity(x1.embedding, x2.embedding)
+
+        def score2(): return np.dot(x1.embedding, x2.embedding)
+
+        def score3(): return vector_sequence_similarity(
+            x1.embeddings, x2.embeddings, w0, 'dot')
+
+        def score4(): return vector_sequence_similarity(
+            x1.embeddings, x2.embeddings, w0, 'euclid')
         scores = [score1, score2, score3, score4]
         score_weights = weights[1:5]
         score = 0.

@@ -7,6 +7,7 @@ import numpy as np
 np_max = np.max
 np_argmax = np.argmax
 
+
 class EntityExtractor(object):
 
     def __init__(self):
@@ -35,8 +36,8 @@ class EntityExtractor(object):
         for y in self.Y:
             for k in y:
                 keys.add(k)
-        self.keys = {k: {'picks': [], 'lefts': [], 'rights': [], 'values': [], 'consts': {}, 'types': set()}
-                     for k in keys}
+        self.keys = {k: {'picks': [], 'lefts': [], 'rights': [],
+                         'values': [], 'consts': {}, 'types': set()} for k in keys}
         keys = self.keys
         for i, (x, y) in enumerate(zip(self.X, self.Y)):
             for k in keys:
@@ -113,7 +114,12 @@ class EntityExtractor(object):
                 n = len(vals)
                 c = len(set(vals))
                 variance = float(c) / n
-                pick = should_pick(x_embs, pick_embs, non_pick_embs, variance, weights)
+                pick = should_pick(
+                    x_embs,
+                    pick_embs,
+                    non_pick_embs,
+                    variance,
+                    weights)
             if pick:
                 token_scores = []
                 lefts_embs = [d.embeddings for d in kk['lefts']]
@@ -122,8 +128,15 @@ class EntityExtractor(object):
                 for i, t in enumerate(x):
                     left = x[:i]
                     right = x[i:]
-                    token_score = get_token_score(t.embedding, left.embeddings, right.embeddings,
-                                                  lefts_embs, rights_embs, vals_embs, bool(entity_type), weights)
+                    token_score = get_token_score(
+                        t.embedding,
+                        left.embeddings,
+                        right.embeddings,
+                        lefts_embs,
+                        rights_embs,
+                        vals_embs,
+                        bool(entity_type),
+                        weights)
                     token_scores.append(token_score)
                 y[k] = x[int(np_argmax(token_scores))].text
             else:
@@ -134,16 +147,19 @@ class EntityExtractor(object):
                     for ck in consts:
                         docs = [X[i] for i in consts[ck]]
                         embs = [doc.embeddings for doc in docs]
-                        score = np_max(batch_vector_sequence_similarity(embs, x_embs))
+                        score = np_max(
+                            batch_vector_sequence_similarity(
+                                embs, x_embs))
                         scores.append(score)
                     y[k] = consts_keys[int(np_argmax(scores))]
                 else:
                     docs = [X[i] for i in pick_idxs]
                     embs = [doc.embeddings for doc in docs]
-                    best_val_id = np_argmax(batch_vector_sequence_similarity(embs, x_embs))
+                    best_val_id = np_argmax(
+                        batch_vector_sequence_similarity(
+                            embs, x_embs))
                     y[k] = vals[best_val_id]
         return y
-
 
     def evaluate(self, X=None, Y=None):
         if X is None:
@@ -159,7 +175,6 @@ class EntityExtractor(object):
                     errors += 1
         accuracy = 1. - float(errors) / n
         return errors, accuracy
-
 
     def serialize(self):
         config = {}

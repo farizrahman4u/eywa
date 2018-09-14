@@ -27,8 +27,6 @@ dir_name = os.path.join(emb_dir, file_name[:-7])
 file_name = os.path.join(emb_dir, file_name)
 
 
-
-
 def _download_file(url, file_name):
     #u = urlopen(url)
     r = requests.get(url, stream=True)
@@ -48,8 +46,9 @@ def _download_file(url, file_name):
             print("File corrupt. Downloading again.")
             os.remove(file_name)
     if not file_exists:
-        factor = int(math.floor(math.log(file_size)/math.log(1024)))
-        display_file_size = str(file_size / 1024 ** factor) + ['B','KB','MB','GB','TB','PB'][factor]
+        factor = int(math.floor(math.log(file_size) / math.log(1024)))
+        display_file_size = str(file_size / 1024 ** factor) + \
+            ['B', 'KB', 'MB', 'GB', 'TB', 'PB'][factor]
         print("Source: " + url)
         print("Destination " + file_name)
         print("Size: " + display_file_size)
@@ -66,7 +65,7 @@ def _download_file(url, file_name):
             pbar.update(chunk_size)
             #status = r"%10d  [%3.2f%%]" % (file_size_dl, file_size_dl * 100. / file_size)
             #status = status + chr(8)*(len(status)+1)
-            #print(status)
+            # print(status)
         f.close()
     else:
         print("File already exists - " + file_name)
@@ -94,7 +93,13 @@ def download():
     with open(os.path.join(emb_dir, 'vectors.bin'), 'rb') as f:
         num_vectors = struct.unpack('i', f.read(4))[0]
         vector_dim = struct.unpack('i', f.read(4))[0]
-        vectors = [struct.unpack('f' * vector_dim, f.read(4 * vector_dim)) for _ in range(num_vectors)]
+        vectors = [
+            struct.unpack(
+                'f' *
+                vector_dim,
+                f.read(
+                    4 *
+                    vector_dim)) for _ in range(num_vectors)]
         np.save(vectors_file_name, vectors)
         del vectors
     print('Done.')
