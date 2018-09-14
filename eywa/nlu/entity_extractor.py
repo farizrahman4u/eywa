@@ -1,30 +1,32 @@
 from ..math import batch_vector_sequence_similarity, euclid_similarity
+from ..math import should_pick, get_token_score
 from ..lang import Document, Token
 import numpy as np
 
+
+np_max = np.max
+np_argmax = np.argmax
 
 class EntityExtractor(object):
 
     def __init__(self):
         self.X = []
         self.Y = []
-        # info about entities
-        # coloumns:
-        # #entity #pick? #entity_type_counts #values
         self.keys = {}
         self._changed = False
-        self.weights = np.array([0.5, 0.5, 0.5])
-        pass
+        self.weights = np.array([0.5, 0.5, 0.5, 0.5])
 
     @property
     def entities(self):
         return list(self.keys.keys())
 
     def fit(self, X, Y):
+        x_app = self.X.append
+        y_app = self.Y.append
         for x, y in zip(X, Y):
             x = Document(x)
-            self.X.append(x)
-            self.Y.append(y)
+            x_app(x)
+            y_app(y)
         self._changed = True
 
     def compile(self):
@@ -84,14 +86,15 @@ class EntityExtractor(object):
         y = {}
         x_embs = x.embeddings
         X = self.X
+        self_keys = self.keys
+        weights = self.weights
         for k in keys:
-            kk = self.keys[k]
+            kk = self_keys[k]
             types = kk['types']
             if len(types) == 1:
                 entity_type = list(types)[0]
             else:
                 entity_type = None
-
             pick_idxs = kk['picks']
             picks = []
             non_picks = []
@@ -102,44 +105,42 @@ class EntityExtractor(object):
                     non_picks.append(i)
             if not picks:
                 pick = False
-            elif not non_picks:
-                pick = True
             else:
                 pick_embs = [X[i].embeddings for i in picks]
                 non_pick_embs = [X[i].embeddings for i in non_picks]
-                pick_score = np.max(batch_vector_sequence_similarity(pick_embs, x_embs))
-                non_pick_score = np.max(batch_vector_sequence_similarity(non_pick_embs, x_embs))
-                pick = pick_score >= non_pick_score
+                vals = [self.Y[i][k] for i in pick_idxs]
+                n = len(vals)
+                c = len(set(vals))
+                variance = float(c) / n
+                pick = should_pick(x_embs, pick_embs, non_pick_embs, variance, weights)
             if pick:
                 token_scores = []
+                lefts_embs = [d.embeddings for d in kk['lefts']]
+                rights_embs = [d.embeddings for d in kk['rights']]
+                vals_embs = [v.embedding for v in kk['values']]
                 for i, t in enumerate(x):
-                    lefts_embs = [d.embeddings for d in kk['lefts']]
-                    rights_embs = [d.embeddings for d in kk['rights']]
                     left = x[:i]
                     right = x[i:]
-                    left_score = np.max(batch_vector_sequence_similarity(lefts_embs, left.embeddings))
-                    right_score = np.max(batch_vector_sequence_similarity(rights_embs, right.embeddings))
-                    value_score = np.max([euclid_similarity(v.embedding, t.embedding) for v in kk['values']])
-                    #value_score = np.mean(np.dot([v.embedding for v in kk['values']], t.embedding))
-                    left_right_weight = self.weights[0]
-                    word_neighbor_weight = self.weights[1]
-                    neighbor_score = left_right_weight * left_score + (1. - left_right_weight) * right_score
-                    token_score = word_neighbor_weight * value_score + (1. - word_neighbor_weight) * neighbor_score
-                    if entity_type:
-                        entity_type_weight = self.weights[2]
-                        token_score *= 1. + entity_type_weight
+                    token_score = get_token_score(t.embedding, left.embeddings, right.embeddings,
+                                                  lefts_embs, rights_embs, vals_embs, bool(entity_type), weights)
                     token_scores.append(token_score)
-                y[k] = x[int(np.argmax(token_scores))].text
+                y[k] = x[int(np_argmax(token_scores))].text
             else:
                 consts = kk['consts']
-                consts_keys = consts.keys()
-                scores = []
-                for ck in consts:
-                    docs = [X[i] for i in consts[ck]]
+                if consts:
+                    consts_keys = consts.keys()
+                    scores = []
+                    for ck in consts:
+                        docs = [X[i] for i in consts[ck]]
+                        embs = [doc.embeddings for doc in docs]
+                        score = np_max(batch_vector_sequence_similarity(embs, x_embs))
+                        scores.append(score)
+                    y[k] = consts_keys[int(np_argmax(scores))]
+                else:
+                    docs = [X[i] for i in pick_idxs]
                     embs = [doc.embeddings for doc in docs]
-                    score = np.max(batch_vector_sequence_similarity(embs, x_embs))
-                    scores.append(score)
-                y[k] = consts_keys[np.argmax(scores)]
+                    best_val_id = np_argmax(batch_vector_sequence_similarity(embs, x_embs))
+                    y[k] = vals[best_val_id]
         return y
     
     def serialize(self):

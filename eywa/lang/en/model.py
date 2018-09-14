@@ -15,6 +15,7 @@ import numpy as np
 import annoy
 import re
 import os
+import ast
 
 
 extractors = [DateTimeExtractor(), PhoneNumberExtractor(), EmailExtractor(), UrlExtractor(), NumberExtractor()]
@@ -38,7 +39,7 @@ tokens_db = Database(tokens_db_file_name, key_type=str, value_type=list)
 
 
 def tokenizer(X):
-    return [x.strip() for x in re.split('(\W+)?', X) if x.strip()]
+    return [x.strip() for x in re.split('(\W+)', X) if x.strip()]
 
 
 caps = "([A-Z])"
@@ -323,9 +324,19 @@ class Document(object):
     def __init__(self, text):
         if type(text) in (list, tuple):
             self.text = ' '.join([str(w) for w in text])
-            self.tokens = list(text)
+            self.tokens = [Token(t) for t in text]
             return
-        if type(text) in (Document, Token):
+        if type(text) is Document:
+            self.text = text.text
+            self.tokens = text.tokens[:]
+            emb = getattr(text, '_embedding')
+            if emb:
+                self._embedding = emb
+            embs = getattr(text, '_embeddings')
+            if embs:
+                self._embeddings = embs
+            return
+        if type(text) is Token:
             text = text.text
         self.text = text
         # Entity Extraction + tokenization
@@ -457,6 +468,13 @@ class Document(object):
             self._sentences = [Document(s) for s in split_into_sentences(self.text)]
             return self._sentences
 
+
+def todoc(x):
+    if isinstance(x, Document):
+        return x
+    return Document(x)
+
+
 def _get_filepath(f):
     return os.path.abspath(os.path.join(__file__, os.pardir)) + '/' + f
 
@@ -464,5 +482,5 @@ _stop_words_filepath = _get_filepath('stop_words.txt')
 
 
 with open(_stop_words_filepath, 'r') as f:
-    stop_words = eval(f.read())
+    stop_words = ast.literal_eval(f.read())
     stop_words = Document(' '.join(stop_words))

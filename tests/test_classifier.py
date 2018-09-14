@@ -2,46 +2,44 @@ from eywa.nlu import Classifier
 import pytest
 
 
-def test_classifier_basic():
-    x_hotel = ['book a hotel', 'need a nice place to stay', 'any motels near by']
-    x_weather = ['what is the weather like', 'is it hot outside']
+class TestClassifier:
 
-    clf = Classifier()
-    clf.fit(x_hotel, 'hotel')
-    clf.fit(x_weather, 'weather')
+    def test_classifier_basic(self):
+        x_hotel = ['book a hotel', 'need a nice place to stay', 'any motels near by']
+        x_weather = ['what is the weather like', 'is it hot outside']
 
-    assert clf.predict('will it rain today') == 'weather'
-    assert clf.predict('find a place to stay') == 'hotel'
+        clf = Classifier()
+        clf.fit(x_hotel, 'hotel')
+        clf.fit(x_weather, 'weather')
 
-    x_greetings = ['hi', 'hello', 'hello there', 'hey']
-    x_not_greetings = x_hotel + x_weather
+        assert clf.predict('will it rain today') == 'weather'
+        assert clf.predict('find a place to stay') == 'hotel'
 
-    clf2 = Classifier()
-    clf2.fit(x_greetings, 'greetings')
-    clf2.fit(x_not_greetings, 'not_greetings')
-    assert clf2.predict('flight information') == 'not_greetings'
-    assert clf2.predict('hey there') == 'greetings'
+        x_greetings = ['hi', 'hello', 'hello there', 'hey']
+        x_not_greetings = x_hotel + x_weather
 
-def test_classifier_serialization():
-    x_hotel = ['book a hotel', 'need a nice place to stay', 'any motels near by']
-    x_weather = ['what is the weather like', 'is it hot outside']
+        clf2 = Classifier()
+        clf2.fit(x_greetings, 'greetings')
+        clf2.fit(x_not_greetings, 'not_greetings')
+        assert clf2.predict('flight information') == 'not_greetings'
+        assert clf2.predict('hey there') == 'greetings'
 
-    clf1 = Classifier()
-    clf1.fit(x_hotel, 'hotel')
-    clf1.fit(x_weather, 'weather')
+    def test_classifier_serialization(self):
+        x_hotel = ['book a hotel', 'need a nice place to stay', 'any motels near by']
+        x_weather = ['what is the weather like', 'is it hot outside']
 
-    config = clf1.serialize()
-    clf2 = Classifier.deserialize(config)
+        clf1 = Classifier()
+        clf1.fit(x_hotel, 'hotel')
+        clf1.fit(x_weather, 'weather')
 
-    assert clf1.classes == clf2.classes
+        config = clf1.serialize()
+        clf2 = Classifier.deserialize(config)
 
-    test_inputs = ['will it rain today', 'find a place to stay']
+        assert clf1.classes == clf2.classes
 
-    for test_input in test_inputs:
-        clf1_out = clf1.predict(test_input, return_probs=True)
-        clf2_out = clf2.predict(test_input, return_probs=True)
-        assert clf1_out == clf2_out
+        test_inputs = ['will it rain today', 'find a place to stay']
 
-
-if __name__ == '__main__':
-    pytest.main(__file__)
+        for test_input in test_inputs:
+            clf1_out = clf1.predict(test_input, return_probs=True)
+            clf2_out = clf2.predict(test_input, return_probs=True)
+            assert clf1_out == clf2_out
