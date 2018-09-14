@@ -255,8 +255,17 @@ entity_embedding = {
 
 class Token(object):
     def __init__(self, text, entity=None):
-        self.text = text
-        self.entity = entity
+        if isinstance(text, Token):
+            self.text = text.text
+            emb = getattr(text, '_embedding')
+            if emb:
+                self._embedding = emb
+            self.entity = text.entity  
+        elif isinstance(text, str):
+            self.text = text
+            self.entity = entity
+        else:
+            raise TypeError('Unknown text type : ' + str(type(text) + '.'))
 
     def __str__(self):
         return self.text

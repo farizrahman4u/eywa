@@ -6,5 +6,5 @@ class Learner(object):
     def __call__(self, function, weights):
         # Arguments
         # function : The reward function. Callable.
-        # weights : list of floats
+        # weights : Numpy array
         raise NotImplemented
