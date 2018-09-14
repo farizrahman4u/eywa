@@ -29,10 +29,10 @@ class Pattern(object):
                     if ':' in buff:
                         varname, examples = buff.split(':')
                         varname = varname.strip()
-                        examples = examples.replace(' ',  '').split(',')
+                        examples = examples.replace(' ', '').split(',')
                         if varname in var_to_examples:
                             raise Exception('Multpile definitions for variable {}. '.format(varname) +
-                            'Examples should be provided for the first occurence.')
+                                            'Examples should be provided for the first occurence.')
                         positives = []
                         negatives = []
                         p_app = positives.append
@@ -68,7 +68,6 @@ class Pattern(object):
         self.pattern = y
         self.pattern_contexts = self._get_all_contexts(self.pattern)
         self.var_ids = [i for i in range(len(y)) if str(y[i]).startswith('_eywa_var_')]
-
 
     def _get_var_contexts(self):
         contexts = {}
@@ -110,7 +109,7 @@ class Pattern(object):
         return 0.5 * (lscore + rscore)
 
     def _similarity(self, x1, x2):
-        #if x1 == x2:
+        # if x1 == x2:
         #    return 1
         if len(x1) == 0 or len(x2) == 0:
             return 0.
@@ -143,7 +142,7 @@ class Pattern(object):
         for i in range(m):
             for j in range(n):
                 var = vars[i]
-                inp_j = input[j : j + 1]
+                inp_j = input[j: j + 1]
                 var_contexts = contexts[var]
                 token_context = input_contexts[j]
                 scores = [f1(vc, token_context) for vc in var_contexts]
@@ -157,10 +156,10 @@ class Pattern(object):
                 matrix[i, j] = score
         matrix *= softmax(matrix, 0)
         val_ids = np.argmax(matrix, 1)
-        return {vars[i] : str(input[int(val_ids[i])]) for i in range(m)}
+        return {vars[i]: str(input[int(val_ids[i])]) for i in range(m)}
 
     def serialize(self):
-        config = {'pattern' : self._pattern}
+        config = {'pattern': self._pattern}
         config['weights'] = [float(w) for w in self.weights]
         return config
 

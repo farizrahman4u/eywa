@@ -35,7 +35,8 @@ class EntityExtractor(object):
         for y in self.Y:
             for k in y:
                 keys.add(k)
-        self.keys = {k: {'picks': [], 'lefts': [], 'rights': [], 'values': [], 'consts': {}, 'types': set()} for k in keys}
+        self.keys = {k: {'picks': [], 'lefts': [], 'rights': [], 'values': [], 'consts': {}, 'types': set()}
+                     for k in keys}
         keys = self.keys
         for i, (x, y) in enumerate(zip(self.X, self.Y)):
             for k in keys:
@@ -143,6 +144,7 @@ class EntityExtractor(object):
                     y[k] = vals[best_val_id]
         return y
 
+
     def evaluate(self, X=None, Y=None):
         if X is None:
             X = self.X
@@ -158,11 +160,12 @@ class EntityExtractor(object):
         accuracy = 1. - float(errors) / n
         return errors, accuracy
 
+
     def serialize(self):
         config = {}
         config['X'] = [str(x) for x in self.X]
         config['Y'] = self.Y[:]
-        config['weights'] = [float(w) for w in self.weights] 
+        config['weights'] = [float(w) for w in self.weights]
         return config
 
     @classmethod

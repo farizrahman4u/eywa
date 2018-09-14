@@ -54,7 +54,6 @@ class Template(object):
                     ikm.append((j, varname))
         self._template_to_index_key_map = _template_to_index_key_map
 
-
     def __call__(self, x):
         t2ikm = self._template_to_index_key_map
         if self._list_out:
@@ -75,7 +74,7 @@ class Template(object):
             for i, k in ikm:
                 xk = x.get(k)
                 if xk is None:
-                    raise Exception('Value not provided for variable ' + k)   
+                    raise Exception('Value not provided for variable ' + k)
                 tokens[i] = Token(xk)
             return Document(tokens)
 

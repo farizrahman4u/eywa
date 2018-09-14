@@ -3,6 +3,7 @@ from ..math import vector_sequence_similarity, euclid_similarity, softmax
 from collections import defaultdict
 import numpy as np
 
+
 class Classifier(object):
 
     def __init__(self):
@@ -38,7 +39,7 @@ class Classifier(object):
     def predict(self, x, return_probs=False):
         if type(x) in (list, tuple):
             return type(x)([self.predict(i, return_probs) for i in x])
-        if type(x) is not Document:
+        if not isinstance(x, Document):
             x = Document(x)
         classes = list(self.data.keys())
         scores = np.zeros(len(classes))
@@ -91,7 +92,7 @@ class Classifier(object):
         config = {}
         config['X'] = [str(x) for x in self.X]
         config['Y'] = self.Y[:]
-        config['weights'] = [float(w) for w in self.weights] 
+        config['weights'] = [float(w) for w in self.weights]
         return config
 
     @classmethod
