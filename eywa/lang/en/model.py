@@ -258,7 +258,7 @@ class Token(object):
         if isinstance(text, Token):
             self.text = text.text
             emb = getattr(text, '_embedding', None)
-            if emb:
+            if emb is not None:
                 self._embedding = emb
             self.entity = text.entity  
         elif isinstance(text, str):
@@ -339,10 +339,10 @@ class Document(object):
             self.text = text.text
             self.tokens = text.tokens[:]
             emb = getattr(text, '_embedding', None)
-            if emb:
+            if emb is not None
                 self._embedding = emb
             embs = getattr(text, '_embeddings', None)
-            if embs:
+            if embs is not None
                 self._embeddings = embs
             return
         if type(text) is Token:
