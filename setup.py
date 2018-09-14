@@ -20,10 +20,10 @@ else:
 setup(
       name='eywa',
       version='0.0.1',
-      description='Language Understanding Engine',
+      description='Framework for conversational AI',
       author='Fariz Rahman',
-      author_email='fariz@datalog.ai',
-      url='https://github.com/farizrahman4u/lue',
+      author_email='farizrahman4u@gmail.com',
+      url='https://github.com/farizrahman4u/eywa',
       license='GNU GPL v2',
       install_requires=install_requires,
       dependency_links=dependency_links,
