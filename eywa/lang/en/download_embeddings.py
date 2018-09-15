@@ -3,21 +3,15 @@ import sys
 import math
 import tarfile
 import struct
-import json
 import shutil
+import requests
 import numpy as np
 from .filenames import frequency_file_name, vectors_file_name, vocab_file_name
-from .filenames import interrupt_flag_file_name as flag_file
 from ...utils import lang_en_embeddings_dir as emb_dir
 from ...utils import ProgressBar
 
 py3 = sys.version_info[0] == 3
-if py3:
-    from urllib.request import urlopen
-else:
-    from urllib2 import urlopen
 
-import requests
 
 # script to download and unzip embeddings
 
@@ -28,7 +22,6 @@ file_name = os.path.join(emb_dir, file_name)
 
 
 def _download_file(url, file_name):
-    #u = urlopen(url)
     r = requests.get(url, stream=True)
     file_size = int(r.headers['Content-length'])
     '''
@@ -63,8 +56,8 @@ def _download_file(url, file_name):
             file_size_dl += chunk_size
             f.write(chunk)
             pbar.update(chunk_size)
-            #status = r"%10d  [%3.2f%%]" % (file_size_dl, file_size_dl * 100. / file_size)
-            #status = status + chr(8)*(len(status)+1)
+            # status = r"%10d  [%3.2f%%]" % (file_size_dl, file_size_dl * 100. / file_size)
+            # status = status + chr(8)*(len(status)+1)
             # print(status)
         f.close()
     else:

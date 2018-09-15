@@ -1,6 +1,5 @@
 from ...utils import lang_en_embeddings_dir as emb_dir
 import os
-import sys
 
 
 frequency_file_name = os.path.join(emb_dir, 'frequency.json')

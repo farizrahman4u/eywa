@@ -1,4 +1,3 @@
-from ...utils import lang_en_embeddings_dir
 from ...utils import ProgressBar
 from .filenames import vectors_file_name, vector_index_file_name
 from .filenames import vocab_file_name, vocab_db_file_name, inverse_vocab_db_file_name
@@ -95,7 +94,7 @@ def _build():
                 token, sense = w.split('|')
             except Exception:
                 token = w
-                sense = ''
+                sense = ''  # noqa
             v = tokens_db.get(token)
             if v:
                 v.append(i)
@@ -135,7 +134,7 @@ def _build():
         inverse_vocab_db.close()
         inverse_vocab_db = Database(
             inverse_vocab_db_file_name,
-            key_type=unicode,
+            key_type=unicode,  # noqa
             value_type=int)
     for i, x in enumerate(freqs):
         x[0] = inverse_vocab_db[x[0]]
