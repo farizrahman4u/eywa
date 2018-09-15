@@ -1,5 +1,4 @@
 from eywa.nlu import Comparator
-from eywa.math import set_backend
 import pytest
 
 class TestComparator(object):
