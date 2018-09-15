@@ -24,13 +24,14 @@ numbers = "(^a(?=\s)|one|two|three|four|five|six|seven|eight|nine|ten| \
                     eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen| \
                     eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty| \
                     ninety|hundred|thousand|first|second|third|forth|fourth|fifth)"
-re_dmy = '(' + "|".join(day_variations + minute_variations + year_variations + week_variations + month_variations) + ')'
-re_duration = '(before|after|earlier|later|ago|from\snow)'
-re_year = "(17|18|19|20)\d{2}|^(17|18|19|20)\d{2}"
-re_timeframe = 'current|this|coming|next|following|previous|last|end\sof\sthe|since'
+re_dmy = '(' + "|".join(day_variations + minute_variations +
+                        year_variations + week_variations + month_variations) + ')'
+re_duration = r'(before|after|earlier|later|ago|from\snow)'
+re_year = r"(17|18|19|20)\d{2}|^(17|18|19|20)\d{2}"
+re_timeframe = r'current|this|coming|next|following|previous|last|end\sof\sthe|since'
 re_ordinal = 'st|nd|rd|th|first|second|third|fourth|fourth|' + re_timeframe
 re_number_end = ['st', 'nd', 'rd', 'th']
-re_time = '(?P<hour>\d{1,2})(\s?)(\:(?P<minute>\d{1,2})(?P<convention>am|pm))'
+re_time = r'(?P<hour>\d{1,2})(\s?)(\:(?P<minute>\d{1,2})(?P<convention>am|pm))'
 re_separator = 'of|at|on'
 all_numbers = numbers + '|first|second|third|forth|fourth|fifth|sixth|seventh|eighth|ninth|tenth'
 
@@ -55,16 +56,16 @@ regex = [
             (%s\s)?
         )
         (\b)
-        '''%(numbers, re_ordinal, re_separator, month_names, all_numbers, re_ordinal, all_numbers, re_ordinal),
+        ''' % (numbers, re_ordinal, re_separator, month_names, all_numbers, re_ordinal, all_numbers, re_ordinal),
         (re.VERBOSE | re.IGNORECASE)
-        ),
+    ),
         lambda m, base_date: dateFromWords(
             base_date,
             m.group('number_1'),
             m.group('month'),
             m.group('number_2'),
             m.group('number_3')
-        )
+    )
     ),
     (re.compile(
         r'''
@@ -81,18 +82,18 @@ regex = [
             ((\s|,\s|\s(%s))?\s*(%s))?
         )
         (\b)
-        '''% (day_names, re_ordinal, re_separator, month_names, re_year, re_separator, re_time),
+        ''' % (day_names, re_ordinal, re_separator, month_names, re_year, re_separator, re_time),
         (re.VERBOSE | re.IGNORECASE)
-        ),
+    ),
         lambda m, base_date: (datetime(
-                int(m.group('year') if m.group('year') else base_date.year),
-                hashmonths[m.group('month').strip().lower()],
-                int(m.group('day') if m.group('day') else 1),
-            ) + timedelta(**convertTimetoHourMinute(
-                m.group('hour'),
-                m.group('minute'),
-                m.group('convention')
-            )), getDateUnit(m.group('day'), m.group('month'), m.group('year')))
+            int(m.group('year') if m.group('year') else base_date.year),
+            hashmonths[m.group('month').strip().lower()],
+            int(m.group('day') if m.group('day') else 1),
+        ) + timedelta(**convertTimetoHourMinute(
+            m.group('hour'),
+            m.group('minute'),
+            m.group('convention')
+        )), getDateUnit(m.group('day'), m.group('month'), m.group('year')))
     ),
     (re.compile(
         r'''
@@ -109,18 +110,18 @@ regex = [
             ([-\s](?P<year>%s)) # Year
             ((\s|,\s|\s(%s))?\s*(%s))?
         )
-        '''% (day_names, month_names, re_ordinal, re_year, re_separator, re_time),
+        ''' % (day_names, month_names, re_ordinal, re_year, re_separator, re_time),
         (re.VERBOSE | re.IGNORECASE)
-        ),
+    ),
         lambda m, base_date: (datetime(
-                int(m.group('year') if m.group('year') else base_date.year),
-                hashmonths[m.group('month').strip().lower()],
-                int(m.group('day') if m.group('day') else 1)
-            ) + timedelta(**convertTimetoHourMinute(
-                m.group('hour'),
-                m.group('minute'),
-                m.group('convention')
-            )), getDateUnit(m.group('day'), m.group('month'), m.group('year')))
+            int(m.group('year') if m.group('year') else base_date.year),
+            hashmonths[m.group('month').strip().lower()],
+            int(m.group('day') if m.group('day') else 1)
+        ) + timedelta(**convertTimetoHourMinute(
+            m.group('hour'),
+            m.group('minute'),
+            m.group('convention')
+        )), getDateUnit(m.group('day'), m.group('month'), m.group('year')))
     ),
     (re.compile(
         r'''
@@ -135,18 +136,18 @@ regex = [
             ((\s|,\s|\s(%s))?\s*(%s))?
         )
         (\b)
-        '''% (month_names, re_ordinal, re_year, re_separator, re_time),
+        ''' % (month_names, re_ordinal, re_year, re_separator, re_time),
         (re.VERBOSE | re.IGNORECASE)
-        ),
+    ),
         lambda m, base_date: (datetime(
-                int(m.group('year') if m.group('year') else base_date.year),
-                hashmonths[m.group('month').strip().lower()],
-                int(m.group('day') if m.group('day') else 1),
-            ) + timedelta(**convertTimetoHourMinute(
-                m.group('hour'),
-                m.group('minute'),
-                m.group('convention')
-            )), getDateUnit(m.group('day'), m.group('month'), m.group('year')))
+            int(m.group('year') if m.group('year') else base_date.year),
+            hashmonths[m.group('month').strip().lower()],
+            int(m.group('day') if m.group('day') else 1),
+        ) + timedelta(**convertTimetoHourMinute(
+            m.group('hour'),
+            m.group('minute'),
+            m.group('convention')
+        )), getDateUnit(m.group('day'), m.group('month'), m.group('year')))
     ),
     (re.compile(
         r'''
@@ -159,9 +160,9 @@ regex = [
             ((\s|,\s|\s(%s))?\s*(%s))?
         )
         (\b)
-        '''% (numbers, re_dmy, re_duration, day_nearest_names, re_separator, re_time),
+        ''' % (numbers, re_dmy, re_duration, day_nearest_names, re_separator, re_time),
         (re.VERBOSE | re.IGNORECASE)
-        ),
+    ),
         lambda m, base_date: (dateFromDuration(
             base_date,
             m.group('number'),
@@ -183,9 +184,9 @@ regex = [
             (?P<unit>%s)s
         )
         (\b)
-        '''% (re_duration, numbers, re_dmy),
+        ''' % (re_duration, numbers, re_dmy),
         (re.VERBOSE | re.IGNORECASE)
-        ),
+    ),
         lambda m, base_date: (dateFromDuration(
             base_date,
             m.group('number'),
@@ -204,14 +205,14 @@ regex = [
             (?P<year>%s)
         )
         (\b)
-        '''% (re_ordinal, re_year),
+        ''' % (re_ordinal, re_year),
         (re.VERBOSE | re.IGNORECASE)
-        ),
+    ),
         lambda m, base_date: dateFromQuarter(
             base_date,
             hashordinals[m.group('ordinal').lower()],
             int(m.group('year') if m.group('year') else base.year)
-        )
+    )
     ),
     (re.compile(
         r'''
@@ -224,14 +225,14 @@ regex = [
             ([,\s]\s*(?P<year>%s))?
         )
         (\b)
-        '''% (re_ordinal, re_separator, month_names, re_year),
+        ''' % (re_ordinal, re_separator, month_names, re_year),
         (re.VERBOSE | re.IGNORECASE)
-        ),
+    ),
         lambda m, base_date: (datetime(
-                int(m.group('year') if m.group('year') else base_date.year),
-                int(hashmonths[m.group('month').lower()] if m.group('month') else 1),
-                int(m.group('ordinal_value') if m.group('ordinal_value') else 1),
-            ), 'day')
+            int(m.group('year') if m.group('year') else base_date.year),
+            int(hashmonths[m.group('month').lower()] if m.group('month') else 1),
+            int(m.group('ordinal_value') if m.group('ordinal_value') else 1),
+        ), 'day')
     ),
     (re.compile(
         r'''
@@ -243,10 +244,11 @@ regex = [
             ([,\s]\s*(?P<year>%s))
         )
         (\b)
-        '''% (numbers, re_separator, month_names, re_year),
+        ''' % (numbers, re_separator, month_names, re_year),
         (re.VERBOSE | re.IGNORECASE)
-        ),
-        lambda m, base_date: dateFromWordsMonthYear(base_date, m.group('number'), m.group('month'), m.group('year'))
+    ),
+        lambda m, base_date: dateFromWordsMonthYear(
+        base_date, m.group('number'), m.group('month'), m.group('year'))
     ),
     (re.compile(
         r'''
@@ -258,15 +260,15 @@ regex = [
             ([,\s]\s*(?P<year>\d{2}))
         )
         (\b)
-        '''% (numbers, re_separator, month_names),
+        ''' % (numbers, re_separator, month_names),
         (re.VERBOSE | re.IGNORECASE)
-        ),
+    ),
         lambda m, base_date: dateFromWordsMonthYear(
             base_date,
             m.group('number'),
             m.group('month'),
             m.group('year')
-        )
+    )
     ),
     (re.compile(
         r'''
@@ -279,14 +281,14 @@ regex = [
             ([,\s]\s*(?P<year>%s))?
         )
         (\b)
-        '''% (month_names, re_ordinal, re_year),
+        ''' % (month_names, re_ordinal, re_year),
         (re.VERBOSE | re.IGNORECASE)
-        ),
+    ),
         lambda m, base_date: datetime(
-                int(m.group('year') if m.group('year') else base_date.year),
-                int(hashmonths[m.group('month').lower()] if m.group('month') else 1),
-                int(m.group('ordinal_value') if m.group('ordinal_value') else 1),
-            )
+        int(m.group('year') if m.group('year') else base_date.year),
+        int(hashmonths[m.group('month').lower()] if m.group('month') else 1),
+        int(m.group('ordinal_value') if m.group('ordinal_value') else 1),
+    )
     ),
     (re.compile(
         r'''
@@ -296,18 +298,18 @@ regex = [
         (?P<dmy>%s) # year, day, week, month, night, minute, min
         ((\s|,\s|\s(%s))?\s*(%s)) # With time
         (\b)
-        '''% (re_timeframe, re_dmy, re_separator, re_time),
+        ''' % (re_timeframe, re_dmy, re_separator, re_time),
         (re.VERBOSE | re.IGNORECASE),
-        ),
+    ),
         lambda m, base_date: (dateFromRelativeWeekYear(
             base_date,
             m.group('time'),
             m.group('dmy')
         ) + timedelta(**convertTimetoHourMinute(
-                m.group('hour'),
-                m.group('minute'),
-                m.group('convention')
-            )), normalizeUnit(m.group('dmy')))
+            m.group('hour'),
+            m.group('minute'),
+            m.group('convention')
+        )), normalizeUnit(m.group('dmy')))
     ),
     (re.compile(
         r'''
@@ -317,15 +319,15 @@ regex = [
         ((?P<number>\d+|(%s[-\s]?)+)\s*)?
         (?P<dmy>%s) # year, day, week, month, night, minute, min
         (\b)
-        '''% (re_timeframe, numbers, re_dmy),
+        ''' % (re_timeframe, numbers, re_dmy),
         (re.VERBOSE | re.IGNORECASE),
-        ),
+    ),
         lambda m, base_date: dateFromRelativeWeekYear(
             base_date,
             m.group('time'),
             m.group('dmy'),
             m.group('number')
-        )
+    )
     ),
     (re.compile(
         r'''
@@ -335,18 +337,18 @@ regex = [
         (?P<dow>%s) # mon - fri
         ((\s|,\s|\s(%s))?\s*(%s))?
         (\b)
-        '''% (re_timeframe, day_names, re_separator, re_time),
+        ''' % (re_timeframe, day_names, re_separator, re_time),
         (re.VERBOSE | re.IGNORECASE),
-        ),
+    ),
         lambda m, base_date: (dateFromRelativeDay(
             base_date,
             m.group('time'),
             m.group('dow')
         ) + timedelta(**convertTimetoHourMinute(
-                m.group('hour'),
-                m.group('minute'),
-                m.group('convention')
-            )), 'day')
+            m.group('hour'),
+            m.group('minute'),
+            m.group('convention')
+        )), 'day')
     ),
     (re.compile(
         r'''
@@ -356,18 +358,18 @@ regex = [
         (?P<month>%s) # Month
         ((\s|,\s|\s(%s))?\s*(%s))?
         (\b)
-        '''% (re_timeframe, month_names, re_separator, re_time),
+        ''' % (re_timeframe, month_names, re_separator, re_time),
         (re.VERBOSE | re.IGNORECASE),
-        ),
+    ),
         lambda m, base_date: (dateFromRelativeMonth(
             base_date,
             m.group('time'),
             m.group('month')
         ) + timedelta(**convertTimetoHourMinute(
-                m.group('hour'),
-                m.group('minute'),
-                m.group('convention')
-            )), 'month')
+            m.group('hour'),
+            m.group('minute'),
+            m.group('convention')
+        )), 'month')
     ),
     (re.compile(
         r'''
@@ -378,10 +380,11 @@ regex = [
             (?P<month>%s)
         )
         (\b)
-        '''% (numbers, re_separator, month_names),
+        ''' % (numbers, re_separator, month_names),
         (re.VERBOSE | re.IGNORECASE)
-        ),
-        lambda m, base_date: dateFromWordsMonthYear(base_date, m.group('number'), m.group('month'), base_date.year)
+    ),
+        lambda m, base_date: dateFromWordsMonthYear(
+        base_date, m.group('number'), m.group('month'), base_date.year)
     ),
     (re.compile(
         r'''
@@ -393,14 +396,14 @@ regex = [
             (?P<month>%s)
         )
         (\b)
-        '''% (re_ordinal, month_names),
+        ''' % (re_ordinal, month_names),
         (re.VERBOSE | re.IGNORECASE)
-        ),
+    ),
         lambda m, base_date: (datetime(
-                base_date.year,
-                hashmonths[m.group('month').strip().lower()],
-                int(m.group('day') if m.group('day') else 1)
-            ), 'day')
+            base_date.year,
+            hashmonths[m.group('month').strip().lower()],
+            int(m.group('day') if m.group('day') else 1)
+        ), 'day')
     ),
     (re.compile(
         r'''
@@ -412,14 +415,14 @@ regex = [
             (%s)?
         )
         (\b)
-        '''% (month_names, re_ordinal),
+        ''' % (month_names, re_ordinal),
         (re.VERBOSE | re.IGNORECASE)
-        ),
+    ),
         lambda m, base_date: (datetime(
-                base_date.year,
-                hashmonths[m.group('month').strip().lower()],
-                int(m.group('day') if m.group('day') else 1)
-            ), 'day')
+            base_date.year,
+            hashmonths[m.group('month').strip().lower()],
+            int(m.group('day') if m.group('day') else 1)
+        ), 'day')
     ),
     (re.compile(
         r'''
@@ -430,14 +433,14 @@ regex = [
             ((?P<year>\d{1,4})\b) # Matches a digit January 12
         )
         (\b)
-        '''% (month_names),
+        ''' % (month_names),
         (re.VERBOSE | re.IGNORECASE)
-        ),
+    ),
         lambda m, base_date: (datetime(
-                int(m.group('year')),
-                hashmonths[m.group('month').strip().lower()],
-                1
-            ), 'month')
+            int(m.group('year')),
+            hashmonths[m.group('month').strip().lower()],
+            1
+        ), 'month')
     ),
     (re.compile(
         r'''
@@ -449,14 +452,14 @@ regex = [
             (/(?P<year>%s))?
         )
         (\b)
-        '''% (re_year),
+        ''' % (re_year),
         (re.VERBOSE | re.IGNORECASE)
-        ),
+    ),
         lambda m, base_date: datetime(
-                int(m.group('year') if m.group('year') else base_date.year),
-                int(m.group('month').strip()),
-                int(m.group('day'))
-            )
+        int(m.group('year') if m.group('year') else base_date.year),
+        int(m.group('month').strip()),
+        int(m.group('day'))
+    )
     ),
     (re.compile(
         r'''
@@ -468,14 +471,14 @@ regex = [
             (/(?P<year>%s))?
         )
         (\b)
-        '''% (re_year),
+        ''' % (re_year),
         (re.VERBOSE | re.IGNORECASE)
-        ),
+    ),
         lambda m, base_date: datetime(
-                int(m.group('year') if m.group('year') else base_date.year),
-                int(m.group('month').strip()),
-                int(m.group('day'))
-            )
+        int(m.group('year') if m.group('year') else base_date.year),
+        int(m.group('month').strip()),
+        int(m.group('day'))
+    )
     ),
     (re.compile(
         r'''
@@ -488,14 +491,14 @@ regex = [
             ((?P<year>%s))
         )
         (\b)
-        '''% (re_year),
+        ''' % (re_year),
         (re.VERBOSE | re.IGNORECASE)
-        ),
+    ),
         lambda m, base_date: datetime(
-                int(m.group('year') if m.group('year') else base_date.year),
-                int(m.group('month').strip()),
-                int(m.group('day'))
-            )
+        int(m.group('year') if m.group('year') else base_date.year),
+        int(m.group('month').strip()),
+        int(m.group('day'))
+    )
     ),
     (re.compile(
         r'''
@@ -506,9 +509,9 @@ regex = [
             (?P<year_end>%s)
         )
         (\b)
-        '''% (re_year, re_year),
+        ''' % (re_year, re_year),
         (re.VERBOSE | re.IGNORECASE)
-        ),
+    ),
         lambda m, base_date: dateYearRange(base_date, m.group('year_start'), m.group('year_end'))
     ),
     (re.compile(
@@ -520,45 +523,45 @@ regex = [
             ((?P<year>%s)|(?P<day>\d{1,2})) # MM/DD or MM/DD/YYYY
         )
         (\b)
-        '''% (re_timeframe, re_year),
+        ''' % (re_timeframe, re_year),
         (re.VERBOSE | re.IGNORECASE)
-        ),
+    ),
         lambda m, base_date: dateFromDurationDigit(
-                base_date,
-                m.group('duration'),
-                m.group('year'),
-                m.group('day')
-            )
+        base_date,
+        m.group('duration'),
+        m.group('year'),
+        m.group('day')
+    )
     ),
     (re.compile(
         r'''
         (\b)
         (?P<adverb>%s) # today, yesterday, tomorrow, tonight
         ((\s|,\s|\s(%s))?\s*(%s))?
-        '''% (day_nearest_names, re_separator, re_time),
+        ''' % (day_nearest_names, re_separator, re_time),
         (re.VERBOSE | re.IGNORECASE)
-        ),
+    ),
         lambda m, base_date: (dateFromAdverb(
             base_date,
             m.group('adverb')
         ) + timedelta(**convertTimetoHourMinute(
-                m.group('hour'),
-                m.group('minute'),
-                m.group('convention')
-            )), 'day')
+            m.group('hour'),
+            m.group('minute'),
+            m.group('convention')
+        )), 'day')
     ),
     (re.compile(
         r'''
         (\b)
         (?P<named_day>%s) # Mon - Sun
         (\b)
-        '''% (day_names),
+        ''' % (day_names),
         (re.VERBOSE | re.IGNORECASE)
-        ),
+    ),
         lambda m, base_date: this_week_day(
             base_date,
             hashweekdays[m.group('named_day').lower()]
-        )
+    )
     ),
     # Disable year
     # (re.compile(
@@ -576,9 +579,9 @@ regex = [
         (\b)
         (?P<month>%s) # Month
         (\b)
-        '''% (month_names_long),
+        ''' % (month_names_long),
         (re.VERBOSE | re.IGNORECASE)
-        ),
+    ),
         lambda m, base_date: (datetime(
             base_date.year,
             hashmonths[m.group('month').lower()],
@@ -588,18 +591,18 @@ regex = [
     (re.compile(
         r'''
         (%s) # Matches time 12:00
-        '''% (re_time),
+        ''' % (re_time),
         (re.VERBOSE | re.IGNORECASE),
-        ),
+    ),
         lambda m, base_date: (datetime(
             base_date.year,
             base_date.month,
             base_date.day
         ) + timedelta(**convertTimetoHourMinute(
-                m.group('hour'),
-                m.group('minute'),
-                m.group('convention')
-            )), 'hour')
+            m.group('hour'),
+            m.group('minute'),
+            m.group('convention')
+        )), 'hour')
     ),
     (re.compile(
         r'''
@@ -608,20 +611,22 @@ regex = [
             \s+
             (%s)
         )
-        '''% ('|'.join(hour_variations)),
+        ''' % ('|'.join(hour_variations)),
         (re.VERBOSE | re.IGNORECASE),
-        ),
+    ),
         lambda m, base_date: (datetime(
             base_date.year,
             base_date.month,
             base_date.day,
             int(m.group('hour'))
-            ), 'hour')
+        ), 'hour')
     )
 ]
 
 # Hash of numbers
 # Append more number to modify your match
+
+
 def hashnum(number):
     if re.match(r'one|^a\b', number, re.IGNORECASE):
         return 1
@@ -682,11 +687,12 @@ def hashnum(number):
     if re.match(r'hundred\b', number, re.IGNORECASE):
         return 100
     if re.match(r'thousand\b', number, re.IGNORECASE):
-      return 1000
+        return 1000
 
     return None
 
-def convert_word_to_number (s):
+
+def convert_word_to_number(s):
     if hashnum(s):
         return hashnum(s)
     elif s in hashordinals:
@@ -694,20 +700,24 @@ def convert_word_to_number (s):
     return 1
 
 # Convert strings to numbers
+
+
 def convert_string_to_number(value):
     # print (value)
     # print (re.findall(numbers + '\\b', value, re.IGNORECASE))
     # print (numbers + '\b')
-    if value == None:
+    if value is None:
         return 1
     if isinstance(value, int):
         return value
     if value.isdigit():
         return int(value)
-    num_list = map(lambda s:convert_word_to_number(s), re.findall(numbers + '\\b', value, re.IGNORECASE))
+    num_list = map(lambda s: convert_word_to_number(s), re.findall(numbers + '\\b', value, re.IGNORECASE))
     return sum(num_list)
 
 # Convert time to hour, minute
+
+
 def convertTimetoHourMinute(hour, minute, convention):
     if hour is None:
         hour = 0
@@ -720,12 +730,14 @@ def convertTimetoHourMinute(hour, minute, convention):
     minute = int(minute)
 
     if convention == 'pm':
-        hour+=12
+        hour += 12
 
-    return { 'hours': hour, 'minutes': minute }
+    return {'hours': hour, 'minutes': minute}
 
 # Date from words
-def dateFromWords (base_date, n1, month, n2, n3):
+
+
+def dateFromWords(base_date, n1, month, n2, n3):
     day = convert_string_to_number(n1)
     month = hashmonths[month.strip().lower()]
     n2 = convert_string_to_number(n2)
@@ -733,22 +745,27 @@ def dateFromWords (base_date, n1, month, n2, n3):
     year = int(str(n2) + str(n3)) if n2 and n2 else base_date.year
     return datetime(year, month, day)
 
-def dateFromWords2 (base_date, n,m):
+
+def dateFromWords2(base_date, n, m):
     return datetime(base_date.year, m, convert_string_to_number(n))
 
-def normalize_year (yr, base_date):
+
+def normalize_year(yr, base_date):
     if yr < 100:
         yr = int(str(base_date.year)[0:2] + str(yr))
     return yr
 
-def dateFromWordsMonthYear (base_date, numberAsString, month, year):
+
+def dateFromWordsMonthYear(base_date, numberAsString, month, year):
     year = normalize_year(int(year if year else base_date.year), base_date)
     month = int(hashmonths[month.lower()] if month else 1)
     num = convert_string_to_number(numberAsString)
     return datetime(year, month, num)
 
 # Quarter of a year
-def dateFromQuarter (base_date, ordinal, year):
+
+
+def dateFromQuarter(base_date, ordinal, year):
     interval = 3
     measurement_unit = 'quarter'
     month_start = interval * (ordinal - 1)
@@ -764,6 +781,8 @@ def dateFromQuarter (base_date, ordinal, year):
 
 # Converts relative day to time
 # this tuesday, last tuesday
+
+
 def dateFromRelativeDay(base_date, time, dow):
     # Reset date to start of the day
     base_date = datetime(base_date.year, base_date.month, base_date.day)
@@ -783,9 +802,11 @@ def dateFromRelativeDay(base_date, time, dow):
         # Else day of week
         num = hashweekdays[dow]
         return next_week_day(base_date, num)
-  
+
 # Converts relative month to time
 # this december, last january
+
+
 def dateFromRelativeMonth(base_date, time, month):
     # Reset date to start of the day
     base_date = datetime(base_date.year, base_date.month, base_date.day)
@@ -808,7 +829,9 @@ def dateFromRelativeMonth(base_date, time, month):
 
 # Converts relative day to time
 # this tuesday, last tuesday
-def dateFromRelativeWeekYear(base_date, time, dow, ordinal = None):
+
+
+def dateFromRelativeWeekYear(base_date, time, dow, ordinal=None):
     # If there is an ordinal (next 3 weeks) => return a start and end range
     # Reset date to start of the day
     # ordinal = int(ordinal) if ordinal is not None and ordinal.isdigit() else 1
@@ -912,6 +935,8 @@ def dateFromRelativeWeekYear(base_date, time, dow, ordinal = None):
 # Convert Day adverbs to dates
 # Tomorrow => Date
 # Today => Date
+
+
 def dateFromAdverb(base_date, name):
     measurement_unit = 'day'
     # Reset date to start of the day
@@ -925,6 +950,7 @@ def dateFromAdverb(base_date, name):
     elif name == 'tomorrow' or name == 'tom':
         return d + timedelta(days=1)
 
+
 def dateYearRange(base_date, year_start, year_end):
     values = []
     year_start = int(year_start)
@@ -937,27 +963,30 @@ def dateYearRange(base_date, year_start, year_end):
         values.append(datetime(i, 1, 1))
     return (values, 'year')
 
-def getDateUnit (day, year, month):
-  if day is not None:
-    return 'day'
-  if month is not None:
-    return 'month'
-  if year is not None:
-    return 'year'
 
-def normalizeUnit (unit):
-  if unit in year_variations:
-      return 'year'
-  if unit in month_variations:
-      return 'month'
-  if unit in week_variations:
-      return 'week'
-  if unit in day_variations:
-      return 'day'
-  if unit in hour_variations:
-      return 'hour'
-  if unit in minute_variations:
-      return 'minute'
+def getDateUnit(day, year, month):
+    if day is not None:
+        return 'day'
+    if month is not None:
+        return 'month'
+    if year is not None:
+        return 'year'
+
+
+def normalizeUnit(unit):
+    if unit in year_variations:
+        return 'year'
+    if unit in month_variations:
+        return 'month'
+    if unit in week_variations:
+        return 'week'
+    if unit in day_variations:
+        return 'day'
+    if unit in hour_variations:
+        return 'hour'
+    if unit in minute_variations:
+        return 'minute'
+
 
 def dateFromDurationDigit(base_date, duration, year, day):
     values = []
@@ -986,9 +1015,11 @@ def dateFromDurationDigit(base_date, duration, year, day):
 # Find dates from duration
 # Eg: 20 days from now
 # Doesnt support 20 days from last monday
-def dateFromDuration(base_date, numberAsString, unit, duration, base_time = None):
+
+
+def dateFromDuration(base_date, numberAsString, unit, duration, base_time=None):
     # Check if query is `2 days before yesterday` or `day before yesterday`
-    if base_time != None:
+    if base_time is not None:
         base_date = dateFromAdverb(base_date, base_time)
     num = convert_string_to_number(numberAsString)
     if unit in day_variations:
@@ -1011,6 +1042,8 @@ def dateFromDuration(base_date, numberAsString, unit, duration, base_time = None
         return base_date + timedelta(**args)
 
 # Finds coming weekday
+
+
 def this_week_day(base_date, weekday):
     day_of_week = base_date.weekday()
     # If today is Tuesday and the query is `this monday`
@@ -1024,11 +1057,14 @@ def this_week_day(base_date, weekday):
     return day
 
 # Finds coming weekday
+
+
 def previous_week_day(base_date, weekday):
     day = base_date - timedelta(days=1)
     while day.weekday() != weekday:
         day = day - timedelta(days=1)
     return day
+
 
 def next_week_day(base_date, weekday):
     day_of_week = base_date.weekday()
@@ -1088,8 +1124,8 @@ hashweekdays = {
 hashordinals = {
     'first': 1,
     'one': 1,
-    'second' : 2,
-    'two' : 2,
+    'second': 2,
+    'two': 2,
     'third': 3,
     'three': 3,
     'fourth': 4,
@@ -1112,7 +1148,9 @@ hashordinals = {
 }
 
 # Parses date
-def extract_datetime(text, base_date = datetime.now):
+
+
+def extract_datetime(text, base_date=datetime.now):
     # Evaluate base date
     base_date = base_date()
     matches = []
@@ -1128,9 +1166,9 @@ def extract_datetime(text, base_date = datetime.now):
                 val = fn(m, base_date)
                 unit = 'day'
                 if (isinstance(val, tuple)):
-                  value, unit = val
+                    value, unit = val
                 else:
-                  value = val
+                    value = val
                 matches.append((m.group(), value, m.span(), unit))
             except ValueError:
                 continue
@@ -1146,7 +1184,7 @@ def extract_datetime(text, base_date = datetime.now):
             found_array.append((match, value, spans, unit))
 
     # To preserve order of the match, sort based on the start position
-    return sorted(found_array, key = lambda match: match and match[2][0])
+    return sorted(found_array, key=lambda match: match and match[2][0])
 
 
 class DateTimeExtractor(Extractor):
