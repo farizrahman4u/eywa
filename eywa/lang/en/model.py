@@ -1,5 +1,15 @@
 # -*- coding: utf-8 -*-
 
+import numpy as np
+import annoy
+import re
+import os
+import ast
+
+from .database import Database
+from .extractors import DateTimeExtractor, PhoneNumberExtractor, EmailExtractor, UrlExtractor, NumberExtractor
+from . import indexer
+from numpy.core.umath_tests import inner1d
 from ...entities import DateTime, Number, PhoneNumber, Email, Url
 from ...math import frequencies_to_weights
 from .filenames import vectors_file_name, vector_index_file_name, interrupt_flag_file_name
@@ -7,15 +17,6 @@ from .filenames import vocab_db_file_name, inverse_vocab_db_file_name
 from .filenames import frequency_file_name, frequency_db_file_name
 from.filenames import phrases_db_file_name, tokens_db_file_name
 from .filenames import vector_size_file_name
-from .database import Database
-from .extractors import DateTimeExtractor, PhoneNumberExtractor, EmailExtractor, UrlExtractor, NumberExtractor
-from . import indexer
-from numpy.core.umath_tests import inner1d
-import numpy as np
-import annoy
-import re
-import os
-import ast
 
 
 extractors = [

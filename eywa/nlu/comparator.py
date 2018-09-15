@@ -9,16 +9,20 @@ class Comparator(object):
         self.weights = np.array([0.5, .1, .1, 1., .05])
 
     def _similarity(self, x1, x2):
-        #if x1 == x2:
+        # if x1 == x2:
         #    return 1
         if len(x1) == 0 or len(x2) == 0:
             return 0.
         weights = self.weights
         w0 = weights[0]
-        score1 = lambda : euclid_similarity(x1.embedding, x2.embedding)
-        score2 = lambda : np.dot(x1.embedding, x2.embedding)
-        score3 = lambda : vector_sequence_similarity(x1.embeddings, x2.embeddings, w0, 'dot')
-        score4 = lambda : vector_sequence_similarity(x1.embeddings, x2.embeddings, w0, 'euclid')
+
+        def score1(): return euclid_similarity(x1.embedding, x2.embedding)
+
+        def score2(): return np.dot(x1.embedding, x2.embedding)
+
+        def score3(): return vector_sequence_similarity(x1.embeddings, x2.embeddings, w0, 'dot')
+
+        def score4(): return vector_sequence_similarity(x1.embeddings, x2.embeddings, w0, 'euclid')
         scores = [score1, score2, score3, score4]
         score_weights = weights[1:5]
         score = 0.
@@ -34,7 +38,7 @@ class Comparator(object):
 
     def serialize(self):
         config = {}
-        config['weights'] = [float(w) for w in self.weights] 
+        config['weights'] = [float(w) for w in self.weights]
         return config
 
     @classmethod

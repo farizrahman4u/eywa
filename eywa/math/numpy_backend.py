@@ -86,7 +86,15 @@ def should_pick(x_embs, pick_embs, non_pick_embs, variance, weights):
     return pick_score >= non_pick_score
 
 
-def get_token_score(token_emb, token_left_embs, token_right_embs, lefts_embs, rights_embs, vals_embs, is_entity, weights):
+def get_token_score(
+        token_emb,
+        token_left_embs,
+        token_right_embs,
+        lefts_embs,
+        rights_embs,
+        vals_embs,
+        is_entity,
+        weights):
     left_score = max(batch_vector_sequence_similarity(lefts_embs, token_left_embs))
     right_score = max(batch_vector_sequence_similarity(rights_embs, token_right_embs))
     value_score = max(euclid_similarity(vals_embs, token_emb))
@@ -97,6 +105,3 @@ def get_token_score(token_emb, token_left_embs, token_right_embs, lefts_embs, ri
     if is_entity:
         token_score *= 1. + weights[2]
     return token_score
-    
-    
-    

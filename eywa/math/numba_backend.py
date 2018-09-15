@@ -182,13 +182,22 @@ def should_pick(x_embs, pick_embs, non_pick_embs, variance, weights):
     non_pick_score += 1. - variance
     return pick_score >= non_pick_score
 
+
 @jit
-def get_token_score(token_emb, token_left_embs, token_right_embs, lefts_embs, rights_embs, vals_embs, is_entity, weights):
+def get_token_score(
+        token_emb,
+        token_left_embs,
+        token_right_embs,
+        lefts_embs,
+        rights_embs,
+        vals_embs,
+        is_entity,
+        weights):
     left_score = max(_batch_vector_sequence_similarity(lefts_embs, token_left_embs))
     right_score = max(_batch_vector_sequence_similarity(rights_embs, token_right_embs))
     value_scores = []
     for val_emb in vals_embs:
-         value_scores.append(np.subtract(1., (np.subtract(val_emb, token_emb) ** 2).sum() ** 0.5))
+        value_scores.append(np.subtract(1., (np.subtract(val_emb, token_emb) ** 2).sum() ** 0.5))
     value_score = max(value_scores)
     left_right_weight = weights[0]
     word_neighbor_weight = weights[1]
@@ -197,4 +206,3 @@ def get_token_score(token_emb, token_left_embs, token_right_embs, lefts_embs, ri
     if is_entity:
         token_score *= 1. + weights[2]
     return token_score
-    
