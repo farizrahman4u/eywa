@@ -1,9 +1,6 @@
 from eywa.math.numba_backend import vector_sequence_similarity as nb_sim
-from eywa.math.numba_backend import batch_vector_sequence_similarity as nb_batch_sim
 from eywa.math.numpy_backend import vector_sequence_similarity as np_sim
-from eywa.math.numpy_backend import batch_vector_sequence_similarity as np_batch_sim
 import numpy as np
-import pytest
 from numpy.testing import assert_allclose
 
 

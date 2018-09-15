@@ -1,12 +1,12 @@
 from eywa.nlu import EntityExtractor
-import pytest
 
 
 class TestEntityExtractor:
 
     def test_entity_extractor_basic(self):
         x = ['what is the weather in tokyo', 'what is the weather', 'what is the weather like in kochi']
-        y = [{'intent': 'weather', 'place': 'tokyo'}, {'intent': 'weather', 'place': 'here'}, {'intent': 'weather', 'place': 'kochi'}]
+        y = [{'intent': 'weather', 'place': 'tokyo'}, {'intent': 'weather', 'place': 'here'},
+             {'intent': 'weather', 'place': 'kochi'}]
 
         ex = EntityExtractor()
         ex.fit(x, y)
@@ -14,10 +14,10 @@ class TestEntityExtractor:
         x_test = 'what is the weather in london like'
         assert ex.predict(x_test) == {'intent': 'weather', 'place': 'london'}
 
-
     def test_entity_extractor_serialization(self):
         x = ['what is the weather in tokyo', 'what is the weather', 'what is the weather like in kochi']
-        y = [{'intent': 'weather', 'place': 'tokyo'}, {'intent': 'weather', 'place': 'here'}, {'intent': 'weather', 'place': 'kochi'}]
+        y = [{'intent': 'weather', 'place': 'tokyo'}, {'intent': 'weather', 'place': 'here'},
+             {'intent': 'weather', 'place': 'kochi'}]
 
         ex1 = EntityExtractor()
         ex1.fit(x, y)

@@ -1,5 +1,4 @@
 from eywa.nlu import Classifier
-import pytest
 
 
 class TestClassifier:
