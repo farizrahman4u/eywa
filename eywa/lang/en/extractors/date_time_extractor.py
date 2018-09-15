@@ -2,7 +2,7 @@
 from ....entities import DateTime
 from .extractor import Extractor
 import re
-from datetime import timedelta, date, datetime
+from datetime import timedelta, datetime
 from dateutil.relativedelta import relativedelta
 import calendar
 
@@ -56,7 +56,8 @@ regex = [
             (%s\s)?
         )
         (\b)
-        ''' % (numbers, re_ordinal, re_separator, month_names, all_numbers, re_ordinal, all_numbers, re_ordinal),
+        ''' % (numbers, re_ordinal, re_separator, month_names, all_numbers,
+               re_ordinal, all_numbers, re_ordinal),
         (re.VERBOSE | re.IGNORECASE)
     ),
         lambda m, base_date: dateFromWords(
@@ -211,7 +212,7 @@ regex = [
         lambda m, base_date: dateFromQuarter(
             base_date,
             hashordinals[m.group('ordinal').lower()],
-            int(m.group('year') if m.group('year') else base.year)
+            int(m.group('year') if m.group('year') else base.year)  # noqa
     )
     ),
     (re.compile(
@@ -908,7 +909,7 @@ def dateFromRelativeWeekYear(base_date, time, dow, ordinal=None):
                 return (values, measurement_unit)
             return (d + timedelta(weeks=1), measurement_unit)
         elif time == 'end of the':
-            day_of_week = base_date.weekday()
+            day_of_week = base_date.weekday()  # noqa
             return (d + timedelta(days=6 - d.weekday()), measurement_unit)
     elif dow in day_variations:
         if time == 'this' or time == 'current':
@@ -938,7 +939,7 @@ def dateFromRelativeWeekYear(base_date, time, dow, ordinal=None):
 
 
 def dateFromAdverb(base_date, name):
-    measurement_unit = 'day'
+    measurement_unit = 'day'  # noqa
     # Reset date to start of the day
     d = datetime(base_date.year, base_date.month, base_date.day)
     if name:
