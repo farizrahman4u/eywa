@@ -1,5 +1,4 @@
 from ..lang import Document
-from ..math import euclid_similarity, vector_sequence_similarity
 from ..lang import stop_words
 import numpy as np
 

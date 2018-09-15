@@ -1,4 +1,4 @@
-from ..math import batch_vector_sequence_similarity, euclid_similarity
+from ..math import batch_vector_sequence_similarity
 from ..math import should_pick, get_token_score
 from ..lang import Document, Token
 import numpy as np

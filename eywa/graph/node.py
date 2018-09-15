@@ -1,4 +1,3 @@
-from .signal import Signal
 from .namespace import register_node
 
 

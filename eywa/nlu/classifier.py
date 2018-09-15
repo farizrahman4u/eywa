@@ -1,6 +1,5 @@
 from ..lang import Document
 from ..math import vector_sequence_similarity, euclid_similarity, softmax
-from collections import defaultdict
 import numpy as np
 
 
@@ -48,7 +47,7 @@ class Classifier(object):
                 score = self._similarity(x, x2)
                 if score > scores[i]:
                     scores[i] = score
-        #scores /= np.array([len(self.data[c]) for c in classes])
+        # scores /= np.array([len(self.data[c]) for c in classes])
         if return_probs:
             scores = softmax(scores)
             return {z[0]: float(z[1]) for z in zip(classes, scores)}

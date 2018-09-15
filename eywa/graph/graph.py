@@ -18,8 +18,8 @@ class Graph(Node):
             node_outs = node.get_all_output_nodes()
             stack += node_outs
         if self.output not in nodes:
-            raise Exception('Disconnected graph. Unable to reach '
-                            + self.output.name + ' from ' + self.input.name + '.')
+            raise Exception('Disconnected graph. Unable to reach ' +
+                            self.output.name + ' from ' + self.input.name + '.')
         for node in nodes:
             node.parents.add(self)
         self.nodes = nodes
