@@ -8,6 +8,7 @@ def mkdir(x):
     if not os.path.isdir(x):
         os.mkdir(x)
 
+
 user_path = os.path.expanduser('~')
 my_dir = os.path.join(user_path, '.' + package_name)
 mkdir(my_dir)

@@ -28,8 +28,8 @@ class _Database(object):
 
         allowed_key_types = [str, int]
         if not py3:
-            allowed_key_types.append(unicode)
-            type_map[unicode] = 'TEXT'
+            allowed_key_types.append(unicode)  # noqa
+            type_map[unicode] = 'TEXT'  # noqa
         if key_type not in allowed_key_types:
             raise Exception(
                 'Unsopported key type {}. Supported key types are {}.'.format(
@@ -265,7 +265,7 @@ def _cached(_db_class):
             self.sup.__init__(*args, **kwargs)
 
         def __setitem__(self, key, value):
-            #self.sup.__setitem__(key, value)
+            # self.sup.__setitem__(key, value)
             self.cache[key] = value
 
         def __getitem__(self, key):
