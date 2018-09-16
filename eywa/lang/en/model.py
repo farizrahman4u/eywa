@@ -6,17 +6,16 @@ import re
 import os
 import ast
 
+from .filenames import vector_size_file_name
 from .database import Database
 from .extractors import DateTimeExtractor, PhoneNumberExtractor, EmailExtractor, UrlExtractor, NumberExtractor
 from . import indexer
 from numpy.core.umath_tests import inner1d
 from ...entities import DateTime, Number, PhoneNumber, Email, Url
-from ...math import frequencies_to_weights
-from .filenames import vectors_file_name, vector_index_file_name, interrupt_flag_file_name
+from .filenames import vector_index_file_name
 from .filenames import vocab_db_file_name, inverse_vocab_db_file_name
-from .filenames import frequency_file_name, frequency_db_file_name
+from .filenames import frequency_db_file_name
 from.filenames import phrases_db_file_name, tokens_db_file_name
-from .filenames import vector_size_file_name
 
 
 extractors = [
@@ -252,7 +251,7 @@ def get_frequency(word, sense_disambiguation='max'):
                 for pidx in phrases_idxs:
                     p = vocab_db[pidx]
                     if p.split('|')[1] == sense_disambiguation:
-                        freq = frequency_db[i]
+                        freq = frequency_db[i]  # noqa
                 if freq is None:
                     freq = np.mean([frequency_db[i] for i in phrases_idxs])
     elif word in inverse_vocab_db:
@@ -282,7 +281,7 @@ class Token(object):
             emb = getattr(text, '_embedding', None)
             if emb is not None:
                 self._embedding = emb
-            self.entity = text.entity  
+            self.entity = text.entity
         elif isinstance(text, str):
             self.text = text
             self.entity = entity
