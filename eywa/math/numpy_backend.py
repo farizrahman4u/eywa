@@ -53,7 +53,7 @@ def euclid_similarity(x, y):
 
 
 def softmax(x, axis=None):
-    e = exp(x - max(x))
+    e = exp(x - x.max())
     s = e.sum(axis=axis, keepdims=True)
     e /= s
     return e
