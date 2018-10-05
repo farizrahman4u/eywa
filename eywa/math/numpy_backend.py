@@ -1,4 +1,11 @@
 from numpy import *
+import numpy as np
+
+
+py_max = max
+max = np.max
+py_sum = sum
+sum = np.sum
 
 
 def soft_identity_matrix(nx, ny):
@@ -52,11 +59,14 @@ def euclid_similarity(x, y):
     return 1. - sum((subtract(x, y) ** 2), -1) ** 0.5
 
 
-def softmax(x, axis=None):
-    e = exp(x - x.max())
-    s = e.sum(axis=axis, keepdims=True)
-    e /= s
-    return e
+def softmax(x, axis=-1):
+    x = x.copy()
+    mx = max(x, axis, keepdims=True)
+    x -= mx
+    exp(x, x)
+    s = sum(x, axis, keepdims=True)
+    x /= s
+    return x
 
 
 def frequencies_to_weights(x):

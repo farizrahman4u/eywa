@@ -10,7 +10,6 @@ from .filenames import vector_size_file_name
 from .database import Database
 from .extractors import DateTimeExtractor, PhoneNumberExtractor, EmailExtractor, UrlExtractor,  NumberExtractor
 from . import indexer
-from numpy.core.umath_tests import inner1d
 import numpy as np
 import annoy
 import re
@@ -190,7 +189,7 @@ def get_embedding(word, sense_disambiguation='max', normalize=True, default=0):
         word, sense = word.split('|')
         emb = get_embedding(word, sense, False)
     if emb is not None and normalize:
-        mag = inner1d(emb, emb)
+        mag = np.multiply(emb, emb).sum()
         if mag != 0:
             emb /= mag
     return emb
