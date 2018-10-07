@@ -22,6 +22,7 @@ class Classifier(object):
             Y = [Y]
         if type(Y) not in (list, tuple):
             Y = [Y] * len(X)
+        assert len(X) == len(Y), "Different number of samples in X and Y."
         X_app = self.X.append
         Y_app = self.Y.append
         data = self.data
