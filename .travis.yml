@@ -12,4 +12,4 @@ install:
   - pip install -e .[tests]
 
 script:
-  - py.test
+  - python -m pytest
