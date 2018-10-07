@@ -13,6 +13,7 @@ class Memory(object):
         self.Y = []
         self._changed = False
         self._index_cache = []
+        self._THRESHOLD = 0.4 ## Magic number ?
 
     def add(self, x):
         if type(x) in (tuple, list):
@@ -52,9 +53,12 @@ class Memory(object):
         q = Document(q)
         docs = self.docs
         sim = self.similarity
-        best_doc = max(docs, key=lambda x: sim(q, x))
+        scores = [sim(q, x) for x in docs]
+        maxid = np.argmax(scores)
+        best_doc = docs[maxid]
+        score = scores[maxid]
         ans = self.extract_answer(q, best_doc)
-        return ans, best_doc
+        return ans, best_doc, score
 
 
     def similarity(self, x, y):
@@ -67,7 +71,7 @@ class Memory(object):
         for wx in x:
             for wy in y:
                 if wx not in stop_words and wy not in stop_words:
-                    sim += np.dot(wx.embedding, wy.embedding)
+                    sim += euclid_similarity(wx.embedding, wy.embedding)
         sim *= (2. / (len(x) + len(y)))
         return sim
 
