@@ -33,7 +33,6 @@ def  soft_identity_matrix(nx, ny):
 def __vector_sequence_similarity_euclid(x, y, z, nx, ny, locality=0.5):
     nx = len(x)
     ny = len(y)
-    #z = np.array([[0. for __ in range(ny)] for _ in range(nx)])
     m1 = 0.
     m2 = 0.
     for i in prange(nx):
