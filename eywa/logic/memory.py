@@ -113,7 +113,7 @@ class Memory(object):
             return Token('')
         return min(answers, key=lambda x: x.frequency)
 
-    def srialize(self):
+    def serialize(self):
         config = {}
         config['docs'] = [str(d) for d in self.docs]
         config['weights'] = [float(w) for w in self.weights]
