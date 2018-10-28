@@ -4,7 +4,9 @@ from .namespace import register_node
 
 class Node(object):
 
-    def __init__(self, name=None, ports=['default']):
+    def __init__(self, name=None, ports=None):
+        if ports is None:
+            ports = ['default']
         self.name = name
         if not hasattr(self, 'outputs'):
             self.outputs = {p: [] for p in ports}
