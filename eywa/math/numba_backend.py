@@ -5,15 +5,14 @@ import os
 import sys
 from time import time
 
-
 num_cores = numba.config.NUMBA_DEFAULT_NUM_THREADS
-
 
 py3 = sys.version_info[0] == 3
 
 parallel = True
 if os.name == 'nt' and not py3:
     parallel = False
+
 
 @jit('(f8[:, :], i4, i4)', nopython=True, fastmath=True, parallel=parallel)
 def _soft_identity_matrix(matrix, nx, ny):
@@ -23,7 +22,7 @@ def _soft_identity_matrix(matrix, nx, ny):
 
 
 @jit(nopython=False, fastmath=True, parallel=parallel)
-def  soft_identity_matrix(nx, ny):
+def soft_identity_matrix(nx, ny):
     m = np.empty((nx, ny), np.float32)
     _soft_identity_matrix(m, nx, ny)
     return m
@@ -92,7 +91,7 @@ def _batch_vector_sequence_similarity(X, y):
     rem = batch_size % mini_batch_size
     batch_size -= rem
     ny = len(y)
-    locality = 0.5 # hard
+    locality = 0.5  # hard
     while done < batch_size:
         for idx in prange(done, done + mini_batch_size):
             x = X[idx]
@@ -111,21 +110,22 @@ def _batch_vector_sequence_similarity(X, y):
             output.append(float(0.5 * (m1 + m2) / (nx + ny)))
         done += mini_batch_size
     for idx in range(done, done + rem):
-            x = X[idx]
-            nx = len(x)
-            z = np.dot(x, y.T)
-            m2 = 0.
-            for i in prange(nx):
-                for j in prange(ny):
-                    seye = 1. / (np.abs(i - j) + 1)
-                    zij = z[i, j] * (locality * (seye - 1) + 1)
-                    z[i, j] = zij
-                m2 += z[i, :].max()
-            m1 = 0.
+        x = X[idx]
+        nx = len(x)
+        z = np.dot(x, y.T)
+        m2 = 0.
+        for i in prange(nx):
             for j in prange(ny):
-                m1 += z[:, j].max()
-            output.append(float(0.5 * (m1 + m2) / (nx + ny)))
+                seye = 1. / (np.abs(i - j) + 1)
+                zij = z[i, j] * (locality * (seye - 1) + 1)
+                z[i, j] = zij
+            m2 += z[i, :].max()
+        m1 = 0.
+        for j in prange(ny):
+            m1 += z[:, j].max()
+        output.append(float(0.5 * (m1 + m2) / (nx + ny)))
     return output
+
 
 def batch_vector_sequence_similarity(X, y):
     # TODO: vectorize
@@ -133,9 +133,11 @@ def batch_vector_sequence_similarity(X, y):
         return [int(len(x) == 0) for x in X]
     return _batch_vector_sequence_similarity(X, y)
 
+
 @jit
 def euclid_distance(x, y):
     return (np.subtract(x, y) ** 2).sum() ** 0.5
+
 
 @jit
 def euclid_similarity(x, y):
@@ -168,6 +170,7 @@ def _softmax2d(x, axis=-1):
             np.exp(t, t)
             t /= t.sum()
     return x
+
 
 @jit(nopython=True, fastmath=True, parallel=parallel)
 def _softmax1d(x):
@@ -226,7 +229,8 @@ def should_pick(x_embs, pick_embs, non_pick_embs, variance, weights):
 
 
 @jit(nopython=True, fastmath=True, parallel=parallel)
-def get_token_score(token_emb, token_left_embs, token_right_embs, lefts_embs, rights_embs, vals_embs, is_entity, weights):
+def get_token_score(token_emb, token_left_embs, token_right_embs, lefts_embs, rights_embs, vals_embs, is_entity,
+                    weights):
     left_scores = _batch_vector_sequence_similarity(lefts_embs, token_left_embs)
     left_score = left_scores[0]
     for i in range(1, len(left_scores)):
@@ -240,10 +244,10 @@ def get_token_score(token_emb, token_left_embs, token_right_embs, lefts_embs, ri
         s = right_scores[i]
         if s > right_score:
             right_score = s
-       
+
     value_scores = []
     for val_emb in vals_embs:
-         value_scores.append(np.subtract(1., (np.subtract(val_emb, token_emb) ** 2).sum() ** 0.5))
+        value_scores.append(np.subtract(1., (np.subtract(val_emb, token_emb) ** 2).sum() ** 0.5))
     value_score = value_scores[0]
     for i in range(1, len(value_scores)):
         s = value_scores[i]
@@ -257,4 +261,3 @@ def get_token_score(token_emb, token_left_embs, token_right_embs, lefts_embs, ri
     if is_entity:
         token_score *= 1. + weights[2]
     return token_score
-    

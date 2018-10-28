@@ -3,9 +3,9 @@ from ..math import should_pick, get_token_score
 from ..lang import Document, Token
 import numpy as np
 
-
 np_max = np.max
 np_argmax = np.argmax
+
 
 class EntityExtractor(object):
 
@@ -35,7 +35,8 @@ class EntityExtractor(object):
         for y in self.Y:
             for k in y:
                 keys.add(k)
-        self.keys = {k: {'picks': [], 'lefts': [], 'rights': [], 'values': [], 'consts': {}, 'types': set()} for k in keys}
+        self.keys = {k: {'picks': [], 'lefts': [], 'rights': [], 'values': [], 'consts': {}, 'types': set()} for k in
+                     keys}
         keys = self.keys
         for i, (x, y) in enumerate(zip(self.X, self.Y)):
             for k in keys:
@@ -162,7 +163,7 @@ class EntityExtractor(object):
         config = {}
         config['X'] = [str(x) for x in self.X]
         config['Y'] = self.Y[:]
-        config['weights'] = [float(w) for w in self.weights] 
+        config['weights'] = [float(w) for w in self.weights]
         return config
 
     @classmethod

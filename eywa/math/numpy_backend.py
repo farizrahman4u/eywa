@@ -1,7 +1,6 @@
 from numpy import *
 import numpy as np
 
-
 py_max = max
 max = np.max
 py_sum = sum
@@ -9,7 +8,7 @@ sum = np.sum
 
 
 def soft_identity_matrix(nx, ny):
-     return 1. / array([[abs(i - j) + 1 for j in range(ny)] for i in range(nx)])
+    return 1. / array([[abs(i - j) + 1 for j in range(ny)] for i in range(nx)])
 
 
 def vector_sequence_similarity(x, y, locality=0.5, metric='dot'):
@@ -28,7 +27,8 @@ def _vector_sequence_similarity_euclid(x, y, locality=0.5):
     z *= locality * (soft_identity_matrix(nx, ny) - 1) + 1.
     m1 = z.max(axis=0).sum()
     m2 = z.max(axis=1).sum()
-    return (m1 + m2) / (nx + ny)  
+    return (m1 + m2) / (nx + ny)
+
 
 def _vector_sequence_similarity_dot(x, y, locality=0.5):
     nx = len(x)
@@ -54,6 +54,7 @@ def batch_vector_sequence_similarity(X, y):
 
 def euclid_distance(x, y):
     return ((x - y) ** 2).sum() ** 0.5
+
 
 def euclid_similarity(x, y):
     return 1. - sum((subtract(x, y) ** 2), -1) ** 0.5
@@ -94,7 +95,8 @@ def should_pick(x_embs, pick_embs, non_pick_embs, variance, weights):
     return pick_score >= non_pick_score
 
 
-def get_token_score(token_emb, token_left_embs, token_right_embs, lefts_embs, rights_embs, vals_embs, is_entity, weights):
+def get_token_score(token_emb, token_left_embs, token_right_embs, lefts_embs, rights_embs, vals_embs, is_entity,
+                    weights):
     left_score = max(batch_vector_sequence_similarity(lefts_embs, token_left_embs))
     right_score = max(batch_vector_sequence_similarity(rights_embs, token_right_embs))
     value_score = max(euclid_similarity(vals_embs, token_emb))
@@ -105,6 +107,3 @@ def get_token_score(token_emb, token_left_embs, token_right_embs, lefts_embs, ri
     if is_entity:
         token_score *= 1. + weights[2]
     return token_score
-    
-    
-    

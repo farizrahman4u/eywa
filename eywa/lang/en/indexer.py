@@ -14,7 +14,6 @@ from .database import Database
 from .download_embeddings import download
 import sys
 
-
 py3 = sys.version_info[0] == 3
 
 _required_files = [vector_index_file_name, frequency_db_file_name,
@@ -30,7 +29,7 @@ def _is_downloaded():
 def _is_corrupt():
     s = sum([os.path.isfile(f) for f in _required_files])
     return s > 0 and s < len(_required_files)
-   
+
 
 def _is_interrupted():
     return os.path.isfile(flag_file)
@@ -39,10 +38,12 @@ def _is_interrupted():
 def _is_built():
     return all([os.path.isfile(f) for f in _required_files])
 
+
 def _clear():
     for f in _required_files:
         if os.path.isfile(f):
             os.remove(f)
+
 
 def _build():
     with open(flag_file, 'w') as f:

@@ -27,13 +27,13 @@ class Node(object):
                 del self._output_nodes_cache
         except KeyError:
             raise Exception('Port ' + str(port) + ' does not exist for node'
-                            ' ' + self.name + '. Add port using node.add_port(\''
-                            'port_name\').')
+                                                  ' ' + self.name + '. Add port using node.add_port(\''
+                                                                    'port_name\').')
 
     def add_port(self, name):
         if name in self.outputs:
-            raise Exception('Port ' + name  + ' already exists for node'
-                            ' ' + self.name + '.')
+            raise Exception('Port ' + name + ' already exists for node'
+                                             ' ' + self.name + '.')
         self.outputs[name] = []
         if hasattr(self, '_output_nodes_cache'):
             del self._output_nodes_cache
@@ -60,10 +60,3 @@ class Node(object):
                     _output_nodes_cache.append(n)
             self._output_nodes_cache = _output_nodes_cache
             return _output_nodes_cache
-
-
-        
-
-
-
-

@@ -13,7 +13,7 @@ class Memory(object):
         self.Y = []
         self._changed = False
         self._index_cache = []
-        self._THRESHOLD = 0.4 ## Magic number ?
+        self._THRESHOLD = 0.4  ## Magic number ?
 
     def add(self, x):
         if type(x) in (tuple, list):
@@ -60,7 +60,6 @@ class Memory(object):
         ans = self.extract_answer(q, best_doc)
         return ans, best_doc, score
 
-
     def similarity(self, x, y):
         # for now we simply count common words
         if not len(x):
@@ -80,9 +79,9 @@ class Memory(object):
         d_embs = d.embeddings
         x_embs = x.embeddings
         y_embs = y.embeddings
-        yd = np.dot(y_embs, d_embs.T)  #ny, nd
-        xy = np.dot(x_embs, y_embs.T)  #nx, ny
-        qx = np.dot(q_embs, x_embs.T)  #nq, nx
+        yd = np.dot(y_embs, d_embs.T)  # ny, nd
+        xy = np.dot(x_embs, y_embs.T)  # nx, ny
+        qx = np.dot(q_embs, x_embs.T)  # nq, nx
         scores1 = qx.dot(xy.dot(yd))
         scores1 = scores1.sum(0)
         scores2 = yd.sum(0)
@@ -98,7 +97,7 @@ class Memory(object):
             answers = []
             scores = []
             gate = self.weights[6]
-            for x, y in zip(self.X,self.Y):
+            for x, y in zip(self.X, self.Y):
                 a, s = analogy(q, d, x, y)
                 score = gate * s + (1. - gate) + sim(q, x)
                 answers.append(a)
@@ -127,4 +126,3 @@ class Memory(object):
         mem.add(docs)
         mem.weights = weights
         return mem
-
