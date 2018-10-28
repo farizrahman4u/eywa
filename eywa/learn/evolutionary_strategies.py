@@ -6,6 +6,7 @@ import numpy as np
 class EvolutionaryStrategies(Learner):
 
 	def __init__(self, npop=100, lr=0.001, std=0.1):
+		super().__init__()
 		self.npop = npop
 		self.lr = lr
 		self.std = std
