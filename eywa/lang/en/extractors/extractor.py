@@ -14,6 +14,7 @@ class Extractor(object):
 class RegexExtractor(Extractor):
 
     def __init__(self, regex, entity_type=Entity):
+        super().__init__()
         self.regex = regex
         self.entity_type = entity_type
         self.compiled_regex = re.compile(regex, re.IGNORECASE)

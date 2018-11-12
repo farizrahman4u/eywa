@@ -1152,6 +1152,7 @@ def extract_datetime(text, base_date = datetime.now):
 class DateTimeExtractor(Extractor):
 
     def __init__(self, base_time=datetime.now):
+        super().__init__()
         self.base_time = base_time
 
     def __call__(self, x):
