@@ -10,7 +10,6 @@ import sqlite3
 from ast import literal_eval as literal_eval
 import sys
 
-
 py3 = sys.version_info[0] == 3
 
 
@@ -21,9 +20,9 @@ class _Database(object):
         self.connection = sqlite3.connect(file)
         self.cursor = self.connection.cursor()
         type_map = {
-            str : 'TEXT',
-            int : 'INTEGER',
-            float : 'REAL'
+            str: 'TEXT',
+            int: 'INTEGER',
+            float: 'REAL'
         }
 
         allowed_key_types = [str, int]
@@ -31,11 +30,13 @@ class _Database(object):
             allowed_key_types.append(unicode)
             type_map[unicode] = 'TEXT'
         if key_type not in allowed_key_types:
-            raise Exception('Unsopported key type {}. Supported key types are {}.'.format(str(key_type), str(allowed_key_types)))
+            raise Exception(
+                'Unsopported key type {}. Supported key types are {}.'.format(str(key_type), str(allowed_key_types)))
         sql_key_type = type_map[key_type]
         sql_value_type = type_map.get(value_type)
         if sql_value_type is None:
-            raise Exception('Unsopported value type {}. Supported value types are {}.'.format(str(value_type), str(type_map.keys())))
+            raise Exception('Unsopported value type {}. Supported value types are {}.'.format(str(value_type),
+                                                                                              str(type_map.keys())))
         if new:
             if self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' and name='dict'").fetchone():
                 self.cursor.execute("DROP TABLE dict")
@@ -71,6 +72,7 @@ class _Database(object):
         self.connection.commit()
         self.connection.close()
 
+
 if not py3:
 
     class _Py2StrKeyDatabase(_Database):
@@ -100,6 +102,7 @@ if not py3:
             values = map(lambda x: (x[0].decode('utf-8'), x[1]), values)
             self.executemany("INSERT INTO dict VALUES (?, ?)", values)
 
+
     class _Py2StrValDatabase(_Database):
 
         def __setitem__(self, key, value):
@@ -122,6 +125,7 @@ if not py3:
                 values = values.items()
             values = map(lambda x: (x[0], x[1].decode('utf-8')), values)
             self.executemany("INSERT INTO dict VALUES (?, ?)", values)
+
 
     class _Py2StrKeyStrValDatabase(_Database):
 
@@ -174,6 +178,7 @@ if not py3:
                 values = values.items()
             values = map(lambda x: (x[0], str(x[1]).decode('utf-8')), values)
             self.executemany("INSERT INTO dict VALUES (?, ?)", values)
+
 
     class _Py2StrKeyListValDatabase(_Database):
 
@@ -238,7 +243,7 @@ def _cached(_db_class):
             self.sup.__init__(*args, **kwargs)
 
         def __setitem__(self, key, value):
-            #self.sup.__setitem__(key, value)
+            # self.sup.__setitem__(key, value)
             self.cache[key] = value
 
         def __getitem__(self, key):
@@ -248,7 +253,7 @@ def _cached(_db_class):
             return key in self.cache
 
         def update(self, values):
-            #self.sup.update(values)
+            # self.sup.update(values)
             self.cache.update(values)
 
         def close(self):
@@ -257,6 +262,7 @@ def _cached(_db_class):
             self.sup.close()
 
     return CachedDatabase
+
 
 def Database(file, key_type=str, value_type=str, new=False, cached=False):
     if py3:

@@ -27,10 +27,8 @@ dir_name = os.path.join(emb_dir, file_name[:-7])
 file_name = os.path.join(emb_dir, file_name)
 
 
-
-
 def _download_file(url, file_name):
-    #u = urlopen(url)
+    # u = urlopen(url)
     r = requests.get(url, stream=True)
     file_size = int(r.headers['Content-length'])
     '''
@@ -48,8 +46,8 @@ def _download_file(url, file_name):
             print("File corrupt. Downloading again.")
             os.remove(file_name)
     if not file_exists:
-        factor = int(math.floor(math.log(file_size)/math.log(1024)))
-        display_file_size = str(file_size / 1024 ** factor) + ['B','KB','MB','GB','TB','PB'][factor]
+        factor = int(math.floor(math.log(file_size) / math.log(1024)))
+        display_file_size = str(file_size / 1024 ** factor) + ['B', 'KB', 'MB', 'GB', 'TB', 'PB'][factor]
         print("Source: " + url)
         print("Destination " + file_name)
         print("Size: " + display_file_size)
@@ -64,9 +62,9 @@ def _download_file(url, file_name):
             file_size_dl += chunk_size
             f.write(chunk)
             pbar.update(chunk_size)
-            #status = r"%10d  [%3.2f%%]" % (file_size_dl, file_size_dl * 100. / file_size)
-            #status = status + chr(8)*(len(status)+1)
-            #print(status)
+            # status = r"%10d  [%3.2f%%]" % (file_size_dl, file_size_dl * 100. / file_size)
+            # status = status + chr(8)*(len(status)+1)
+            # print(status)
         f.close()
     else:
         print("File already exists - " + file_name)

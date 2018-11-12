@@ -3,6 +3,7 @@ from ..math import vector_sequence_similarity, euclid_similarity, softmax
 from collections import defaultdict
 import numpy as np
 
+
 class Classifier(object):
 
     def __init__(self):
@@ -26,7 +27,7 @@ class Classifier(object):
         X_app = self.X.append
         Y_app = self.Y.append
         data = self.data
-        for x, y in  zip(X, Y):
+        for x, y in zip(X, Y):
             x = Document(x)
             # need these for quick eval
             X_app(x)
@@ -48,24 +49,23 @@ class Classifier(object):
                 score = self._similarity(x, x2)
                 if score > scores[i]:
                     scores[i] = score
-        #scores /= np.array([len(self.data[c]) for c in classes])
+        # scores /= np.array([len(self.data[c]) for c in classes])
         if return_probs:
             scores = softmax(scores)
             return {z[0]: float(z[1]) for z in zip(classes, scores)}
         return classes[np.argmax(scores)]
 
-
     def _similarity(self, x1, x2):
-        #if x1 == x2:
+        # if x1 == x2:
         #    return 1
         if len(x1) == 0 or len(x2) == 0:
             return 0.
         weights = self.weights
         w0 = weights[0]
-        score1 = lambda : euclid_similarity(x1.embedding, x2.embedding)
-        score2 = lambda : np.dot(x1.embedding, x2.embedding)
-        score3 = lambda : vector_sequence_similarity(x1.embeddings, x2.embeddings, w0, 'dot')
-        score4 = lambda : vector_sequence_similarity(x1.embeddings, x2.embeddings, w0, 'euclid')
+        score1 = lambda: euclid_similarity(x1.embedding, x2.embedding)
+        score2 = lambda: np.dot(x1.embedding, x2.embedding)
+        score3 = lambda: vector_sequence_similarity(x1.embeddings, x2.embeddings, w0, 'dot')
+        score4 = lambda: vector_sequence_similarity(x1.embeddings, x2.embeddings, w0, 'euclid')
         scores = [score1, score2, score3, score4]
         score_weights = weights[1:5]
         score = 0.
@@ -92,7 +92,7 @@ class Classifier(object):
         config = {}
         config['X'] = [str(x) for x in self.X]
         config['Y'] = self.Y[:]
-        config['weights'] = [float(w) for w in self.weights] 
+        config['weights'] = [float(w) for w in self.weights]
         return config
 
     @classmethod
