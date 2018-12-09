@@ -228,17 +228,33 @@ def should_pick(x_embs, pick_embs, non_pick_embs, variance, weights):
     return pick_score >= non_pick_score
 
 
-@jit(nopython=True, fastmath=True, parallel=parallel)
+#@jit(nopython=False, fastmath=True, parallel=parallel)
 def get_token_score(token_emb, token_left_embs, token_right_embs, lefts_embs, rights_embs, vals_embs, is_entity,
                     weights):
-    left_scores = _batch_vector_sequence_similarity(lefts_embs, token_left_embs)
+    if len(token_left_embs) == 0:
+        left_scores = []
+        for x in lefts_embs:
+            if len(x) == 0:
+                left_scores.append(1.)
+            else:
+                left_scores.append(0.)
+    else:
+        left_scores = _batch_vector_sequence_similarity(lefts_embs, token_left_embs)
     left_score = left_scores[0]
     for i in range(1, len(left_scores)):
         s = left_scores[i]
         if s > left_score:
             left_score = s
 
-    right_scores = _batch_vector_sequence_similarity(rights_embs, token_right_embs)
+    if len(token_right_embs) == 0:
+        right_scores = []
+        for x in rights_embs:
+            if len(x) == 0:
+                right_scores.append(1.)
+            else:
+                right_scores.append(0.)
+    else:
+        right_scores = _batch_vector_sequence_similarity(rights_embs, token_right_embs)
     right_score = right_scores[0]
     for i in range(1, len(right_scores)):
         s = right_scores[i]
