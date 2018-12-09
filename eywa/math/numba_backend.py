@@ -228,7 +228,7 @@ def should_pick(x_embs, pick_embs, non_pick_embs, variance, weights):
     return pick_score >= non_pick_score
 
 
-@jit(nopython=False, fastmath=True, parallel=parallel)
+#@jit(nopython=False, fastmath=True, parallel=parallel)
 def get_token_score(token_emb, token_left_embs, token_right_embs, lefts_embs, rights_embs, vals_embs, is_entity,
                     weights):
     if len(token_left_embs) == 0:
