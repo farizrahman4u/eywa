@@ -228,13 +228,12 @@ def should_pick(x_embs, pick_embs, non_pick_embs, variance, weights):
     return pick_score >= non_pick_score
 
 
-@jit(nopython=True, fastmath=True, parallel=parallel)
+#@jit(nopython=False, fastmath=True, parallel=parallel)
 def get_token_score(token_emb, token_left_embs, token_right_embs, lefts_embs, rights_embs, vals_embs, is_entity,
                     weights):
     if len(token_left_embs) == 0:
         left_scores = []
-        for i in prange(len(lefts_embs)):
-            x = lefts_embs[i]
+        for x in lefts_embs:
             if len(x) == 0:
                 left_scores.append(1.)
             else:
@@ -249,15 +248,13 @@ def get_token_score(token_emb, token_left_embs, token_right_embs, lefts_embs, ri
 
     if len(token_right_embs) == 0:
         right_scores = []
-        for i in prange(len(rights_embs)):
-            x = rights_embs[i]
+        for x in rights_embs:
             if len(x) == 0:
                 right_scores.append(1.)
             else:
                 right_scores.append(0.)
     else:
         right_scores = _batch_vector_sequence_similarity(rights_embs, token_right_embs)
-
     right_score = right_scores[0]
     for i in range(1, len(right_scores)):
         s = right_scores[i]
