@@ -109,21 +109,22 @@ def _batch_vector_sequence_similarity(X, y):
                 m1 += z[:, j].max()
             output.append(float(0.5 * (m1 + m2) / (nx + ny)))
         done += mini_batch_size
-    for idx in range(done, done + rem):
-        x = X[idx]
-        nx = len(x)
-        z = np.dot(x, y.T)
-        m2 = 0.
-        for i in prange(nx):
+    if rem > 0:
+        for idx in range(done, done + rem):
+            x = X[idx]
+            nx = len(x)
+            z = np.dot(x, y.T)
+            m2 = 0.
+            for i in prange(nx):
+                for j in prange(ny):
+                    seye = 1. / (np.abs(i - j) + 1)
+                    zij = z[i, j] * (locality * (seye - 1) + 1)
+                    z[i, j] = zij
+                m2 += z[i, :].max()
+            m1 = 0.
             for j in prange(ny):
-                seye = 1. / (np.abs(i - j) + 1)
-                zij = z[i, j] * (locality * (seye - 1) + 1)
-                z[i, j] = zij
-            m2 += z[i, :].max()
-        m1 = 0.
-        for j in prange(ny):
-            m1 += z[:, j].max()
-        output.append(float(0.5 * (m1 + m2) / (nx + ny)))
+                m1 += z[:, j].max()
+            output.append(float(0.5 * (m1 + m2) / (nx + ny)))
     return output
 
 
@@ -155,7 +156,6 @@ def _softmax2d(x, axis=-1):
     tensors = []
     if axis == 0:
         xt = x.T
-        print(xt.shape)
         for i in range(shape[1]):
             tensors.append(xt[i])
         for t in tensors:
@@ -262,7 +262,8 @@ def get_token_score(token_emb, token_left_embs, token_right_embs, lefts_embs, ri
             right_score = s
 
     value_scores = []
-    for val_emb in vals_embs:
+    for i in range(len(vals_embs)):
+        val_emb = vals_embs[i]
         value_scores.append(np.subtract(1., (np.subtract(val_emb, token_emb) ** 2).sum() ** 0.5))
     value_score = value_scores[0]
     for i in range(1, len(value_scores)):
@@ -277,3 +278,8 @@ def get_token_score(token_emb, token_left_embs, token_right_embs, lefts_embs, ri
     if is_entity:
         token_score *= 1. + weights[2]
     return token_score
+
+
+# TODO:fix this
+if 'TRAVIS' in os.environ:
+    from .numpy_backend import get_token_score
