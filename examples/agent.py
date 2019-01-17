@@ -27,7 +27,7 @@ from eywa.nlu import Classifier
 from eywa.nlu import EntityExtractor
 
 
-# Classifer, predicts the class of user input.
+# Classifier, predicts the class of user input.
 
 CONV_SAMPLES = {
     'greetings' : ['Hi', 'hello', 'How are you', 'hey there', 'hey'],
@@ -139,7 +139,6 @@ if __name__ == '__main__':
     # Greeting user on startup.
     print(get_response('Hi'))
 
-    # Conversation loop.
     while True:
         UQUERY = input('you   : ')
         if UQUERY == 'bye':
