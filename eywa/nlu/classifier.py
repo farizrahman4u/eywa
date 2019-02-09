@@ -1,6 +1,7 @@
 from ..lang import Document
 from ..math import vector_sequence_similarity, euclid_similarity, softmax
 from collections import defaultdict
+import tensorflow as tf
 import numpy as np
 
 
@@ -10,8 +11,12 @@ class Classifier(object):
         self.X = []
         self.Y = []
         self.data = {}
-        self.weights = np.array([0.5, .1, .1, 1., .05])
+        self.weights = [tf.Variable(w, dtype='float32') for w in self.__class__.default_weights()]
         pass
+
+    @staticmethod
+    def default_weights():
+        return [0.5, .1, .1, 1., .05]
 
     @property
     def classes(self):
@@ -63,7 +68,7 @@ class Classifier(object):
         weights = self.weights
         w0 = weights[0]
         score1 = lambda: euclid_similarity(x1.embedding, x2.embedding)
-        score2 = lambda: np.dot(x1.embedding, x2.embedding)
+        score2 = lambda: tf.tensordot(x1.embedding, x2.embedding, (0, 0))
         score3 = lambda: vector_sequence_similarity(x1.embeddings, x2.embeddings, w0, 'dot')
         score4 = lambda: vector_sequence_similarity(x1.embeddings, x2.embeddings, w0, 'euclid')
         scores = [score1, score2, score3, score4]
@@ -92,12 +97,21 @@ class Classifier(object):
         config = {}
         config['X'] = [str(x) for x in self.X]
         config['Y'] = self.Y[:]
-        config['weights'] = [float(w) for w in self.weights]
+        config['weights'] = [w.tolist() for w in self.get_weights()]
         return config
 
     @classmethod
     def deserialize(cls, config):
         clf = cls()
+        clf.set_weights(config['weights'])
         clf.fit(config['X'], config['Y'])
-        clf.weights = np.array(config['weights'])
         return clf
+
+    def set_weights(self, weights):
+        assert isinstance(weights, list)
+        assert len(weights) == len(self.weights)
+        for (w_in, w_curr) in zip(weights, self.weights):
+                w_curr.assign(w_in)
+
+    def get_weights(self):
+        return [w.numpy() for w in self.weights]

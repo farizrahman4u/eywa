@@ -11,14 +11,27 @@ from .database import Database
 from .extractors import DateTimeExtractor, PhoneNumberExtractor, EmailExtractor, UrlExtractor, NumberExtractor
 from . import indexer
 import numpy as np
+import tensorflow as tf
 import annoy
 import re
 import os
 import ast
 
+# tf.enable_eager_execution()
+K = tf.keras.backend
+
 extractors = [DateTimeExtractor(), PhoneNumberExtractor(), EmailExtractor(), UrlExtractor(), NumberExtractor()]
 
 indexer.run()
+
+_zeros = None
+
+def _get_zeros():
+    global _zeros
+    if _zeros is None:
+        _zeros = K.zeros(dim)
+    return _zeros
+
 
 with open(vector_size_file_name, 'r') as f:
     dim = int(f.read())
@@ -134,16 +147,19 @@ def phraser(X):
 
 def get_embedding(word, sense_disambiguation='max', normalize=True, default=0):
     if default == 0:
-        emb = np.zeros(dim)
+        emb = _get_zeros().numpy()
     elif default is None:
         emb = None
+    if ' ' in word:
+        sub_tokens = word.replace('  ', ' ').split(' ')
+        return np.mean([get_embedding(t) for t in sub_tokens], 0)
     if '|' not in word:
         if word in tokens_db:
             tokens_idxs = tokens_db[word]
             if not tokens_idxs:
                 pass
             elif sense_disambiguation == 'max':
-                emb = annoy_index.get_item_vector(tokens_idxs[0])
+                emb = np.array(annoy_index.get_item_vector(tokens_idxs[0]))
             elif sense_disambiguation == 'avg':
                 emb = np.mean([annoy_index.get_item_vector(i) for i in tokens_idxs], 0)
             else:
@@ -151,10 +167,10 @@ def get_embedding(word, sense_disambiguation='max', normalize=True, default=0):
                 for tidx in tokens_idxs:
                     sense = vocab_db[tidx].split('|')[1]
                     if sense == sense_disambiguation:
-                        emb = annoy_index.get_item_vector(tidx)
+                        emb = np.array(annoy_index.get_item_vector(tidx))
                         break
                 if emb is None:
-                    emb = annoy_index.get_item_vector(tokens_idxs[0])
+                    emb = np.array(annoy_index.get_item_vector(tokens_idxs[0]))
         elif '_' in word:
             embs = []
             sub_tokens = word.split('_')
@@ -166,7 +182,7 @@ def get_embedding(word, sense_disambiguation='max', normalize=True, default=0):
         elif word in phrases_db:
             phrases_idxs = phrases_db[word]
             if sense_disambiguation == 'max':
-                emb = annoy_index.get_item_vector(phrases_idxs[0])
+                emb = np.array(annoy_index.get_item_vector(phrases_idxs[0]))
             elif sense_disambiguation == 'avg':
                 emb = np.mean([annoy_index.get_item_vector(i) for i in phrases_idxs], 0)
             else:
@@ -174,12 +190,12 @@ def get_embedding(word, sense_disambiguation='max', normalize=True, default=0):
                 for pidx in phrases_idxs:
                     p = vocab_db[pidx]
                     if p.split('|')[1] == sense_disambiguation:
-                        emb = annoy_index.get_item_vector(pidx)
+                        emb = np.array(annoy_index.get_item_vector(pidx))
                 if emb is None:
                     emb = np.mean([annoy_index.get_item_vector(i) for i in phrases_idxs], 0)
     elif word in inverse_vocab_db:
         word_index = inverse_vocab_db[word]
-        emb = annoy_index.get_item_vector(word_index)
+        emb = np.array(annoy_index.get_item_vector(word_index))
     else:
         word, sense = word.split('|')
         emb = get_embedding(word, sense, False)
@@ -279,19 +295,21 @@ class Token(object):
         try:
             emb = self._embedding
             if emb is None:
-                return np.zeros(dim)
+                return _get_zeros()
             return emb
         except AttributeError:
             if self.text.startswith('_eywa_'):
                 self._embedding = None
-                return np.zeros(dim)
+                return _get_zeros()
             if self.entity:
                 emb = get_embedding(entity_embedding[type(self.entity)], default=None)
             else:
                 emb = get_embedding(self._lower(), default=None)
-            self._embedding = emb
             if emb is None:
-                return np.zeros(dim)
+                self._embedding = emb
+                return _get_zeros()
+            emb = tf.Variable(emb, trainable=False, dtype='float32')
+            self._embedding = emb
             return emb
 
     @property
@@ -327,8 +345,8 @@ class Token(object):
 class Document(object):
     def __init__(self, text):
         if type(text) in (list, tuple):
-            self.text = ' '.join([str(w) for w in text])
             self.tokens = [Token(t) for t in text]
+            self.text = ' '.join([str(w) for w in self.tokens])
             return
         if type(text) is Document:
             self.text = text.text
@@ -417,9 +435,14 @@ class Document(object):
             return self._embeddings
         except AttributeError:
             if len(self.tokens) == 0:
-                self._embeddings = np.zeros((0, dim))
+                self._embeddings = K.expand_dims(_get_zeros(), 0)
             else:
-                self._embeddings = np.array([t.embedding for t in self.tokens])
+                for t in self.tokens:
+                    d = tuple(t.embedding.shape)
+                    if d == ():
+                        print(t.text)
+                        
+                self._embeddings = tf.stack([t.embedding for t in self.tokens])
             return self._embeddings
 
     @property
@@ -428,9 +451,9 @@ class Document(object):
             return self._embedding
         except AttributeError:
             if len(self.tokens) == 0:
-                self._embedding = np.zeros(dim)
+                self._embedding = _get_zeros()
             else:
-                self._embedding = np.mean(self.embeddings, 0)
+                self._embedding = K.mean(self.embeddings, 0)
             return self._embedding
 
     def __repr__(self):
@@ -486,4 +509,40 @@ _stop_words_filepath = _get_filepath('stop_words.txt')
 
 with open(_stop_words_filepath, 'r') as f:
     stop_words = ast.literal_eval(f.read())
-    stop_words = Document(' '.join(stop_words))
+    stop_words = [Token(w) for w in stop_words]
+
+_special_chars_regex = re.compile('[@_!#$%^&*()<>?/\|\.,;}{~:]')
+def _contains_special_char(x):
+    return _special_chars_regex.search(x) is not None
+
+def tokenize_by_stop_words(x):
+    x = todoc(x)
+    y = []
+    buff = []
+    for t in x:
+        if t in stop_words or _contains_special_char(t.text):
+            if buff:
+                if len(buff) == 1:
+                    y.append(buff[0])
+                else:
+                    ent = None
+                    for b in buff:
+                        if b.entity:
+                            ent = b.entity
+                            break
+                    y.append(Token(' '.join([b.text for b in buff]), entity=ent))
+                buff.clear()
+            y.append(t)
+        else:
+            buff.append(t)
+    if buff:
+        if len(buff) == 1:
+            y.append(buff[0])
+        else:
+            ent = None
+            for b in buff:
+                if b.entity:
+                    ent = b.entity
+                    break
+            y.append(Token(' '.join([b.text for b in buff]), entity=ent))
+    return Document(y)

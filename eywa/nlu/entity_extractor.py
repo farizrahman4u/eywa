@@ -1,10 +1,9 @@
 from ..math import batch_vector_sequence_similarity, euclid_similarity
 from ..math import should_pick, get_token_score
 from ..lang import Document, Token
+import tensorflow as tf
 import numpy as np
 
-np_max = np.max
-np_argmax = np.argmax
 
 
 class EntityExtractor(object):
@@ -14,7 +13,11 @@ class EntityExtractor(object):
         self.Y = []
         self.keys = {}
         self._changed = False
-        self.weights = np.array([0.5, 0.5, 0.5, 0.5])
+        self.weights = [tf.Variable(w, dtype='float32') for w in self.__class__.default_weights()]
+
+    @staticmethod
+    def default_weights():
+        return [0.5, 0.5, 0.5, 0.5]
 
     @property
     def entities(self):
@@ -125,7 +128,7 @@ class EntityExtractor(object):
                     token_score = get_token_score(t.embedding, left.embeddings, right.embeddings,
                                                   lefts_embs, rights_embs, vals_embs, bool(entity_type), weights)
                     token_scores.append(token_score)
-                y[k] = x[int(np_argmax(token_scores))].text
+                y[k] = x[int(tf.argmax(token_scores))].text
             else:
                 consts = kk['consts']
                 if consts:
@@ -134,14 +137,14 @@ class EntityExtractor(object):
                     for ck in consts:
                         docs = [X[i] for i in consts[ck]]
                         embs = [doc.embeddings for doc in docs]
-                        score = np_max(batch_vector_sequence_similarity(embs, x_embs))
+                        score = tf.reduce_max(batch_vector_sequence_similarity(embs, x_embs))
                         scores.append(score)
-                    y[k] = consts_keys[int(np_argmax(scores))]
+                    y[k] = consts_keys[int(tf.argmax(scores))]
                 else:
                     docs = [X[i] for i in pick_idxs]
                     embs = [doc.embeddings for doc in docs]
-                    best_val_id = np_argmax(batch_vector_sequence_similarity(embs, x_embs))
-                    y[k] = vals[best_val_id]
+                    best_val_id = tf.argmax(batch_vector_sequence_similarity(embs, x_embs))
+                    y[k] = vals[int(best_val_id)]
         return y
 
     def evaluate(self, X=None, Y=None):
@@ -163,12 +166,21 @@ class EntityExtractor(object):
         config = {}
         config['X'] = [str(x) for x in self.X]
         config['Y'] = self.Y[:]
-        config['weights'] = [float(w) for w in self.weights]
+        config['weights'] = [w.tolist() for w in self.get_weights()]
         return config
 
     @classmethod
     def deserialize(cls, config):
         ee = cls()
         ee.fit(config['X'], config['Y'])
-        ee.weights = np.array(config['weights'])
+        ee.set_weights(config['weights'])
         return ee
+
+    def set_weights(self, weights):
+        assert isinstance(weights, list)
+        assert len(weights) == len(self.weights)
+        for (w_in, w_curr) in zip(weights, self.weights):
+                w_curr.assign(w_in)
+
+    def get_weights(self):
+        return [w.numpy() for w in self.weights]

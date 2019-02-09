@@ -286,3 +286,4 @@ def get_token_score(token_emb, token_left_embs, token_right_embs, lefts_embs, ri
 # TODO:fix this
 if 'TRAVIS' in os.environ:
     from .numpy_backend import get_token_score
+

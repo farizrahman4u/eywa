@@ -7,8 +7,8 @@ import sys
 
 _BACKEND = None
 
-_available_backends = ['numpy', 'numba']
-_default_backend = 'numba'
+_available_backends = ['numpy', 'numba', 'tensorflow']
+_default_backend = 'numpy'
 
 
 def backend():
