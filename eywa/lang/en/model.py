@@ -511,9 +511,11 @@ with open(_stop_words_filepath, 'r') as f:
     stop_words = ast.literal_eval(f.read())
     stop_words = [Token(w) for w in stop_words]
 
+
 _special_chars_regex = re.compile('[@_!#$%^&*()<>?/\|\.,;}{~:]')
 def _contains_special_char(x):
     return _special_chars_regex.search(x) is not None
+
 
 def tokenize_by_stop_words(x):
     x = todoc(x)

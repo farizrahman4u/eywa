@@ -1,6 +1,6 @@
 from ..math import batch_vector_sequence_similarity, euclid_similarity
 from ..math import should_pick, get_token_score
-from ..lang import Document, Token
+from ..lang import Document, Token, tokenize_by_stop_words
 import tensorflow as tf
 import numpy as np
 
@@ -86,7 +86,7 @@ class EntityExtractor(object):
             self._changed = False
         if keys is None:
             keys = self.keys.keys()
-        x = Document(x)
+        x = tokenize_by_stop_words(x)
         y = {}
         x_embs = x.embeddings
         X = self.X
