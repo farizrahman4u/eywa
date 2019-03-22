@@ -1,4 +1,4 @@
-from ..lang import Document, tokenize_by_stop_words
+from ..lang import Document
 from ..math import euclid_similarity, vector_sequence_similarity
 from ..math import softmax
 import numpy as np
@@ -128,7 +128,7 @@ class Pattern(object):
         return score * 0.25
 
     def __call__(self, input):
-        input = Document(input)#tokenize_by_stop_words(input)
+        input = Document(input)
         vars = self.vars
         m = len(vars)
         n = len(input)
