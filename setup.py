@@ -4,7 +4,7 @@ import os
 import sys
 
 
-install_requires = ['numpy', 'dateparser', 'requests', 'numba', 'scipy', 'annoy']
+install_requires = ['numpy', 'dateparser', 'requests', 'scipy', 'annoy']
 
 if sys.version_info[0] == 2:
       install_requires.append('pysqlite')
