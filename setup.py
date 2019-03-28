@@ -4,7 +4,7 @@ import os
 import sys
 
 
-install_requires = ['numpy', 'dateparser', 'requests', 'scipy', 'annoy']
+install_requires = ['numpy', 'dateparser', 'requests', 'scipy', 'annoy', 'tensorflow==2.0.0-alpha0']
 
 if sys.version_info[0] == 2:
       install_requires.append('pysqlite')
