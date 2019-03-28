@@ -1,5 +1,6 @@
 from eywa.nlu import Comparator
 import pytest
+import numpy as np
 
 class TestComparator(object):
 
@@ -17,9 +18,8 @@ class TestComparator(object):
             b_score = c(s1, s3) 
             c_score = c(s2, s1)     
 
-            assert a_score > b_score and a_score == c_score
-
-
+            assert a_score > b_score
+            np.testing.assert_allclose(a_score, c_score, 1e-3)
 
     def test_comparator_serialization(self):
 
@@ -37,7 +37,3 @@ class TestComparator(object):
             c2_score = c2(s1, s2)
 
             assert c1_score == c2_score
-
-
-
-

@@ -23,3 +23,7 @@ class TestPattern:
             p1_out = p1(test_input)
             p2_out = p2(test_input)
             assert p1_out == p2_out
+
+
+if __name__ == '__main__':
+    pytest.main([__file__])

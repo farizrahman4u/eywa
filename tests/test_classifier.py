@@ -43,3 +43,7 @@ class TestClassifier:
             clf1_out = clf1.predict(test_input, return_probs=True)
             clf2_out = clf2.predict(test_input, return_probs=True)
             assert clf1_out == clf2_out
+
+
+if __name__ == '__main__':
+    pytest.main([__file__])

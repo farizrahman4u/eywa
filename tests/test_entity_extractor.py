@@ -31,3 +31,7 @@ class TestEntityExtractor:
             ex1_out = ex1.predict(test_input)
             ex2_out = ex2.predict(test_input)
             assert ex1_out == ex2_out
+
+
+if __name__ == '__main__':
+    pytest.main([__file__])
