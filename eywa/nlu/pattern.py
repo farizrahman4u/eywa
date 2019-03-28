@@ -1,6 +1,7 @@
-from ..lang import Document
+from ..lang import Document, tokenize_by_stop_words
 from ..math import euclid_similarity, vector_sequence_similarity
 from ..math import softmax
+import tensorflow as tf
 import numpy as np
 
 
@@ -9,7 +10,11 @@ class Pattern(object):
     def __init__(self, pattern):
         self._set_pattern(pattern)
         self._get_var_contexts()
-        self.weights = np.array([0.5, .1, .1, 1., .05, 0.2])
+        self.weights = [tf.Variable(w, dtype='float32') for w in self.__class__.default_weights()]
+
+    @staticmethod
+    def default_weights():
+        return [0.5, .1, .1, 1., .05, 0.5]
 
     def _set_pattern(self, pattern):
         # Converts 'hey there [name: jack, james, !apple, !building]' to 'hey there _eywa_var_name'
@@ -116,7 +121,7 @@ class Pattern(object):
         weights = self.weights
         w0 = weights[0]
         score1 = lambda: euclid_similarity(x1.embedding, x2.embedding)
-        score2 = lambda: np.dot(x1.embedding, x2.embedding)
+        score2 = lambda: tf.tensordot(x1.embedding, x2.embedding, 1)
         score3 = lambda: vector_sequence_similarity(x1.embeddings, x2.embeddings, w0, 'dot')
         score4 = lambda: vector_sequence_similarity(x1.embeddings, x2.embeddings, w0, 'euclid')
         scores = [score1, score2, score3, score4]
@@ -129,6 +134,7 @@ class Pattern(object):
 
     def __call__(self, input):
         input = Document(input)
+        input = tokenize_by_stop_words(input)
         vars = self.vars
         m = len(vars)
         n = len(input)
@@ -136,7 +142,7 @@ class Pattern(object):
         f2 = self._similarity
         examples = self.examples
         input_contexts = self._get_all_contexts(input)
-        matrix = np.zeros((m, n))
+        matrix = []
         contexts = self.contexts
         w = self.weights[5] * 10
         for i in range(m):
@@ -146,25 +152,38 @@ class Pattern(object):
                 var_contexts = contexts[var]
                 token_context = input_contexts[j]
                 scores = [f1(vc, token_context) for vc in var_contexts]
-                score = max(scores)
+                score = tf.reduce_max(scores)
                 var_examples = examples[var]
                 pos_examples, neg_examples = var_examples
                 if var_examples:
-                    pos_score = max([f2(ve, inp_j) for ve in pos_examples])
-                    neg_score = sum([f2(ve, inp_j) for ve in neg_examples])
+                    pos_score = tf.reduce_sum([f2(ve, inp_j) for ve in pos_examples])
+                    neg_score = tf.reduce_sum([f2(ve, inp_j) for ve in neg_examples])
                     score += w * pos_score - neg_score
-                matrix[i, j] = score
+                matrix.append(score)
+        
+        matrix = tf.stack(matrix)
+        matrix = tf.reshape(matrix, (m, n))
         matrix *= softmax(matrix, 0)
-        val_ids = np.argmax(matrix, 1)
+        val_ids = tf.argmax(matrix, 1)
         return {vars[i]: str(input[int(val_ids[i])]) for i in range(m)}
 
     def serialize(self):
         config = {'pattern': self._pattern}
-        config['weights'] = [float(w) for w in self.weights]
+        config['weights'] = [w.tolist() for w in self.get_weights()]
         return config
 
     @classmethod
     def deserialize(cls, config):
         p = cls(config['pattern'])
-        p.weights = np.array(config['weights'])
+        p.set_weights(config['weights'])
         return p
+
+
+    def set_weights(self, weights):
+        assert isinstance(weights, list)
+        assert len(weights) == len(self.weights)
+        for (w_in, w_curr) in zip(weights, self.weights):
+                w_curr.assign(w_in)
+
+    def get_weights(self):
+        return [w.numpy() for w in self.weights]

@@ -1,12 +1,16 @@
 from ..math import euclid_similarity, vector_sequence_similarity
 from ..lang import todoc
-import numpy as np
+import tensorflow as tf
 
 
 class Comparator(object):
 
     def __init__(self):
-        self.weights = np.array([0.5, .1, .1, 1., .05])
+        self.weights = [tf.Variable(w, dtype='float32') for w in self.__class__.default_weights()]
+
+    @staticmethod
+    def default_weights():
+        return [0.5, .1, .1, 1., .05]
 
     def _similarity(self, x1, x2):
         # if x1 == x2:
@@ -16,7 +20,7 @@ class Comparator(object):
         weights = self.weights
         w0 = weights[0]
         score1 = lambda: euclid_similarity(x1.embedding, x2.embedding)
-        score2 = lambda: np.dot(x1.embedding, x2.embedding)
+        score2 = lambda: tf.tensordot(x1.embedding, x2.embedding, 1)
         score3 = lambda: vector_sequence_similarity(x1.embeddings, x2.embeddings, w0, 'dot')
         score4 = lambda: vector_sequence_similarity(x1.embeddings, x2.embeddings, w0, 'euclid')
         scores = [score1, score2, score3, score4]
@@ -30,15 +34,24 @@ class Comparator(object):
     def __call__(self, x, y):
         x = todoc(x)
         y = todoc(y)
-        return self._similarity(x, y)
+        return float(self._similarity(x, y))
 
     def serialize(self):
         config = {}
-        config['weights'] = [float(w) for w in self.weights]
+        config['weights'] = [w.tolist() for w in self.get_weights()]
         return config
 
     @classmethod
     def deserialize(cls, config):
         comp = cls()
-        comp.weights = np.array(config['weights'])
+        comp.set_weights(config['weights'])
         return comp
+
+    def set_weights(self, weights):
+        assert isinstance(weights, list)
+        assert len(weights) == len(self.weights)
+        for (w_in, w_curr) in zip(weights, self.weights):
+                w_curr.assign(w_in)
+
+    def get_weights(self):
+        return [w.numpy() for w in self.weights]
