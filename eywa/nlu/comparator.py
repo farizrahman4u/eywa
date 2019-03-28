@@ -1,5 +1,5 @@
 from ..math import euclid_similarity, vector_sequence_similarity
-from ..lang import todoc
+from ..lang import todoc, Document
 import tensorflow as tf
 
 
@@ -12,7 +12,9 @@ class Comparator(object):
     def default_weights():
         return [0.5, .1, .1, 1., .05]
 
-    def _similarity(self, x1, x2):
+    def forward(self, x1, x2):
+        assert isinstance(x1, Document)
+        assert isinstance(x2, Document)
         # if x1 == x2:
         #    return 1
         if len(x1) == 0 or len(x2) == 0:
@@ -34,7 +36,7 @@ class Comparator(object):
     def __call__(self, x, y):
         x = todoc(x)
         y = todoc(y)
-        return float(self._similarity(x, y))
+        return float(self.forward(x, y))
 
     def serialize(self):
         config = {}

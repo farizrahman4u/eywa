@@ -40,8 +40,8 @@ class TestClassifier:
         test_inputs = ['will it rain today', 'find a place to stay']
 
         for test_input in test_inputs:
-            clf1_out = clf1.predict(test_input, return_probs=True)
-            clf2_out = clf2.predict(test_input, return_probs=True)
+            clf1_out = clf1.predict(test_input, return_scores=True)
+            clf2_out = clf2.predict(test_input, return_scores=True)
             assert clf1_out == clf2_out
 
 

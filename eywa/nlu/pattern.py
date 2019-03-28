@@ -132,23 +132,22 @@ class Pattern(object):
                 score += s()
         return score * 0.25
 
-    def __call__(self, input):
-        input = Document(input)
-        input = tokenize_by_stop_words(input)
+    def forward(self, x):
+        assert isinstance(x, Document)
         vars = self.vars
         m = len(vars)
-        n = len(input)
+        n = len(x)
         f1 = self._context_similarity
         f2 = self._similarity
         examples = self.examples
-        input_contexts = self._get_all_contexts(input)
+        input_contexts = self._get_all_contexts(x)
         matrix = []
         contexts = self.contexts
         w = self.weights[5] * 10
         for i in range(m):
             for j in range(n):
                 var = vars[i]
-                inp_j = input[j: j + 1]
+                inp_j = x[j: j + 1]
                 var_contexts = contexts[var]
                 token_context = input_contexts[j]
                 scores = [f1(vc, token_context) for vc in var_contexts]
@@ -164,8 +163,22 @@ class Pattern(object):
         matrix = tf.stack(matrix)
         matrix = tf.reshape(matrix, (m, n))
         matrix *= softmax(matrix, 0)
+        return matrix
+
+    def __call__(self, input, return_scores=False):
+        input = tokenize_by_stop_words(input)
+        matrix = self.forward(input)
+        vars = self.vars
+        if return_scores:
+            n = len(input)
+            return {
+                vars[i]: sorted([
+                    (input[j].text, float(matrix[i, j])) for j in range(n)
+                ], key=lambda x: x[1], reverse=True)
+                for i in range(len(vars))   
+            }
         val_ids = tf.argmax(matrix, 1)
-        return {vars[i]: str(input[int(val_ids[i])]) for i in range(m)}
+        return {vars[i]: str(input[int(val_ids[i])]) for i in range(len(vars))}
 
     def serialize(self):
         config = {'pattern': self._pattern}
@@ -177,7 +190,6 @@ class Pattern(object):
         p = cls(config['pattern'])
         p.set_weights(config['weights'])
         return p
-
 
     def set_weights(self, weights):
         assert isinstance(weights, list)

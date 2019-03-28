@@ -73,6 +73,7 @@ def frequencies_to_weights(x):
 # entity extractor
 
 def should_pick(x_embs, pick_embs, non_pick_embs, variance, weights):
+    # returns positive if should pick
     npicks = len(pick_embs)
     scores = batch_vector_sequence_similarity(pick_embs + non_pick_embs, x_embs)
     pick_score = tf.reduce_max(scores[:npicks])
@@ -88,7 +89,7 @@ def should_pick(x_embs, pick_embs, non_pick_embs, variance, weights):
     pick_score *= variance
     non_pick_score *= 1. - pick_bias
     non_pick_score += 1. - variance
-    return pick_score >= non_pick_score
+    return pick_score - non_pick_score
 
 
 def get_token_score(token_emb, token_left_embs, token_right_embs, lefts_embs, rights_embs, vals_embs, is_entity,

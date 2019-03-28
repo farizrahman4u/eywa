@@ -78,7 +78,7 @@ class EntityExtractor(object):
                     else:
                         consts[None] = [i]
 
-    def predict(self, x, keys=None):
+    def predict(self, x, keys=None, return_scores=False):
         if type(x) in (list, tuple):
             return type(x)(map(self.predict, x))
         if self._changed:
@@ -87,12 +87,42 @@ class EntityExtractor(object):
         if keys is None:
             keys = self.keys.keys()
         x = tokenize_by_stop_words(x)
+        y_scores = self.forward(x)
         y = {}
+        self_keys = self.keys
+        if return_scores:
+            for k in keys:
+                kk = self_keys[k]
+                should_pick, pick_scores, const_scores = y_scores[k]
+                should_pick = 1 if should_pick > 0 else 0
+                vals = [self.Y[i][k] for i in kk['picks']] + list(kk['consts'].keys())
+                scores = (pick_scores.numpy() * should_pick).tolist()
+                scores += (const_scores.numpy() * (1 - should_pick)).tolist()
+                return sorted(list(zip(vals,scores)), key=lambda x: x[1], reverse=True)
+        else:            
+            for k in keys:
+                kk = self_keys[k]
+                should_pick, pick_scores, const_scores = y_scores[k]
+                if should_pick > 0:
+                    vals = [w.text for w in x]
+                    y[k] = vals[int(tf.argmax(pick_scores))]
+                else:
+                    y[k] = list(kk['consts'].keys())[int(tf.argmax(const_scores))]
+        return y
+
+    def forward(self, x):
+        assert isinstance(x, Document)
         x_embs = x.embeddings
         X = self.X
         self_keys = self.keys
         weights = self.weights
+        keys = self.keys.keys()
+        y = {}
         for k in keys:
+            kk = self_keys[k]
+            pick_scores = tf.zeros(len(x))
+            consts = kk['consts']
+            const_scores = tf.zeros(len(consts))
             kk = self_keys[k]
             types = kk['types']
             if len(types) == 1:
@@ -108,17 +138,20 @@ class EntityExtractor(object):
                 else:
                     non_picks.append(i)
             if not picks:
-                pick = False
+                pick = tf.zeros(1)
             else:
-                pick_embs = [X[i].embeddings for i in picks]
-                non_pick_embs = [X[i].embeddings for i in non_picks]
-                vals = [self.Y[i][k] for i in pick_idxs]
-                n = len(vals)
-                c = len(set(vals))
-                variance = float(c) / n
-                pick = should_pick(x_embs, pick_embs, non_pick_embs, variance, weights)
-            if pick:
-                token_scores = []
+                if not consts:
+                    pick = tf.ones(1)
+                else:
+                    pick_embs = [X[i].embeddings for i in picks]
+                    non_pick_embs = [X[i].embeddings for i in non_picks]
+                    vals = [self.Y[i][k] for i in pick_idxs]
+                    n = len(vals)
+                    c = len(set(vals))
+                    variance = float(c) / n
+                    pick = should_pick(x_embs, pick_embs, non_pick_embs, variance, weights)
+            if pick > 0:
+                pick_scores = []
                 lefts_embs = [d.embeddings for d in kk['lefts']]
                 rights_embs = [d.embeddings for d in kk['rights']]
                 vals_embs = [v.embedding for v in kk['values']]
@@ -127,24 +160,17 @@ class EntityExtractor(object):
                     right = x[i:]
                     token_score = get_token_score(t.embedding, left.embeddings, right.embeddings,
                                                   lefts_embs, rights_embs, vals_embs, bool(entity_type), weights)
-                    token_scores.append(token_score)
-                y[k] = x[int(tf.argmax(token_scores))].text
+                    pick_scores.append(token_score)
+                pick_scores = tf.stack(pick_scores)
             else:
-                consts = kk['consts']
-                if consts:
-                    consts_keys = consts.keys()
-                    scores = []
-                    for ck in consts:
-                        docs = [X[i] for i in consts[ck]]
-                        embs = [doc.embeddings for doc in docs]
-                        score = tf.reduce_max(batch_vector_sequence_similarity(embs, x_embs))
-                        scores.append(score)
-                    y[k] = consts_keys[int(tf.argmax(scores))]
-                else:
-                    docs = [X[i] for i in pick_idxs]
+                const_scores = []
+                for ck in consts:
+                    docs = [X[i] for i in consts[ck]]
                     embs = [doc.embeddings for doc in docs]
-                    best_val_id = tf.argmax(batch_vector_sequence_similarity(embs, x_embs))
-                    y[k] = vals[int(best_val_id)]
+                    score = tf.reduce_max(batch_vector_sequence_similarity(embs, x_embs))
+                    const_scores.append(score)
+                const_scores = tf.stack(const_scores)
+            y[k] = pick, pick_scores, const_scores
         return y
 
     def evaluate(self, X=None, Y=None):

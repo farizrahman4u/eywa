@@ -42,23 +42,28 @@ class Classifier(object):
             else:
                 data[y] = [x]
 
-    def predict(self, x, return_probs=False):
+    def forward(self, x):
+        assert isinstance(x, Document)
+        scores = []
+        f = self._similarity
+        for i, v in enumerate(self.data.values()):
+            score = f(x, v[0])
+            for x2 in v[1:]:
+                score = max(score, f(x, x2))
+            scores.append(score)
+        scores = tf.stack(scores)
+        return scores
+
+    def predict(self, x, return_scores=False):
         if type(x) in (list, tuple):
-            return type(x)([self.predict(i, return_probs) for i in x])
+            return type(x)([self.predict(i, return_scores) for i in x])
         if type(x) is not Document:
             x = Document(x)
         classes = list(self.data.keys())
-        scores = np.zeros(len(classes))
-        for i, k in enumerate(classes):
-            for x2 in self.data[k]:
-                score = self._similarity(x, x2)
-                if score > scores[i]:
-                    scores[i] = score
-        # scores /= np.array([len(self.data[c]) for c in classes])
-        if return_probs:
-            scores = softmax(scores)
+        scores = self.forward(x)
+        if return_scores:
             return {z[0]: float(z[1]) for z in zip(classes, scores)}
-        return classes[np.argmax(scores)]
+        return classes[np.argmax(scores.numpy())]
 
     def _similarity(self, x1, x2):
         # if x1 == x2:

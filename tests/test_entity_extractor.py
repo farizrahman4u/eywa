@@ -30,6 +30,7 @@ class TestEntityExtractor:
         for test_input in test_inputs:
             ex1_out = ex1.predict(test_input)
             ex2_out = ex2.predict(test_input)
+            ex2.predict(test_input, return_scores=True) # TODO
             assert ex1_out == ex2_out
 
 

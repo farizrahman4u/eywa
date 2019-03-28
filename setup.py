@@ -11,7 +11,7 @@ if sys.version_info[0] == 2:
 
 setup(
       name='eywa',
-      version='0.0.2',
+      version='0.0.4',
       description='Framework for conversational AI',
       author='Fariz Rahman',
       author_email='farizrahman4u@gmail.com',
