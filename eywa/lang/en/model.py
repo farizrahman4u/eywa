@@ -536,7 +536,7 @@ def tokenize_by_stop_words(x):
                 buff.clear()
             y.append(t)
         else:
-            buff.append(t)
+            y.append(t)
     if buff:
         if len(buff) == 1:
             y.append(buff[0])
