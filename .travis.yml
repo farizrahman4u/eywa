@@ -10,4 +10,4 @@ install:
   - pip install -e .[tests]
 
 script:
-  - python -m pytest
+  - PYTHONPATH=$PWD:$PYTHONPATH py.test tests/
