@@ -281,7 +281,7 @@ class Token(object):
         return self.text
 
     def __repr__(self):
-        return self.text
+        return 'Token(text : %s, entity : %s)' % (self.text, self.entity)
 
     def _lower(self):
         try:
@@ -479,7 +479,7 @@ class Document(object):
                 txt = w.text
                 line1 += txt + ' '
                 line2 += ' ' * len(txt) + ' '
-        return line1[:-1] + '\n' + line2[:-1]
+        return 'Document(text : %s, tokens: [%s])' % (line1[:-1], line2[:-1].strip())
 
     def __eq__(self, text):
         if type(text) in (Document, Token):
