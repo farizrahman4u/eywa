@@ -10,5 +10,4 @@ install:
   - pip install -e .[tests]
 
 script:
-  - python - c "import pytest"
   - pytest
