@@ -8,6 +8,7 @@ matrix:
 
 install:
   - pip install -e .[tests]
-  - pip install pytest
-  
-script: pytest tests
+
+script:
+  PYTHONPATH=$PWD:$PYTHONPATH py.test tests/
+
