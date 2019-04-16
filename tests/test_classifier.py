@@ -45,5 +45,4 @@ class TestClassifier:
             assert clf1_out == clf2_out
 
 
-if __name__ == '__main__':
-    pytest.main([__file__])
+
