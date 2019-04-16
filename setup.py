@@ -19,6 +19,7 @@ setup(
       url='https://github.com/farizrahman4u/eywa',
       license='GNU GPL v2',
       install_requires=install_requires,
+      extras_require=extras_require,
       dependency_links=[],
       packages=find_packages(),
       include_package_data=True
