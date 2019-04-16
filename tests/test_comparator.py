@@ -5,6 +5,7 @@ import numpy as np
 
 def test_blank_test():
     a = 1 + 1
+    from eywa.nlu import Comparator
 
 # class TestComparator(object):
 
