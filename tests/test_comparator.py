@@ -1,5 +1,5 @@
 import pytest
-from eywa.nlu import Comparator
+#from eywa.nlu import Comparator
 import numpy as np
 
 
