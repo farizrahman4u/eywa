@@ -1,7 +1,7 @@
 import pytest
-# from eywa.nlu import Comparator
+from eywa.nlu import Comparator
 
-# import numpy as np
+import numpy as np
 
 
 def test_blank_test():
