@@ -4,8 +4,7 @@ import os
 import sys
 
 
-install_requires = ['numpy', 'dateparser', 'requests', 'scipy', 'annoy', 'tensorflow==2.0.0-alpha0'],
-extras_require={ 'tests': ['pytest'] }
+install_requires = ['numpy', 'dateparser', 'requests', 'scipy', 'annoy', 'tensorflow==2.0.0-alpha0', 'pytest'],
 
 if sys.version_info[0] == 2:
       install_requires.append('pysqlite')
@@ -19,7 +18,6 @@ setup(
       url='https://github.com/farizrahman4u/eywa',
       license='GNU GPL v2',
       install_requires=install_requires,
-      extras_require=extras_require,
       dependency_links=[],
       packages=find_packages(),
       include_package_data=True
