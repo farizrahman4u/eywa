@@ -7,7 +7,7 @@ python:
 
 install:
   - pip install -e .[tests]
-
+  - pip install tensorflow==2.0.0-alpha0
 script: 
   - py.test
 
