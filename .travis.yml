@@ -9,5 +9,6 @@ matrix:
 install:
   - pip install -e .[tests]
 
-script: pytest
+script: 
+  - python -m pytest
 
