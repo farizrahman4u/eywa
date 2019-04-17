@@ -8,6 +8,7 @@ matrix:
 
 install:
   - pip install -e .[tests]
-
+  - pip install tensorflow==2.0.0-alpha0
+  
 script:
   - PYTHONPATH=$PWD:$PYTHONPATH py.test tests/
