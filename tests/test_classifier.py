@@ -11,34 +11,29 @@ class TestClassifier:
         x_name = ['What is your name', 'Who are you', 'What do i call you', 'what are you called']
 
 
-        clf = Classifier()
-        clf.fit(x_hotel, 'hotel')
-        clf.fit(x_weather, 'weather')
-        clf.fit(x_place, 'place')
-        clf.fit(x_name, 'name')
-
-
-        assert clf.predict('will it rain today') == 'weather'
-        assert clf.predict('find a place to stay') == 'hotel'
-        assert clf.predict('where am I') == 'place'
-        assert clf.predict('may i know your name') == 'name'
-
-        # Asserting return probablities for each of the above tests
-        assert clf.predict('will it rain today', True) == {'hotel': 0.4461936950683594, 'weather': 0.45663195848464966, 'place': 0.4499515891075134, 'name': 0.4477596879005432}
-        assert clf.predict('find a place to stay', True) == {'hotel': 0.49977487325668335, 'weather': 0.4606366753578186, 'place': 0.47342991828918457, 'name': 0.4549995958805084}
-        assert clf.predict('where am I',True) == {'hotel': 0.45000576972961426, 'weather': 0.4549625515937805, 'place': 0.46232348680496216, 'name': 0.4510326385498047}
-        assert clf.predict('may i know your name', True) == {'hotel': 0.46361255645751953, 'weather': 0.46408894658088684, 'place': 0.4642796516418457, 'name': 0.47779345512390137}        
-
-
-        x_greetings = ['hi', 'hello', 'hello there', 'hey']
-        x_not_greetings = x_hotel + x_weather
-
+        
+        clf1 = Classifier()
         clf2 = Classifier()
-        clf2.fit(x_greetings, 'greetings')
-        clf2.fit(x_not_greetings, 'not_greetings')
+        clfs = [clf1, clf2]
+        for cl in clfs:
+            cl.fit(x_hotel, 'hotel')
+            cl.fit(x_weather, 'weather')
+            cl.fit(x_place, 'place')
+            cl.fit(x_name, 'name')
 
-        assert clf2.predict('flight information') == 'not_greetings'
-        assert clf2.predict('hey there') == 'greetings'
+
+
+        assert clf1.predict('will it rain today') == 'weather'
+        assert clf1.predict('find a place to stay') == 'hotel'
+        assert clf1.predict('where am I') == 'place'
+        assert clf1.predict('may i know your name') == 'name'
+
+        # Testing return probablities for each of the above tests
+        assert clf1.predict('will it rain today', True) == clf2.predict('will it rain today', True)
+        assert clf1.predict('find a place to stay', True) == clf2.predict('find a place to stay', True)
+        assert clf1.predict('where am I',True) == clf2.predict('where am I',True)
+        assert clf1.predict('may i know your name', True) == clf2.predict('may i know your name', True)
+
 
     def test_classifier_serialization(self):
         x_hotel = ['book a hotel', 'need a nice place to stay', 'any motels near by']
