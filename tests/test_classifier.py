@@ -9,8 +9,6 @@ class TestClassifier:
         x_weather = ['what is the weather like', 'is it hot outside']
         x_place = ['which place is this', 'where are we', 'where are you going', 'which place is it']
         x_name = ['What is your name', 'Who are you', 'What do i call you', 'what are you called']
-
-
         
         clf1 = Classifier()
         clf2 = Classifier()
@@ -20,8 +18,6 @@ class TestClassifier:
             cl.fit(x_weather, 'weather')
             cl.fit(x_place, 'place')
             cl.fit(x_name, 'name')
-
-
 
         assert clf1.predict('will it rain today') == 'weather'
         assert clf1.predict('find a place to stay') == 'hotel'
