@@ -126,7 +126,6 @@ class EntityExtractor(object):
             pick_scores = tf.zeros(len(x))
             consts = kk['consts']
             const_scores = tf.zeros(len(consts))
-            kk = self_keys[k]
             types = kk['types']
             if len(types) == 1:
                 entity_type = list(types)[0]
