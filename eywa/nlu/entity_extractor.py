@@ -91,6 +91,7 @@ class EntityExtractor(object):
         y = {}
         self_keys = self.keys
         if return_scores:
+            entity_prob_dist = {}
             for k in keys:
                 kk = self_keys[k]
                 should_pick, pick_scores, const_scores = y_scores[k]
@@ -98,7 +99,9 @@ class EntityExtractor(object):
                 vals = [self.Y[i][k] for i in kk['picks']] + list(kk['consts'].keys())
                 scores = (pick_scores.numpy() * should_pick).tolist()
                 scores += (const_scores.numpy() * (1 - should_pick)).tolist()
-                return sorted(list(zip(vals,scores)), key=lambda x: x[1], reverse=True)
+                entity_probs = sorted(list(zip(vals,scores)), key=lambda x: x[1], reverse=True)
+                entity_prob_dist[k] = entity_probs
+            return entity_prob_dist
         else:            
             for k in keys:
                 kk = self_keys[k]
@@ -123,7 +126,6 @@ class EntityExtractor(object):
             pick_scores = tf.zeros(len(x))
             consts = kk['consts']
             const_scores = tf.zeros(len(consts))
-            kk = self_keys[k]
             types = kk['types']
             if len(types) == 1:
                 entity_type = list(types)[0]
