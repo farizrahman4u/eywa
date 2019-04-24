@@ -62,7 +62,9 @@ class Classifier(object):
         classes = list(self.data.keys())
         scores = self.forward(x)
         if return_scores:
-            return {z[0]: float(z[1]) for z in zip(classes, scores)}
+            probs_dist = sorted({z[0]: float(z[1]) for z in zip(classes, scores)}.items(),
+                                key=lambda x:x[1], reverse=True)
+            return {x[0]:x[1] for x in probs_dist}
         return classes[np.argmax(scores.numpy())]
 
     def _similarity(self, x1, x2):
