@@ -323,7 +323,7 @@ class Token(object):
         try:
             return self._in_vocab
         except AttributeError:
-            _in_vocab = any(self.embedding)
+            _in_vocab = tf.math.count_nonzero(self.embedding).numpy() != 0
             self._in_vocab = _in_vocab
             return _in_vocab
 
