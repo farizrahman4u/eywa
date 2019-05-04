@@ -74,7 +74,7 @@ ex = EntityExtractor()
 ex.fit(x, y)
 
 x_test = 'what is the weather in london like'
-print(ex.predict(x_test))
+print(ex.predict(x_test)) #-- {intent:weather, place:london}
 ```
 
 ## Pattern
@@ -85,4 +85,33 @@ from eywa.nlu import Pattern
 p = Pattern('[fruit: apple, banana] is my favourite fruit')  # create variable [fruit] with sample values {apple, babana}
 
 p('i like grapes')  # >> {'fruit' : 'grapes'}
+```
+
+## Providing training data outside code
+
+When there are more number of examples and you do not want to put the examples inside the code you can put them in a text file (say 'train_data.txt') like in the given example.
+The example text is denoted by a "#" preceeding it and the entities are denoted by a "-" preceeding it
+
+```python
+#what is the weather in tokyo
+-{'intent': 'weather', 'place': 'tokyo'}
+
+#how is the weather like in kochi
+-{'intent': 'weather', 'place': 'kochi'}
+```
+
+you can then load the data using preprocessing util
+
+```python
+from eywa.nlu import EntityExtractor
+from eywa.utils import Preprocessing
+
+prep_data = Preprocessing()
+x, y = prep_data.preprocess(filename='train_data.txt',prep_for='entity_extractor')
+
+ex = EntityExtractor()
+ex.fit(x, y)
+
+x_test = 'what is the weather in london like'
+print(ex.predict(x_test)) #-- {intent:weather, place:london}
 ```
