@@ -19,14 +19,14 @@ def check_inputs_targets_consistency(inputs, targets, nlu_type):
         if input_len != target_len:
             raise ValueError('Inputs should have the same'
                             ' number of samples as targets.'
-                            'Found ' + str(len(inputs)) +
-                            ' input samples and ' + str(len(targets)) +
+                            'Found ' + str(input_len) +
+                            ' input samples and ' + str(target_len) +
                             ' target samples')
 
     elif nlu_type == "classifier":
         if len(inputs) != len(targets):
             raise ValueError('Inputs should have the same'
-                        ' number of samples as targets.'
-                        'Found ' + str(len(inputs)) +
-                        ' input samples and ' + str(len(targets)) +
-                        ' target samples')
+                            ' number of samples as targets.'
+                            'Found ' + str(len(inputs)) +
+                            ' input samples and ' + str(len(targets)) +
+                            ' target samples')

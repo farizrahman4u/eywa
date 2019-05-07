@@ -1,7 +1,7 @@
 from ..math import batch_vector_sequence_similarity, euclid_similarity
 from ..math import should_pick, get_token_score
 from ..lang import Document, Token, tokenize_by_stop_words
-from .entity_extractor_utils import check_inputs_targets_consistency
+from ..utils.nlu_utils import check_inputs_targets_consistency
 import tensorflow as tf
 import numpy as np
 
@@ -25,7 +25,11 @@ class EntityExtractor(object):
         return list(self.keys.keys())
 
     def fit(self, X, Y):
-        check_inputs_targets_consistency(X, Y)
+        check_inputs_targets_consistency(X, Y, nlu_type="entity_extractor")
+        if type(X) == str:
+            X = [X]
+        if type(Y) == dict:
+            Y = [Y]
         x_app = self.X.append
         y_app = self.Y.append
         for x, y in zip(X, Y):

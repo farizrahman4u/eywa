@@ -1,5 +1,6 @@
 from ..lang import Document
 from ..math import vector_sequence_similarity, euclid_similarity, softmax
+from ..utils.nlu_utils import check_inputs_targets_consistency
 from collections import defaultdict
 import tensorflow as tf
 import numpy as np
@@ -25,10 +26,9 @@ class Classifier(object):
     def fit(self, X, Y):
         if type(X) in (str, Document):
             X = [X]
-            Y = [Y]
         if type(Y) not in (list, tuple):
             Y = [Y] * len(X)
-        assert len(X) == len(Y), "Different number of samples in X and Y."
+        check_inputs_targets_consistency(X, Y, nlu_type="classifier")
         X_app = self.X.append
         Y_app = self.Y.append
         data = self.data
