@@ -45,8 +45,8 @@ class EntityExtractor(object):
         keys = self.keys
         for i, (x, y) in enumerate(zip(self.X, self.Y)):
             for k in keys:
-                if k in y:
-                    kk = keys[k]
+                kk = keys[k]
+                if k in y:                    
                     types = kk['types']
                     v = y[k]
                     indices = []
