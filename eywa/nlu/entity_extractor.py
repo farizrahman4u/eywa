@@ -24,6 +24,11 @@ class EntityExtractor(object):
         return list(self.keys.keys())
 
     def fit(self, X, Y):
+        if type(X) in (str, Document):
+            X = [X]
+        if type(Y) == dict:
+            Y = [Y]
+        assert len(X) == len(Y), "Different number of samples in X and Y."
         x_app = self.X.append
         y_app = self.Y.append
         for x, y in zip(X, Y):
