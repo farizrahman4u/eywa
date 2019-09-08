@@ -1,5 +1,5 @@
 _namespace = {}
-
+_node_classes = {}
 
 def get_node(name):
     try:
@@ -32,3 +32,16 @@ def register_node(node):
                                                                                   ' already exists.')
         node._auto_name = False
     _namespace[node.name] = node
+
+
+def register_node_class(cls):
+    from .node import Node
+    assert issubclass(cls, Node)
+    _node_classes[cls.__name__] = cls
+
+
+def get_node_class(cls_name):
+    cls = _node_classes.get(cls_name)
+    if cls is None:
+        raise Exception("Unregistered node class: " + cls_name)
+    return cls

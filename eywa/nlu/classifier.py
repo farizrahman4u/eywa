@@ -1,17 +1,21 @@
 from ..lang import Document
 from ..math import vector_sequence_similarity, euclid_similarity, softmax
+from ..blameflow import Node, Switch
+from ..blameflow import Blame, BlameType
 from collections import defaultdict
 import tensorflow as tf
 import numpy as np
 
 
-class Classifier(object):
+class Classifier(Switch):
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
+        super(Classifier, self).__init__(*args, **kwargs)
         self.X = []
         self.Y = []
         self.data = {}
         self.weights = [tf.Variable(w, dtype='float32') for w in self.__class__.default_weights()]
+        self.grads= {}
         pass
 
     @staticmethod
@@ -41,15 +45,19 @@ class Classifier(object):
                 data[y].append(x)
             else:
                 data[y] = [x]
+        self.options = set(self.Y)
+        self._changed = True
 
     def forward(self, x):
         assert isinstance(x, Document)
         scores = []
         f = self._similarity
-        for i, v in enumerate(self.data.values()):
-            score = f(x, v[0])
-            for x2 in v[1:]:
-                score = max(score, f(x, x2))
+        for k, v in self.data.items():
+            with tf.GradientTape() as tape:
+                score = f(x, v[0])
+                for x2 in v[1:]:
+                    score = max(score, f(x, x2))
+            self.grads[k] = tape.gradient(score, self.weights)
             scores.append(score)
         scores = tf.stack(scores)
         return scores
@@ -62,7 +70,9 @@ class Classifier(object):
         classes = list(self.data.keys())
         scores = self.forward(x)
         if return_scores:
-            return {z[0]: float(z[1]) for z in zip(classes, scores)}
+            probs_dist = sorted({z[0]: float(z[1]) for z in zip(classes, scores)}.items(),
+                                key=lambda x:x[1], reverse=True)
+            return probs_dist
         return classes[np.argmax(scores.numpy())]
 
     def _similarity(self, x1, x2):
@@ -99,7 +109,7 @@ class Classifier(object):
         return err, acc
 
     def serialize(self):
-        config = {}
+        config = super(Classifier, self).serialize()
         config['X'] = [str(x) for x in self.X]
         config['Y'] = self.Y[:]
         config['weights'] = [w.tolist() for w in self.get_weights()]
@@ -107,9 +117,11 @@ class Classifier(object):
 
     @classmethod
     def deserialize(cls, config):
-        clf = cls()
-        clf.set_weights(config['weights'])
-        clf.fit(config['X'], config['Y'])
+        weights = config.pop('weights')
+        X, Y = config.pop('X'), config.pop('Y')
+        clf = super(Classifier, cls).deserialize(config)
+        clf.set_weights(weights)
+        clf.fit(X, Y)
         return clf
 
     def set_weights(self, weights):
@@ -120,3 +132,19 @@ class Classifier(object):
 
     def get_weights(self):
         return [w.numpy() for w in self.weights]
+
+    def switch_f(self, inputs):
+        assert len(inputs) == 1, "Classifier is a single input node type."
+        inp = list(inputs.values())[0]
+        return self.predict(inp)
+
+    def blame(self, blame):
+        super(Classifier, self).blame(blame)
+        if blame.blame_type == BlameType.POSITIVE:
+            for g, w in zip(self.grads[self.value], self.weights):
+                w.assign_add(g * 0.05)
+            blame.node_updated = True
+        elif blame.blame_type == BlameType.NEGATIVE:
+            for g, w in zip(self.grads[self.value], self.weights):
+                w.assign_sub(g * 0.05)
+
