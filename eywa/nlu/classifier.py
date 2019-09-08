@@ -139,4 +139,12 @@ class Classifier(Switch):
         return self.predict(inp)
 
     def blame(self, blame):
-        pass
+        super(Classifier, self).blame(blame)
+        if blame.blame_type == BlameType.POSITIVE:
+            for g, w in zip(self.grads[self.value], self.weights):
+                w.assign_add(g * 0.05)
+            blame.node_updated = True
+        elif blame.blame_type == BlameType.NEGATIVE:
+            for g, w in zip(self.grads[self.value], self.weights):
+                w.assign_sub(g * 0.05)
+
