@@ -360,6 +360,10 @@ class Document(object):
             return
         if type(text) is Token:
             text = text.text
+        if not isinstance(text, str):
+            raise TypeError('Document can not be created ' + 
+                            'from object of type ' +
+                            str(type(text)) + '.')
         self.text = text
         # Entity Extraction + tokenization
         entity_table = {}
