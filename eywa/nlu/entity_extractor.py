@@ -83,17 +83,17 @@ class EntityExtractor(object):
                         consts[None] = [i]
 
     def predict(self, x, keys=None, return_scores=False):
-        if type(x) in (list, tuple):
-            return type(x)(map(self.predict, x))
         if self._changed:
             self.compile()
             self._changed = False
+        if type(x) in (list, tuple):
+            return type(x)(map(lambda x:
+                               self.predict(x, keys, return_scores), x))
         if keys is None:
             keys = self.keys.keys()
         x = tokenize_by_stop_words(x)
         y_scores = self.forward(x)
         self_keys = self.keys
-        print('---ok---')
         if return_scores:
             entity_prob_dist = {}
             for k in keys:

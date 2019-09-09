@@ -140,7 +140,10 @@ class NLUServer(object):
             if return_scores is None:
                 return_scores = med.get('return_scores', False)
             out = model.predict(inp, return_scores=return_scores)
-            resp.media = out
+            if isinstance(out, str):
+                resp.text = out
+            else:
+                resp.media = out
             resp.status_code = 200
         @api.route('/models/{model_name}/train')
         def train(req, resp, *, model_name):
