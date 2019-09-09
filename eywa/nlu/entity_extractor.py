@@ -26,6 +26,10 @@ class EntityExtractor(object):
     def fit(self, X, Y):
         x_app = self.X.append
         y_app = self.Y.append
+        if not isinstance(X, (list, tuple)):
+            X = [X]
+        if not isinstance(Y, (list, tuple)):
+            Y = [Y]
         for x, y in zip(X, Y):
             x = Document(x)
             x_app(x)
@@ -88,8 +92,8 @@ class EntityExtractor(object):
             keys = self.keys.keys()
         x = tokenize_by_stop_words(x)
         y_scores = self.forward(x)
-        y = {}
         self_keys = self.keys
+        print('---ok---')
         if return_scores:
             entity_prob_dist = {}
             for k in keys:
@@ -102,7 +106,8 @@ class EntityExtractor(object):
                 entity_probs = sorted(list(zip(vals,scores)), key=lambda x: x[1], reverse=True)
                 entity_prob_dist[k] = entity_probs
             return entity_prob_dist
-        else:            
+        else:
+            y = {}         
             for k in keys:
                 kk = self_keys[k]
                 should_pick, pick_scores, const_scores = y_scores[k]
@@ -111,7 +116,7 @@ class EntityExtractor(object):
                     y[k] = vals[int(tf.argmax(pick_scores))]
                 else:
                     y[k] = list(kk['consts'].keys())[int(tf.argmax(const_scores))]
-        return y
+            return y
 
     def forward(self, x):
         assert isinstance(x, Document)
