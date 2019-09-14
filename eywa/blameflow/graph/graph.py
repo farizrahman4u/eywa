@@ -1,5 +1,6 @@
 from .node import Node
 from .namespace import get_node_class
+import graphviz
 
 
 class Graph(Node):
@@ -131,3 +132,23 @@ class Graph(Node):
         name = config['name']
         graph = cls(input_map, final_node, name=name)
         return graph
+
+    def visualize(self, display=True, filename=None):
+        try:
+            from graphviz import Digraph
+        except ImportError as e:
+            raise Exception('Error importing graphviz: ' + str(e))
+        g = Digraph(self.name, filename=filename)
+        g.attr('node', shape='circle', color='orange', style='filled')
+        g.attr(size='6,6    ')
+        for node in self.nodes:
+            for onode, inp_name in node.output_nodes:
+                g.edge(node.name + ' (' + node.__class__.__name__ + ')',
+                       onode.name + ' (' + onode.__class__.__name__ + ')',
+                       label=inp_name)
+        if display:
+            g.view()
+        return g
+
+    def blame(self, blame):
+        self.final_node.blame(blame)

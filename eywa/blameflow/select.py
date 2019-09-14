@@ -32,7 +32,7 @@ class Select(Node):
         return super(Select, self).inputs_ready()
 
     def pull(self):  # we dont need all inputs
-        if self.value is not None and not self._inputs_changed:
+        if self.cache and self.value is not None and not self._inputs_changed:
             return self.value
         s_node = self.input_nodes['selector']
         if s_node is None:
@@ -93,4 +93,7 @@ class Select(Node):
                         return self.input_nodes['selector'].blame(blame.fork(BlameType.CORRECTIVE, name))
                     node.blame(blame.fork())
         elif blame.blame_type == BlameType.NEGATIVE:
-            pass
+            c = blame.confidence * 0.5
+            self.input_nodes['selector'].blame(blame.fork(confidence=c))
+            self.input_nodes[self.input_values['selector']].blame(blame.fork(confidence=c))
+            

@@ -32,7 +32,7 @@ class Node(object):
             self._inputs_changed = False
 
     def pull(self):
-        if self.value is not None and not self._inputs_changed:
+        if self.cache and self.value is not None and not self._inputs_changed:
             return self.value
         for inp_name, inp_node in self.input_nodes.items():
             if inp_node is None:
@@ -68,6 +68,8 @@ class Node(object):
         self.output_nodes.append((node, input_name))
         node.invalidate_inputs()
         node.input_nodes[input_name] = self
+        if not self.cache:
+            node.cache = False
 
     def add_input(self, name):
         if name in self.input_nodes:
