@@ -1,54 +1,20 @@
-# eywa
-Open source framework for building conversational agents [WIP]
+# Eywa - Framework for Conversational Agents
 
+<img  style="float: right" height="20%" width="20%" src="https://raw.githubusercontent.com/farizrahman4u/eywa/master/logo1.png"/>
 [![Build Status](https://travis-ci.org/farizrahman4u/eywa.svg?branch=master)](https://travis-ci.org/farizrahman4u/eywa)
 
+Eywa is an open source framework for building and deploying conversational agents (aka chatbots). 
 
-[TODO list for contributors](https://github.com/farizrahman4u/eywa/projects/1)
+#### Features:
+* Requires only few samples for training
+* Instant retraining
+* Uses word embeddings + heuristics instead of deep learning (better debuggability and interpretability)
 
------
-
-## Document
-
-The `Document` object is used to represent strings. It does smart tokenization and entity extraction for known types: date/time, number, phone number, email, url.
-
-```python
-from eywa.lang import Document
-
-x = 'my dob is dec 18 1996'
-doc = Document(x)
-'''
->>> doc
-my dob is dec 18 1996
-           DateTime
-'''
-
-# print tokens and their types
-
-for token in doc:
-    print(token, token.type)
-
-'''
-(my, None)
-(dob, None)
-(is, None)
-(dec 18 1996, 'DateTime')
-'''
-
-# Get a python `datetime.datetime` object from the last token:
-print(doc[-1].entity.data)
-
-'''
-datetime.datetime(1996, 12, 18, 0, 0)
-'''
-
-```
-
-## Classifier
+## Quickstart
+### Classifier
 
 ```python
 from eywa.nlu import Classifier
-from eywa.lang import *
 
 
 x_hotel = ['book a hotel', 'need a nice place to stay', 'any motels near by']
@@ -62,7 +28,7 @@ print(clf.predict('will it rain today'))  # >>> 'weather'
 print(clf.predict('find a place to stay'))  # >>> 'hotel'
 ```
 
-## Entity extractor
+### Entity extractor
 
 ```python
 from eywa.nlu import EntityExtractor
@@ -77,7 +43,7 @@ x_test = 'what is the weather in london like'
 print(ex.predict(x_test))
 ```
 
-## Pattern
+### Pattern
 
 ```python
 from eywa.nlu import Pattern
