@@ -1,6 +1,5 @@
 from .node import Node
 from .namespace import get_node_class
-import graphviz
 
 
 class Graph(Node):
