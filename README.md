@@ -53,3 +53,25 @@ p = Pattern('[fruit: apple, banana] is my favourite fruit')  # create variable [
 
 p('i like grapes')  # >> {'fruit' : 'grapes'}
 ```
+
+### Requirements
+
+* Python 3.6 or higher
+* Eywa requires [Tensorflow 2.0](https://www.tensorflow.org/install/pip) and should be installed manually by the user (is not installed automatically as a dependency)
+
+
+## Installation
+
+### Via pip:
+
+`pip install eywa`
+
+### Install from source:
+
+```
+git clone https://www.github.com/farizrahman4u/eywa.git
+cd eywa
+python setup.py install
+```
+
+
