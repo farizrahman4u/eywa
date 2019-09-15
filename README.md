@@ -1,6 +1,6 @@
 # Eywa - Framework for Conversational Agents
 
-<img  style="float: right" height="20%" width="20%" src="https://raw.githubusercontent.com/farizrahman4u/eywa/master/logo1.png"/>
+<img  align="right" height="20%" width="20%" src="https://raw.githubusercontent.com/farizrahman4u/eywa/master/logo1.png"/>
 
 [![Build Status](https://travis-ci.org/farizrahman4u/eywa.svg?branch=master)](https://travis-ci.org/farizrahman4u/eywa)
 
