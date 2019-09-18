@@ -7,6 +7,7 @@ import numpy as np
 
 
 class EntityExtractor(object):
+    #predict key value pairs for entity objects
 
     def __init__(self):
         self.X = []
@@ -24,6 +25,7 @@ class EntityExtractor(object):
         return list(self.keys.keys())
 
     def fit(self, X, Y):
+        #set input and target
         x_app = self.X.append
         y_app = self.Y.append
         if not isinstance(X, (list, tuple)):
