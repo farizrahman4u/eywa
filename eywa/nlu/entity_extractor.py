@@ -27,7 +27,7 @@ class EntityExtractor(object):
         return list(self.keys.keys())
 
     def fit(self, X, Y):
-        """set input and target
+        """fits model with input and target
         # Arguments
             X: list; input strings.
             Y: list; key value pairs of entities.
@@ -45,8 +45,10 @@ class EntityExtractor(object):
         self._changed = True
 
     def compile(self):
-        # create a profile for each 'key'
-        keys = set()
+        """Configures the model for training.
+        """
+       
+        keys = set()  # create a profile for each 'key'
         for y in self.Y:
             for k in y:
                 keys.add(k)
@@ -91,6 +93,10 @@ class EntityExtractor(object):
                         consts[None] = [i]
 
     def predict(self, x, keys=None, return_scores=False):
+        """Generates output predictions for the input samples.
+        # Arguments
+            x: Input String  
+        """
         if self._changed:
             self.compile()
             self._changed = False
@@ -189,6 +195,11 @@ class EntityExtractor(object):
         return y
 
     def evaluate(self, X=None, Y=None):
+        """
+        Returns error and accuracy metrics
+        # Arguments
+            X: 
+        """
         if X is None:
             X = self.X
             Y = self.Y
