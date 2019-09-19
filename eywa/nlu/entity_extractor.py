@@ -29,8 +29,8 @@ class EntityExtractor(object):
     def fit(self, X, Y):
         """fits model with input and target
         # Arguments
-            X: list; input strings.
-            Y: list; key value pairs of entities.
+            X: list of input strings.
+            Y: list of key value pairs of entities.
         """
         x_app = self.X.append
         y_app = self.Y.append
@@ -198,7 +198,8 @@ class EntityExtractor(object):
         """
         Returns error and accuracy metrics
         # Arguments
-            X: 
+            X: list of input strings.
+            Y: list of key value pairs of entities.
         """
         if X is None:
             X = self.X
