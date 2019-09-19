@@ -8,7 +8,6 @@ import numpy as np
 
 
 class Classifier(Switch):
-
     def __init__(self, *args, **kwargs):
         super(Classifier, self).__init__(*args, **kwargs)
         self.X = []
@@ -27,6 +26,11 @@ class Classifier(Switch):
         return list(self.data.keys())
 
     def fit(self, X, Y):
+        """fits model with input and target 
+        # Arguments
+            X: list of input strings.
+            Y: String representing the entity
+        """
         if type(X) in (str, Document):
             X = [X]
             Y = [Y]
@@ -63,6 +67,10 @@ class Classifier(Switch):
         return scores
 
     def predict(self, x, return_scores=False):
+        """Generates output predictions for the input samples
+        # Arguments
+            X: Input String
+        """
         if type(x) in (list, tuple):
             return type(x)([self.predict(i, return_scores) for i in x])
         if type(x) is not Document:
@@ -76,6 +84,11 @@ class Classifier(Switch):
         return classes[np.argmax(scores.numpy())]
 
     def _similarity(self, x1, x2):
+        """ returns semantic similarity scores between two inputs
+        # Arguments
+            x1: String 1
+            x2: String 2
+        """
         # if x1 == x2:
         #    return 1
         if len(x1) == 0 or len(x2) == 0:
@@ -95,6 +108,12 @@ class Classifier(Switch):
         return score * 0.25
 
     def evaluate(self, X=None, Y=None):
+        """
+        Returns error and accuracy metrics
+        # Arguments
+            X: list of input strings.
+            Y: list containing entity string
+        """
         if X is None:
             X = self.X
             Y = self.Y
