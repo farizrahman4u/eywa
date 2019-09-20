@@ -34,7 +34,7 @@ class Classifier(Switch):
         X: Input utterance(s). It could be:
             - `str` (or `list` thereof)
             - `Document` instance (or `list` thereof)
-        Y: Target labels. str (or list thereof). If list,
+        Y: Target labels. `str` (or `list` thereof). If `list`,
         number of items in Y should be either 1 or equal
         to number of utterances in X.
 
@@ -44,7 +44,7 @@ class Classifier(Switch):
         to 2 classes: "greeting" and "bye":
 
         Method 1 - fit on individual utterances:
-        ````python
+        ```python
         clf = Classifier()
         clf.fit('hi', 'greeting')
         clf.fit('good bye', 'bye')
@@ -60,11 +60,12 @@ class Classifier(Switch):
         clf.fit(bye, 'bye')
         ```
         Method 3 - fit on list of utterances and labels:
-        '''python
+        ```python
         clf = Classifier()
         input_data = ['hi', 'good bye', 'hello', 'hey', 'see you later']
         target_labels = ['greeting', 'bye', 'greeting', 'greeting', 'bye']
         clf.fit(input_data, target_labels)
+        ```
         """
         
 
