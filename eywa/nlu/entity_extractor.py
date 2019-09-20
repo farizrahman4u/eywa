@@ -34,8 +34,7 @@ class EntityExtractor(object):
         X: Input utterance(s). It could be:
             - `str` (or `list` thereof)
             - `Document` instance (or `list` thereof)
-        Y: Target values. 
-        - a `dict` mapping from from entity name (`str`)
+        Y: Target values. `dict` mapping from from entity name (`str`)
           to entity value (`str`)(or list thereof).
           The entity names should be same throughout all `dict` elements and
           number of `dict` elements should be same as the number of elements of X.
