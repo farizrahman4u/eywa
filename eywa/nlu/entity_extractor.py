@@ -115,8 +115,13 @@ class EntityExtractor(object):
             - `str` (or `list`/`tuple` thereof)
             - `Document` instance (or `list`/`tuple` thereof)
         `return_scores`: `bool`. Default `False`.
-        If `True`, returns confidence for each class per utterance.
-        Else, returns label for class with highest confidence per utterance.
+        If `True`, Returns a dict (or list thereof if x is a list) mapping entity names
+        to a list of tuples, where each tuple consists of a possible entity value (`str`)
+        and a confidence score (`float`).
+        Else, returns entity name for entity value with highest confidence per utterance.
+        `keys`:list of str.  entities to be extracted. 
+        If not specified, all entities will be extracted.
+        
 
         # Returns
         if `return_scores` is `True`:
@@ -235,6 +240,24 @@ class EntityExtractor(object):
         return y
 
     def evaluate(self, X=None, Y=None):
+        """Evaluates the Classfier on given data.
+
+        Either both `X` and `Y` arguments should be provided
+        or both of them should be left unspecified (`None`).
+        If left unspecified, the cumilative data used to train
+        the `Classifier` will be used for evaluation .
+
+        # Arguments
+        X: Input utterance(s). It could be:
+            - `str` (or `list` thereof)
+            - `Document` instance (or `list` thereof)
+        Y: Target labels. str (or list thereof). If list,
+        number of items in Y should be either 1 or equal
+        to number of utterances in X.
+
+        # Returns
+        `tuple` of error(`float`) and accuracy(`float`)
+        """
 
         if X is None:
             X = self.X
