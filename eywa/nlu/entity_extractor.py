@@ -7,7 +7,8 @@ import numpy as np
 
 
 class EntityExtractor(object):
-    """predict key value pairs for entity objects
+    """
+    predict key value pairs for entity objects
     """
     
 
@@ -27,10 +28,24 @@ class EntityExtractor(object):
         return list(self.keys.keys())
 
     def fit(self, X, Y):
-        """fits model with input and target
+        """
+        Trains the model on given data.
         # Arguments
-            X: list of input strings.
-            Y: list of key value pairs of entities.
+        X: Input utterance(s). It could be:
+            - `str` (or `list` thereof)
+            - `Document` instance (or `list` thereof)
+        Y: Target labels. Contains list with Dict elements
+        of same number as elements in X.Each dict contains
+        key value pairs indicating the labels assigned to 
+        each entity.The keys should be identical in each dict element
+        # Example
+        Train an EntityExtractor to extract a given entity based on the labels "intent" and "place":
+        ```python
+        x = ['who was the first president of USA', 'which party got elected last time', 'is Denmark a democratic country']
+        y = [{'intent': 'politics', 'place': 'USA'}, {'intent': 'politics', 'place': 'here'}, {'intent': 'politics', 'place': 'Denmark'}]
+        ex = EntityExtractor()
+        ex.fit(x, y)
+        ```
         """
         x_app = self.X.append
         y_app = self.Y.append
@@ -45,9 +60,7 @@ class EntityExtractor(object):
         self._changed = True
 
     def compile(self):
-        """Configures the model for training.
-        """
-       
+
         keys = set()  # create a profile for each 'key'
         for y in self.Y:
             for k in y:
@@ -93,10 +106,7 @@ class EntityExtractor(object):
                         consts[None] = [i]
 
     def predict(self, x, keys=None, return_scores=False):
-        """Generates output predictions for the input samples.
-        # Arguments
-            x: Input String  
-        """
+
         if self._changed:
             self.compile()
             self._changed = False
@@ -195,12 +205,7 @@ class EntityExtractor(object):
         return y
 
     def evaluate(self, X=None, Y=None):
-        """
-        Returns error and accuracy metrics
-        # Arguments
-            X: list of input strings.
-            Y: list of key value pairs of entities.
-        """
+
         if X is None:
             X = self.X
             Y = self.Y
