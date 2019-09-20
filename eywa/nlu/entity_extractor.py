@@ -107,6 +107,35 @@ class EntityExtractor(object):
                         consts[None] = [i]
 
     def predict(self, x, keys=None, return_scores=False):
+        """
+        Extracts entities for  given input utterance(s).
+        
+        # Arguments
+        x: Input utterance(s). It could be:
+            - `str` (or `list`/`tuple` thereof)
+            - `Document` instance (or `list`/`tuple` thereof)
+        `return_scores`: `bool`. Default `False`.
+        If `True`, returns confidence for each class per utterance.
+        Else, returns label for class with highest confidence per utterance.
+
+        # Returns
+        if `return_scores` is `True`:
+            if `x` is a single utterance:
+                Returns a `list` of `dict`s of the
+                form (entity name, confidence) for each class,
+                sorted by decreasing order of confidence.
+            if `x` is a `list`/`tuple` of utterances:
+                Returns a `list` of results with 1 result per
+                utterance. Each result will be a `list` of
+                `dict`s of the form (entity name, confidence) for
+                each class, sorted by decreasing order of confidence.
+        if `return_scores` is `False`:
+            if `x` is a single utterance:
+                Returns the predicted label as `dict`.
+            if `x` is a `list`/`tuple` of utterances:
+                Returns the predicted labels for utterances as `list` of
+                `dict`s.
+        """
 
         if self._changed:
             self._compile()

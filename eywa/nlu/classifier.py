@@ -115,7 +115,7 @@ class Classifier(Switch):
         x: Input utterance(s). It could be:
             - `str` (or `list`/`tuple` thereof)
             - `Document` instance (or `list`/`tuple` thereof)
-        return_scores: `bool`. Default `False`.
+        `return_scores`: `bool`. Default `False`.
         If `True`, returns confidence for each class per utterance.
         Else, returns label for class with highest confidence per utterance.
 
