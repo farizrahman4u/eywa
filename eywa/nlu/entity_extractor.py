@@ -61,9 +61,9 @@ class EntityExtractor(object):
             y_app(y)
         self._changed = True
 
-    def compile(self):
+    def _compile(self):
 
-        keys = set()  # create a profile for each 'key'
+        keys = set()  
         for y in self.Y:
             for k in y:
                 keys.add(k)
