@@ -37,13 +37,15 @@ class EntityExtractor(object):
         Y: Target values. 
         - a `dict` mapping from from entity name (`str`)
           to entity value (`str`)(or list thereof).
-          The entity names should be same throughout all `dict` elements and
-          number of `dict` elements should be same as the number of elements of X.
+          The entity names should be same throughout all `dict` 
+          elements and number of `dict` elements should be
+          same as the number of elements of X.
         # Example
-        Train an `EntityExtractor` to extract a given entity based on the labels "intent" and "place":
+        Train an `EntityExtractor` to extract a given entity based on the
+        labels "intent" and "place":
         ```python
-        x = ['who was the first president of USA', 'which party got elected last time', 'is Denmark a democratic country']
-        y = [{'intent': 'politics', 'place': 'USA'}, {'intent': 'politics', 'place': 'here'}, {'intent': 'politics', 'place': 'Denmark'}]
+        x = ['who was the first president of USA', 'which party got elected last time']
+        y = [{'intent': 'politics', 'place': 'USA'}, {'intent': 'politics','place': 'here'}]
         ex = EntityExtractor()
         ex.fit(x, y)
         ```
