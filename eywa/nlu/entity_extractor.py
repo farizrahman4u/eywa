@@ -240,20 +240,22 @@ class EntityExtractor(object):
         return y
 
     def evaluate(self, X=None, Y=None):
-        """Evaluates the Classfier on given data.
+        """Evaluates the EntityExtractor on given data.
 
         Either both `X` and `Y` arguments should be provided
         or both of them should be left unspecified (`None`).
         If left unspecified, the cumilative data used to train
-        the `Classifier` will be used for evaluation .
+        the `EntityExtractor` will be used for evaluation .
 
         # Arguments
         X: Input utterance(s). It could be:
             - `str` (or `list` thereof)
             - `Document` instance (or `list` thereof)
-        Y: Target labels. str (or list thereof). If list,
-        number of items in Y should be either 1 or equal
-        to number of utterances in X.
+        Y: Target values. `dict` mapping from from entity name (`str`)
+          to entity value (`str`)(or list thereof).
+          The entity names should be same throughout all `dict` 
+          elements and number of `dict` elements should be
+          same as the number of elements of X.
 
         # Returns
         `tuple` of error(`float`) and accuracy(`float`)
