@@ -62,8 +62,7 @@ class EntityExtractor(object):
         self._changed = True
 
     def _compile(self):
-
-        keys = set()  
+        keys = set()
         for y in self.Y:
             for k in y:
                 keys.add(k)
