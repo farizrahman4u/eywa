@@ -40,7 +40,7 @@ class EntityExtractor(object):
           elements and number of `dict` elements should be
           same as the number of elements of X.
         # Example
-        Train an `EntityExtractor` to extract a given entity based on the
+        Train an `EntityExtractor` to extract entities "intent" and "place" from utterances
         labels "intent" and "place":
         ```python
         x = ['who was the first president of USA', 'which party got elected last time']
