@@ -109,7 +109,7 @@ class EntityExtractor(object):
     def predict(self, x, keys=None, return_scores=False):
 
         if self._changed:
-            self.compile()
+            self._compile()
             self._changed = False
         if type(x) in (list, tuple):
             return type(x)(map(lambda x:
