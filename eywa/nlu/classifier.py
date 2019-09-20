@@ -27,11 +27,56 @@ class Classifier(Switch):
         return list(self.data.keys())
 
     def fit(self, X, Y):
-        if type(X) in (str, Document):
+        """
+        Trains the model on given data.
+
+        # Arguments
+        X: Input utterance(s). It could be:
+            - str (or list thereof)
+            - `Document` instance (or list thereof)
+        Y: Target labels. str (or list thereof). If list,
+        number of items in Y should be either 1 or equal
+        to number of utterances in X.
+
+        # Example
+
+        Train a `Classifier` to classify a given utterance
+        to 2 classes: "greeting" and "bye":
+
+        Method 1 - fit on individual utterances:
+        ````python
+        clf = Classifier()
+        clf.fit('hi', 'greeting')
+        clf.fit('good bye', 'bye')
+        clf.fit('hello', 'greeting')
+        clf.fit('see you later', 'bye')
+        ```
+        Method 2 - fit on list of utterances:
+        ```python
+        clf = Classifier()
+        greetings = ['hi', 'hello', 'hey']
+        bye = ['bye', 'good bye', 'see you later']
+        clf.fit(greetings, 'greeting')
+        clf.fit(bye, 'bye')
+        ```
+        Method 3 - fit on list of utterances and labels:
+        '''python
+        clf = Classifier()
+        input_data = ['hi', 'good bye', 'hello', 'hey', 'see you later']
+        target_labels = ['greeting', 'bye', 'greeting', 'greeting', 'bye']
+        clf.fit(input_data, target_labels)
+        """
+        
+
+        if isinstance(X, (str, Document)):
             X = [X]
+        if isinstance(Y, str):
             Y = [Y]
-        if type(Y) not in (list, tuple):
-            Y = [Y] * len(X)
+        assert isinstance(X, (list, tuple))
+        assert isinstance(Y, (list, tuple))
+        if len(Y) == 1:
+            # broadcasting
+            Y = Y * len(X)
         assert len(X) == len(Y), "Different number of samples in X and Y."
         X_app = self.X.append
         Y_app = self.Y.append
