@@ -32,9 +32,6 @@ class Pattern(object):
         return [0.5, .1, .1, 1., .05, 0.5]
 
     def _set_pattern(self, pattern):
-        """
-        converts the 
-        """
         # Converts 'hey there [name: jack, james, !apple, !building]' to 'hey there _eywa_var_name'
         # saves the examples to a dict.
         # No nested [] allowed.
