@@ -6,8 +6,19 @@ import numpy as np
 
 
 class Pattern(object):
+    """
+    predict value of a `key` instance inside an utterance
+    """
 
     def __init__(self, pattern):
+        """
+        # Arguments
+        pattern : Input utterance(s) with a `dict`.
+                The `dict` could represent a `key` instance with sample `values`.
+                It could be:
+            - `str` (or `list` thereof) 
+            - `Document` instance (or `list` thereof)
+        """
         self._set_pattern(pattern)
         self._get_var_contexts()
         self.weights = [tf.Variable(w, dtype='float32') for w in self.__class__.default_weights()]
