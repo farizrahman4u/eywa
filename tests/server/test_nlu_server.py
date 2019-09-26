@@ -58,10 +58,9 @@ def test_classifier_server_train_post():
     }
     server = NLUServer().serve(test=True)
     clf = Classifier()
-    for y, v in data.items():
-       for x in v:
-           server.requests.post("/models/classifier/train", json={"data": {"inputs": x, "targets": y}})
-           clf.fit(x, y)
+    for y, x in data.items():
+        server.requests.post("/models/classifier/train", json={"data": {"inputs": x, "targets": y}})
+        clf.fit(x, y)
     r = server.requests.get("/models/classifier/predict?input=will it rain today")
     assert r.text == 'weather'
 
@@ -85,9 +84,8 @@ def test_entity_extractor_server_train_post():
     server = NLUServer().serve(test=True)
     ex = EntityExtractor()
     ex.fit(X, Y)
-    for x, y in zip(X, Y):
-        r = server.requests.get("/models/entity_extractor/train", json={"data":{"inputs":x, "targets":y}})
-        assert r.status_code == 200
+    r = server.requests.get("/models/entity_extractor/train", json={"data":{"inputs":X, "targets":Y}})
+    assert r.status_code == 200
     test_inp = 'what is the weather in london like'
     time.sleep(2)
     r = server.requests.get("/models/entity_extractor/predict?input={}".format(test_inp))
