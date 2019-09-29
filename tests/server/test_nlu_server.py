@@ -50,6 +50,20 @@ def test_classifier_server_train_get():
     r = server.requests.get("/models/classifier/predict?input=will it rain today")
     assert r.text == 'weather'
 
+def test_classifier_server_train_post():
+    data = {'hotel': ['book a hotel', 'need a nice place to stay', 'any motels near by'],
+    'weather': ['what is the weather like', 'is it hot outside'],
+    'place': ['which place is this', 'where are we', 'where are you going', 'which place is it'],
+    'name': ['What is your name', 'Who are you', 'What do i call you', 'what are you called']
+    }
+    server = NLUServer().serve(test=True)
+    clf = Classifier()
+    y = tuple(data.keys())
+    x = tuple(data.values())
+    server.requests.post("/models/classifier/train", json={"data": {"inputs": x, "targets": y}})
+    clf.fit(x, y)
+    r = server.requests.get("/models/classifier/predict?input=will it rain today")
+    assert r.text == 'weather'
 
 def test_entity_extractor_server_train_get():
     X = ['what is the weather in tokyo', 'what is the weather', 'what is the weather like in kochi']
@@ -60,6 +74,19 @@ def test_entity_extractor_server_train_get():
     for x, y in zip(X, Y):
         r = server.requests.get("/models/entity_extractor/train?input={}&target={}".format(x, urllib.parse.quote(json.dumps(y))))
         assert r.status_code == 200
+    test_inp = 'what is the weather in london like'
+    time.sleep(2)
+    r = server.requests.get("/models/entity_extractor/predict?input={}".format(test_inp))
+    assert r.json() == ex.predict(test_inp)
+
+def test_entity_extractor_server_train_post():
+    X = ['what is the weather in tokyo', 'what is the weather', 'what is the weather like in kochi']
+    Y = [{'intent': 'weather', 'place': 'tokyo'}, {'intent': 'weather', 'place': 'here'}, {'intent': 'weather', 'place': 'kochi'}]
+    server = NLUServer().serve(test=True)
+    ex = EntityExtractor()
+    ex.fit(X, Y)
+    r = server.requests.get("/models/entity_extractor/train", json={"data":{"inputs":X, "targets":Y}})
+    assert r.status_code == 200
     test_inp = 'what is the weather in london like'
     time.sleep(2)
     r = server.requests.get("/models/entity_extractor/predict?input={}".format(test_inp))

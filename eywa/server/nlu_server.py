@@ -13,6 +13,7 @@ def _get_media(req):
         asyncio.set_event_loop(loop)
         med = loop.run_until_complete(req.media())
         loop.close()
+        return med
     except:
         return {}
 
