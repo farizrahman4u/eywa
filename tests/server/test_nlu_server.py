@@ -58,9 +58,10 @@ def test_classifier_server_train_post():
     }
     server = NLUServer().serve(test=True)
     clf = Classifier()
-    for y, x in data.items():
-        server.requests.post("/models/classifier/train", json={"data": {"inputs": x, "targets": y}})
-        clf.fit(x, y)
+    y = tuple(data.keys())
+    x = tuple(data.values())
+    server.requests.post("/models/classifier/train", json={"data": {"inputs": x, "targets": y}})
+    clf.fit(x, y)
     r = server.requests.get("/models/classifier/predict?input=will it rain today")
     assert r.text == 'weather'
 
