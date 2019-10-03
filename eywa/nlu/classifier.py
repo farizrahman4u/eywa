@@ -8,8 +8,15 @@ import numpy as np
 
 
 class Classifier(Switch):
+    """
+    
+    Predicts the class of user input.
+    
+    """
 
     def __init__(self, *args, **kwargs):
+        
+        
         super(Classifier, self).__init__(*args, **kwargs)
         self.X = []
         self.Y = []

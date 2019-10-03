@@ -8,11 +8,16 @@ import numpy as np
 
 class EntityExtractor(object):
     """
-    predict key value pairs for entity objects
+    
+    Gets the required entities from the input.
+    
     """
+
     
 
     def __init__(self):
+
+
         self.X = []
         self.Y = []
         self.keys = {}
@@ -30,7 +35,9 @@ class EntityExtractor(object):
     def fit(self, X, Y):
         """
         Trains the model on given data.
+        
         # Arguments
+        
         X: Input utterance(s). It could be:
             - `str` (or `list` thereof)
             - `Document` instance (or `list` thereof)
@@ -39,7 +46,9 @@ class EntityExtractor(object):
           The entity names should be same throughout all `dict` 
           elements and number of `dict` elements should be
           same as the number of elements of X.
+          
         # Example
+        
         Train an `EntityExtractor` to extract entities "intent" and "place" from utterances
         labels "intent" and "place":
         ```python
@@ -111,6 +120,7 @@ class EntityExtractor(object):
         Extracts entities for  given input utterance(s).
         
         # Arguments
+        
         x: Input utterance(s). It could be:
             - `str` (or `list`/`tuple` thereof)
             - `Document` instance (or `list`/`tuple` thereof)
@@ -124,6 +134,7 @@ class EntityExtractor(object):
         
 
         # Returns
+        
         if `return_scores` is `True`:
             if `x` is a single utterance:
                 Returns a `list` of `dict`s of the
