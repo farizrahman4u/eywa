@@ -6,8 +6,8 @@ class TestPattern:
 
     def test_pattern(self):
 
-        p = Pattern('[fruit : apple, banana] is my favourite fruit')
-        assert p('i like grapes') == {'fruit' : 'grapes'}
+        p = Pattern('[fruit: apple, banana] is my favourite fruit')
+        assert p('i like grapes') == {'fruit': 'grapes'}
 
     def test_pattern_serialization(self):
 

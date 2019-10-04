@@ -9,8 +9,10 @@ def test_blame_1():
         def __init__(self, w, *args, **kwargs):
             super(WeightNode, self).__init__(*args, **kwargs)
             self.w = w
+
         def inrange(self, y):
             return True
+
         def blame(self, blame):
             super(WeightNode, self).blame(blame)
             assert blame.blame_type == BlameType.CORRECTIVE
@@ -32,7 +34,8 @@ def test_blame_1():
             super(AddNode, self).blame(blame)
             assert blame.blame_type == BlameType.CORRECTIVE
             for node in self.input_nodes.values():
-                node.blame(blame.fork(expected=blame.expected / len(self.input_nodes)))
+                node.blame(blame.fork(
+                    expected=blame.expected / len(self.input_nodes)))
 
     a = Node()
     b = Node()
