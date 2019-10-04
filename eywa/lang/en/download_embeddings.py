@@ -21,8 +21,7 @@ else:
 
 # script to download and unzip embeddings
 
-url = 'https://github.com/explosion/sense2vec/releases/download/v1.0.0a0/\
-    reddit_vectors-1.1.0.tar.gz'
+url = 'https://github.com/explosion/sense2vec/releases/download/v1.0.0a0/reddit_vectors-1.1.0.tar.gz'
 file_name = url.split('/')[-1]
 dir_name = os.path.join(emb_dir, file_name[:-7])
 file_name = os.path.join(emb_dir, file_name)
