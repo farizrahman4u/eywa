@@ -6,9 +6,13 @@ matrix:
     include:
         - python: 3.6
 
+before_install:
+  - pip install pycodestyle
+
 install:
   - pip install -e .[tests]
   - pip install tensorflow==2.0.0-alpha0
   
 script:
+  - pycodestyle .
   - PYTHONPATH=$PWD:$PYTHONPATH py.test tests/
