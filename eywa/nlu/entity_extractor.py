@@ -5,7 +5,6 @@ import tensorflow as tf
 import numpy as np
 
 
-
 class EntityExtractor(object):
 
     def __init__(self):
@@ -13,7 +12,8 @@ class EntityExtractor(object):
         self.Y = []
         self.keys = {}
         self._changed = False
-        self.weights = [tf.Variable(w, dtype='float32') for w in self.__class__.default_weights()]
+        self.weights = [tf.Variable(w, dtype='float32')
+                        for w in self.__class__.default_weights()]
 
     @staticmethod
     def default_weights():
@@ -42,13 +42,14 @@ class EntityExtractor(object):
         for y in self.Y:
             for k in y:
                 keys.add(k)
-        self.keys = {k: {'picks': [], 'lefts': [], 'rights': [], 'values': [], 'consts': {}, 'types': set()} for k in
-                     keys}
+        self.keys = {k: {'picks': [], 'lefts': [], 'rights': [],
+                         'values': [], 'consts': {}, 'types': set()}
+                     for k in keys}
         keys = self.keys
         for i, (x, y) in enumerate(zip(self.X, self.Y)):
             for k in keys:
                 kk = keys[k]
-                if k in y:                    
+                if k in y:
                     types = kk['types']
                     v = y[k]
                     indices = []
@@ -100,14 +101,16 @@ class EntityExtractor(object):
                 kk = self_keys[k]
                 should_pick, pick_scores, const_scores = y_scores[k]
                 should_pick = 1 if should_pick > 0 else 0
-                vals = [self.Y[i][k] for i in kk['picks']] + list(kk['consts'].keys())
+                vals = [self.Y[i][k]
+                        for i in kk['picks']] + list(kk['consts'].keys())
                 scores = (pick_scores.numpy() * should_pick).tolist()
                 scores += (const_scores.numpy() * (1 - should_pick)).tolist()
-                entity_probs = sorted(list(zip(vals,scores)), key=lambda x: x[1], reverse=True)
+                entity_probs = sorted(
+                    list(zip(vals, scores)), key=lambda x: x[1], reverse=True)
                 entity_prob_dist[k] = entity_probs
             return entity_prob_dist
         else:
-            y = {}         
+            y = {}
             for k in keys:
                 kk = self_keys[k]
                 should_pick, pick_scores, const_scores = y_scores[k]
@@ -115,7 +118,8 @@ class EntityExtractor(object):
                     vals = [w.text for w in x]
                     y[k] = vals[int(tf.argmax(pick_scores))]
                 else:
-                    y[k] = list(kk['consts'].keys())[int(tf.argmax(const_scores))]
+                    y[k] = list(kk['consts'].keys())[
+                        int(tf.argmax(const_scores))]
             return y
 
     def forward(self, x):
@@ -156,7 +160,8 @@ class EntityExtractor(object):
                     n = len(vals)
                     c = len(set(vals))
                     variance = float(c) / n
-                    pick = should_pick(x_embs, pick_embs, non_pick_embs, variance, weights)
+                    pick = should_pick(
+                        x_embs, pick_embs, non_pick_embs, variance, weights)
             if pick > 0:
                 pick_scores = []
                 lefts_embs = [d.embeddings for d in kk['lefts']]
@@ -165,8 +170,15 @@ class EntityExtractor(object):
                 for i, t in enumerate(x):
                     left = x[:i]
                     right = x[i:]
-                    token_score = get_token_score(t.embedding, left.embeddings, right.embeddings,
-                                                  lefts_embs, rights_embs, vals_embs, bool(entity_type), weights)
+                    token_score = get_token_score(
+                        t.embedding,
+                        left.embeddings,
+                        right.embeddings,
+                        lefts_embs,
+                        rights_embs,
+                        vals_embs,
+                        bool(entity_type),
+                        weights)
                     pick_scores.append(token_score)
                 pick_scores = tf.stack(pick_scores)
             else:
@@ -174,7 +186,9 @@ class EntityExtractor(object):
                 for ck in consts:
                     docs = [X[i] for i in consts[ck]]
                     embs = [doc.embeddings for doc in docs]
-                    score = tf.reduce_max(batch_vector_sequence_similarity(embs, x_embs))
+                    score = tf.reduce_max(
+                        batch_vector_sequence_similarity(
+                            embs, x_embs))
                     const_scores.append(score)
                 const_scores = tf.stack(const_scores)
             y[k] = pick, pick_scores, const_scores
@@ -213,7 +227,7 @@ class EntityExtractor(object):
         assert isinstance(weights, list)
         assert len(weights) == len(self.weights)
         for (w_in, w_curr) in zip(weights, self.weights):
-                w_curr.assign(w_in)
+            w_curr.assign(w_in)
 
     def get_weights(self):
         return [w.numpy() for w in self.weights]

@@ -1,7 +1,8 @@
 from ...utils import lang_en_embeddings_dir
 from ...utils import ProgressBar
 from .filenames import vectors_file_name, vector_index_file_name
-from .filenames import vocab_file_name, vocab_db_file_name, inverse_vocab_db_file_name
+from .filenames import vocab_file_name, vocab_db_file_name
+from .filenames import inverse_vocab_db_file_name
 from .filenames import frequency_file_name, frequency_db_file_name
 from .filenames import phrases_db_file_name, tokens_db_file_name
 from .filenames import interrupt_flag_file_name as flag_file
@@ -14,8 +15,8 @@ from .database import Database
 from .download_embeddings import download
 import sys
 
-py3 = sys.version_info[0] == 3
 
+py3 = sys.version_info[0] == 3
 _required_files = [vector_index_file_name, frequency_db_file_name,
                    phrases_db_file_name, tokens_db_file_name,
                    vector_size_file_name, vocab_db_file_name,
@@ -64,10 +65,28 @@ def _build():
     annoy_index.save(vector_index_file_name)
     print('Done.')
     print('Creating databases...')
-    vocab_db = Database(vocab_db_file_name, key_type=int, value_type=str, new=True)
-    inverse_vocab_db = Database(inverse_vocab_db_file_name, key_type=str, value_type=int, new=True)
-    tokens_db = Database(tokens_db_file_name, key_type=str, value_type=list, new=True, cached=True)
-    phrases_db = Database(phrases_db_file_name, key_type=str, value_type=list, new=True, cached=True)
+    vocab_db = Database(
+        vocab_db_file_name,
+        key_type=int,
+        value_type=str,
+        new=True)
+    inverse_vocab_db = Database(
+        inverse_vocab_db_file_name,
+        key_type=str,
+        value_type=int,
+        new=True)
+    tokens_db = Database(
+        tokens_db_file_name,
+        key_type=str,
+        value_type=list,
+        new=True,
+        cached=True)
+    phrases_db = Database(
+        phrases_db_file_name,
+        key_type=str,
+        value_type=list,
+        new=True,
+        cached=True)
     with open(vocab_file_name, 'r') as f:
         vocab = json.load(f)[1:]
         pbar = ProgressBar(len(vocab))
@@ -100,7 +119,11 @@ def _build():
     vocab_db.close()
     tokens_db.close()
     phrases_db.close()
-    frequency_db = Database(frequency_db_file_name, key_type=int, value_type=int, new=True)
+    frequency_db = Database(
+        frequency_db_file_name,
+        key_type=int,
+        value_type=int,
+        new=True)
     with open(frequency_file_name, 'r') as f:
         freqs = f.read()
     typos = ('|NOWN', '|NOUN'), ('|NMUN', '|NOUN')
@@ -111,9 +134,13 @@ def _build():
     print('Converting words to indices...')
     pbar = ProgressBar(len(freqs))
     if not py3:
-        # We reopen the database in unicode key mode to avoid unicode->str->unicode roundtrip.
+        # We reopen the database in unicode key mode to avoid
+        # unicode->str->unicode roundtrip.
         inverse_vocab_db.close()
-        inverse_vocab_db = Database(inverse_vocab_db_file_name, key_type=unicode, value_type=int)
+        inverse_vocab_db = Database(
+            inverse_vocab_db_file_name,
+            key_type=unicode,
+            value_type=int)
     for i, x in enumerate(freqs):
         x[0] = inverse_vocab_db[x[0]]
         pbar.update()
@@ -143,5 +170,6 @@ def run():
     else:
         if not _is_downloaded():
             download()
-        print('Seems you are running the program for the first time. Building index...')
+        print('Seems you are running the program for the first time. \
+                Building index...')
     _build()

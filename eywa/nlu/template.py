@@ -26,7 +26,8 @@ class Template(object):
                     buff = ''
                     flag = False
                 elif c == '[':
-                    raise Exception('Invalid token \'[\'. Nested [] are not allowed.')
+                    raise Exception(
+                        'Invalid token \'[\'. Nested [] are not allowed.')
                 else:
                     buff += c
             else:
