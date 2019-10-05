@@ -8,7 +8,6 @@ Index
 - Getting started
     Getting started with the eywa Classifier
     Getting started with the EntityExtractor
-    
 
 - Models
     About Keras models
@@ -61,9 +60,8 @@ Contributing
 '''
 from eywa.nlu import classifier
 from eywa.nlu import entity_extractor
-classifier_object=classifier.Classifier
-entity_extractor_object=entity_extractor.EntityExtractor
-
+classifier_object = classifier.Classifier
+entity_extractor_object = entity_extractor.EntityExtractor
 
 
 EXCLUDE = {
@@ -85,9 +83,9 @@ EXCLUDE = {
 PAGES = [
     {
         'page': 'models/Classifer.md',
-        
+
         'classes': [
-           classifier_object,
+            classifier_object,
         ],
         'methods': [
             classifier_object.fit,
@@ -98,15 +96,15 @@ PAGES = [
             classifier_object.set_weights,
             classifier_object.get_weights,
         ],
-       
+
     },
-       {
+    {
         'page': 'models/EntityExtractor.md',
-        
+
                 'classes': [
-                         entity_extractor_object,
-           
-        ],
+                    entity_extractor_object,
+
+                ],
         'methods': [
             entity_extractor_object.fit,
             entity_extractor_object.predict,
@@ -115,12 +113,10 @@ PAGES = [
             entity_extractor_object.deserialize,
             entity_extractor_object.set_weights,
             entity_extractor_object.get_weights,
-        ],
-         
+                ],
+
     },
 
 ]
 
 ROOT = 'http://keras.io/'
-
-

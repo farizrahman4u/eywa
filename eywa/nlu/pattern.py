@@ -16,11 +16,11 @@ class Pattern(object):
         pattern : Input utterance(s) with a `dict`.
                 The `dict` could represent a `key` instance with sample `values`.
                 It could be:
-            - `str` (or `list` thereof) 
+            - `str` (or `list` thereof)
             - `Document` instance (or `list` thereof)
         # Example
         ```python
-            p = Pattern('[place: Scotland, Paris] is my favourite place') 
+            p = Pattern('[place: Scotland, Paris] is my favourite place')
         ```
         """
         self._set_pattern(pattern)

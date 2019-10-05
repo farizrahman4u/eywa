@@ -9,14 +9,13 @@ import numpy as np
 
 class Classifier(Switch):
     """
-    
+
     Predicts the class of user input.
-    
+
     """
 
     def __init__(self, *args, **kwargs):
-        
-        
+
         super(Classifier, self).__init__(*args, **kwargs)
         self.X = []
         self.Y = []
@@ -75,7 +74,6 @@ class Classifier(Switch):
         clf.fit(input_data, target_labels)
         ```
         """
-        
 
         if isinstance(X, (str, Document)):
             X = [X]
@@ -149,7 +147,7 @@ class Classifier(Switch):
             return type(x)([self.predict(i, return_scores) for i in x])
         if not isinstance(x, Document):
             return [self.predict(i, return_scores) for i in x]
-        if type(x) is not Document:
+        if not isinstance(x, Document):
             x = Document(x)
         classes = list(self.data.keys())
         scores = self.forward(x)

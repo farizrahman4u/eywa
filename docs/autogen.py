@@ -95,7 +95,8 @@ def class_to_source_link(cls):
     path = module_name.replace('.', '/')
     path += '.py'
     line = inspect.getsourcelines(cls)[-1]
-    link = ('https://github.com/farizrahman4u/eywa/tree/master/' + path + '#L' + str(line))
+    link = ('https://github.com/farizrahman4u/eywa/tree/master/'
+            + path + '#L' + str(line))
     return '[[source]](' + link + ')'
 
 
@@ -178,7 +179,7 @@ def process_docstring(docstring):
             num_leading_spaces = snippet_lines[-1].find('`')
             snippet_lines = ([snippet_lines[0]] +
                              [line[num_leading_spaces:]
-                             for line in snippet_lines[1:]])
+                              for line in snippet_lines[1:]])
             # Most code snippets have 3 or 4 more leading spaces
             # on inner lines, but not all. Remove them.
             inner_lines = snippet_lines[1:-1]
@@ -245,9 +246,6 @@ def process_docstring(docstring):
     return docstring
 
 
-
-
-
 def read_file(path):
     with open(path) as f:
         return f.read()
@@ -288,7 +286,7 @@ def read_page_data(page_data, type):
                 continue
             module_member = getattr(module, name)
             if (inspect.isclass(module_member) and type == 'classes' or
-               inspect.isfunction(module_member) and type == 'functions'):
+                    inspect.isfunction(module_member) and type == 'functions'):
                 instance = module_member
                 if module.__name__ in instance.__module__:
                     if instance not in module_data:
@@ -353,9 +351,6 @@ def generate(sources_dir):
     """
     template_dir = os.path.join(str(eywa_dir), 'docs', 'templates')
 
- 
-
-   
     if os.path.exists(sources_dir):
         shutil.rmtree(sources_dir)
 
@@ -368,8 +363,8 @@ def generate(sources_dir):
     with open(os.path.join(sources_dir, 'index.md'), 'w') as f:
         f.write(index)
 
-    #print('Generating docs for Keras %s.' % keras.__version__)
-    
+    # print('Generating docs for Keras %s.' % keras.__version__)
+
     for page_data in PAGES:
         classes = read_page_data(page_data, 'classes')
         print(classes)
