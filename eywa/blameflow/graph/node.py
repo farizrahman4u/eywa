@@ -28,7 +28,7 @@ class Node(object):
 
     def run(self):
         if not self.cache or not self.input_nodes \
-         or self._inputs_changed and self.inputs_ready():
+                or self._inputs_changed and self.inputs_ready():
             self.value = self.f(self.input_values)
             self._inputs_changed = False
 

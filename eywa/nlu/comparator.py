@@ -22,12 +22,21 @@ class Comparator(object):
             return 0.
         weights = self.weights
         w0 = weights[0]
-        def score1(): return euclid_similarity(x1.embedding, x2.embedding)
-        def score2(): return tf.tensordot(x1.embedding, x2.embedding, 1)
-        def score3(): return vector_sequence_similarity(
-            x1.embeddings, x2.embeddings, w0, 'dot')
-        def score4(): return vector_sequence_similarity(
-            x1.embeddings, x2.embeddings, w0, 'euclid')
+
+        def score1():
+            return euclid_similarity(x1.embedding, x2.embedding)
+
+        def score2():
+            return tf.tensordot(x1.embedding, x2.embedding, 1)
+
+        def score3():
+            return vector_sequence_similarity(
+                x1.embeddings, x2.embeddings, w0, 'dot')
+
+        def score4():
+            return vector_sequence_similarity(
+                x1.embeddings, x2.embeddings, w0, 'euclid')
+
         scores = [score1, score2, score3, score4]
         score_weights = weights[1:5]
         score = 0.

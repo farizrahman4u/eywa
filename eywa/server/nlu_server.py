@@ -121,6 +121,7 @@ class NLUServer(object):
 
     def serve(self, port=None, test=False):
         api = responder.API()
+
         @api.route('/models/{model_name}/predict')
         def predict(req, resp, *, model_name):
             model = self.models.get(model_name)
