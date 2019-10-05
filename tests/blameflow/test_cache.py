@@ -25,5 +25,5 @@ def test_no_cache():
     assert set(vals) == set([1, 2, 3])
 
 
-if __name__ ==  '__main__':
+if __name__ == '__main__':
     pytest.main([__file__])

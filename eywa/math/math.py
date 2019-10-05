@@ -9,8 +9,8 @@ def soft_identity_matrix(nx, ny):
     m = tf.range(nx * ny)
     m = tf.cast(m, 'float32')
     r = m // ny
-    c = m  % nx
-    return tf.reshape((1./ (1 + K.abs(r - c))), (nx, ny))
+    c = m % nx
+    return tf.reshape((1. / (1 + K.abs(r - c))), (nx, ny))
 
 
 def vector_sequence_similarity(x, y, locality=0.5, metric='dot'):
@@ -53,7 +53,6 @@ def batch_vector_sequence_similarity(X, y):
     return tf.stack(z)
 
 
-
 def euclid_distance(x, y):
     return tf.pow(tf.reduce_sum(tf.pow(x - y, 2)), 0.5)
 
@@ -75,7 +74,8 @@ def frequencies_to_weights(x):
 def should_pick(x_embs, pick_embs, non_pick_embs, variance, weights):
     # returns positive if should pick
     npicks = len(pick_embs)
-    scores = batch_vector_sequence_similarity(pick_embs + non_pick_embs, x_embs)
+    scores = batch_vector_sequence_similarity(
+        pick_embs + non_pick_embs, x_embs)
     pick_score = tf.reduce_max(scores[:npicks])
     if non_pick_embs:
         non_pick_score = tf.reduce_max(scores[npicks:])
@@ -92,15 +92,28 @@ def should_pick(x_embs, pick_embs, non_pick_embs, variance, weights):
     return pick_score - non_pick_score
 
 
-def get_token_score(token_emb, token_left_embs, token_right_embs, lefts_embs, rights_embs, vals_embs, is_entity,
-                    weights):
-    left_score = tf.reduce_max(batch_vector_sequence_similarity(lefts_embs, token_left_embs))
-    right_score = tf.reduce_max(batch_vector_sequence_similarity(rights_embs, token_right_embs))
+def get_token_score(
+        token_emb,
+        token_left_embs,
+        token_right_embs,
+        lefts_embs,
+        rights_embs,
+        vals_embs,
+        is_entity,
+        weights):
+    left_score = tf.reduce_max(
+        batch_vector_sequence_similarity(
+            lefts_embs, token_left_embs))
+    right_score = tf.reduce_max(
+        batch_vector_sequence_similarity(
+            rights_embs, token_right_embs))
     value_score = tf.reduce_max(euclid_similarity(vals_embs, token_emb))
     left_right_weight = weights[0]
     word_neighbor_weight = weights[1]
-    neighbor_score = left_right_weight * left_score + (1. - left_right_weight) * right_score
-    token_score = word_neighbor_weight * value_score + (1. - word_neighbor_weight) * neighbor_score
+    neighbor_score = left_right_weight * left_score + \
+        (1. - left_right_weight) * right_score
+    token_score = word_neighbor_weight * value_score + \
+        (1. - word_neighbor_weight) * neighbor_score
     if is_entity:
         token_score *= 1. + weights[2]
     return token_score

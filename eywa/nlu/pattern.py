@@ -16,23 +16,25 @@ class Pattern(object):
         pattern : Input utterance(s) with a `dict`.
                 The `dict` could represent a `key` instance with sample `values`.
                 It could be:
-            - `str` (or `list` thereof) 
+            - `str` (or `list` thereof)
             - `Document` instance (or `list` thereof)
         # Example
         ```python
-            p = Pattern('[place: Scotland, Paris] is my favourite place') 
+            p = Pattern('[place: Scotland, Paris] is my favourite place')
         ```
         """
         self._set_pattern(pattern)
         self._get_var_contexts()
-        self.weights = [tf.Variable(w, dtype='float32') for w in self.__class__.default_weights()]
+        self.weights = [tf.Variable(w, dtype='float32')
+                        for w in self.__class__.default_weights()]
 
     @staticmethod
     def default_weights():
         return [0.5, .1, .1, 1., .05, 0.5]
 
     def _set_pattern(self, pattern):
-        # Converts 'hey there [name: jack, james, !apple, !building]' to 'hey there _eywa_var_name'
+        # Converts 'hey there [name: jack, james, !apple, !building]'
+        #                                                    to 'hey there _eywa_var_name'
         # saves the examples to a dict.
         # No nested [] allowed.
 
@@ -44,15 +46,17 @@ class Pattern(object):
         for c in pattern:
             if flag:
                 if c == '[':
-                    raise Exception('Invalid token \'[\'. Nested [] are not allowed.')
+                    raise Exception(
+                        'Invalid token \'[\'. Nested [] are not allowed.')
                 if c == ']':
                     if ':' in buff:
                         varname, examples = buff.split(':')
                         varname = varname.strip()
                         examples = examples.replace(' ', '').split(',')
                         if varname in var_to_examples:
-                            raise Exception('Multpile definitions for variable {}. '.format(varname) +
-                                            'Examples should be provided for the first occurence.')
+                            raise Exception(
+                                'Multpile definitions for variable {}. '.format(varname) +
+                                'Examples should be provided for the first occurence.')
                         positives = []
                         negatives = []
                         p_app = positives.append
@@ -87,7 +91,10 @@ class Pattern(object):
         y = Document(y)
         self.pattern = y
         self.pattern_contexts = self._get_all_contexts(self.pattern)
-        self.var_ids = [i for i in range(len(y)) if str(y[i]).startswith('_eywa_var_')]
+        self.var_ids = [
+            i for i in range(
+                len(y)) if str(
+                y[i]).startswith('_eywa_var_')]
 
     def _get_var_contexts(self):
         contexts = {}
@@ -135,10 +142,20 @@ class Pattern(object):
             return 0.
         weights = self.weights
         w0 = weights[0]
-        score1 = lambda: euclid_similarity(x1.embedding, x2.embedding)
-        score2 = lambda: tf.tensordot(x1.embedding, x2.embedding, 1)
-        score3 = lambda: vector_sequence_similarity(x1.embeddings, x2.embeddings, w0, 'dot')
-        score4 = lambda: vector_sequence_similarity(x1.embeddings, x2.embeddings, w0, 'euclid')
+
+        def score1():
+            return euclid_similarity(x1.embedding, x2.embedding)
+
+        def score2():
+            return tf.tensordot(x1.embedding, x2.embedding, 1)
+
+        def score3():
+            return vector_sequence_similarity(
+                x1.embeddings, x2.embeddings, w0, 'dot')
+
+        def score4():
+            return vector_sequence_similarity(
+                x1.embeddings, x2.embeddings, w0, 'euclid')
         scores = [score1, score2, score3, score4]
         score_weights = weights[1:5]
         score = 0.
@@ -170,11 +187,13 @@ class Pattern(object):
                 var_examples = examples[var]
                 pos_examples, neg_examples = var_examples
                 if var_examples:
-                    pos_score = tf.reduce_sum([f2(ve, inp_j) for ve in pos_examples])
-                    neg_score = tf.reduce_sum([f2(ve, inp_j) for ve in neg_examples])
+                    pos_score = tf.reduce_sum(
+                        [f2(ve, inp_j) for ve in pos_examples])
+                    neg_score = tf.reduce_sum(
+                        [f2(ve, inp_j) for ve in neg_examples])
                     score += w * pos_score - neg_score
                 matrix.append(score)
-        
+
         matrix = tf.stack(matrix)
         matrix = tf.reshape(matrix, (m, n))
         matrix *= softmax(matrix, 0)
@@ -190,7 +209,7 @@ class Pattern(object):
                 vars[i]: sorted([
                     (input[j].text, float(matrix[i, j])) for j in range(n)
                 ], key=lambda x: x[1], reverse=True)
-                for i in range(len(vars))   
+                for i in range(len(vars))
             }
         val_ids = tf.argmax(matrix, 1)
         return {vars[i]: str(input[int(val_ids[i])]) for i in range(len(vars))}
@@ -230,7 +249,7 @@ class Pattern(object):
         assert isinstance(weights, list)
         assert len(weights) == len(self.weights)
         for (w_in, w_curr) in zip(weights, self.weights):
-                w_curr.assign(w_in)
+            w_curr.assign(w_in)
 
     def get_weights(self):
         """Returns weights of the `Pattern`.

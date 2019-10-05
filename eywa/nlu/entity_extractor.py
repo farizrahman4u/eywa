@@ -5,24 +5,21 @@ import tensorflow as tf
 import numpy as np
 
 
-
 class EntityExtractor(object):
     """
-    
+
     Gets the required entities from the input.
-    
+
     """
 
-    
-
     def __init__(self):
-
 
         self.X = []
         self.Y = []
         self.keys = {}
         self._changed = False
-        self.weights = [tf.Variable(w, dtype='float32') for w in self.__class__.default_weights()]
+        self.weights = [tf.Variable(w, dtype='float32')
+                        for w in self.__class__.default_weights()]
 
     @staticmethod
     def default_weights():
@@ -35,25 +32,26 @@ class EntityExtractor(object):
     def fit(self, X, Y):
         """
         Trains the model on given data.
-        
+
         # Arguments
-        
+
         X: Input utterance(s). It could be:
             - `str` (or `list` thereof)
             - `Document` instance (or `list` thereof)
         Y: Target values. `dict` mapping from from entity name (`str`)
           to entity value (`str`)(or list thereof).
-          The entity names should be same throughout all `dict` 
+          The entity names should be same throughout all `dict`
           elements and number of `dict` elements should be
           same as the number of elements of X.
-          
+
         # Example
-        
-        Train an `EntityExtractor` to extract entities "intent" and "place" from utterances
-        labels "intent" and "place":
+
+        Train an `EntityExtractor` to extract entities "intent" and "place"
+        from utterances labels "intent" and "place":
         ```python
         x = ['who was the first president of USA', 'which party got elected last time']
-        y = [{'intent': 'politics', 'place': 'USA'}, {'intent': 'politics','place': 'here'}]
+        y = [{'intent': 'politics', 'place': 'USA'},
+             {'intent': 'politics','place': 'here'}]
         ex = EntityExtractor()
         ex.fit(x, y)
         ```
@@ -75,13 +73,13 @@ class EntityExtractor(object):
         for y in self.Y:
             for k in y:
                 keys.add(k)
-        self.keys = {k: {'picks': [], 'lefts': [], 'rights': [], 'values': [], 'consts': {}, 'types': set()} for k in
-                     keys}
+        self.keys = {k: {'picks': [], 'lefts': [], 'rights': [],
+                         'values': [], 'consts': {}, 'types': set()} for k in keys}
         keys = self.keys
         for i, (x, y) in enumerate(zip(self.X, self.Y)):
             for k in keys:
                 kk = keys[k]
-                if k in y:                    
+                if k in y:
                     types = kk['types']
                     v = y[k]
                     indices = []
@@ -118,9 +116,9 @@ class EntityExtractor(object):
     def predict(self, x, keys=None, return_scores=False):
         """
         Extracts entities for  given input utterance(s).
-        
+
         # Arguments
-        
+
         x: Input utterance(s). It could be:
             - `str` (or `list`/`tuple` thereof)
             - `Document` instance (or `list`/`tuple` thereof)
@@ -129,12 +127,12 @@ class EntityExtractor(object):
         to a list of tuples, where each tuple consists of a possible entity value (`str`)
         and a confidence score (`float`).
         Else, returns entity name for entity value with highest confidence per utterance.
-        `keys`:list of str.  entities to be extracted. 
+        `keys`:list of str.  entities to be extracted.
         If not specified, all entities will be extracted.
-        
+
 
         # Returns
-        
+
         if `return_scores` is `True`:
             if `x` is a single utterance:
                 Returns a `list` of `dict`s of the
@@ -170,14 +168,16 @@ class EntityExtractor(object):
                 kk = self_keys[k]
                 should_pick, pick_scores, const_scores = y_scores[k]
                 should_pick = 1 if should_pick > 0 else 0
-                vals = [self.Y[i][k] for i in kk['picks']] + list(kk['consts'].keys())
+                vals = [self.Y[i][k]
+                        for i in kk['picks']] + list(kk['consts'].keys())
                 scores = (pick_scores.numpy() * should_pick).tolist()
                 scores += (const_scores.numpy() * (1 - should_pick)).tolist()
-                entity_probs = sorted(list(zip(vals,scores)), key=lambda x: x[1], reverse=True)
+                entity_probs = sorted(
+                    list(zip(vals, scores)), key=lambda x: x[1], reverse=True)
                 entity_prob_dist[k] = entity_probs
             return entity_prob_dist
         else:
-            y = {}         
+            y = {}
             for k in keys:
                 kk = self_keys[k]
                 should_pick, pick_scores, const_scores = y_scores[k]
@@ -185,7 +185,8 @@ class EntityExtractor(object):
                     vals = [w.text for w in x]
                     y[k] = vals[int(tf.argmax(pick_scores))]
                 else:
-                    y[k] = list(kk['consts'].keys())[int(tf.argmax(const_scores))]
+                    y[k] = list(kk['consts'].keys())[
+                        int(tf.argmax(const_scores))]
             return y
 
     def forward(self, x):
@@ -226,7 +227,8 @@ class EntityExtractor(object):
                     n = len(vals)
                     c = len(set(vals))
                     variance = float(c) / n
-                    pick = should_pick(x_embs, pick_embs, non_pick_embs, variance, weights)
+                    pick = should_pick(
+                        x_embs, pick_embs, non_pick_embs, variance, weights)
             if pick > 0:
                 pick_scores = []
                 lefts_embs = [d.embeddings for d in kk['lefts']]
@@ -235,8 +237,15 @@ class EntityExtractor(object):
                 for i, t in enumerate(x):
                     left = x[:i]
                     right = x[i:]
-                    token_score = get_token_score(t.embedding, left.embeddings, right.embeddings,
-                                                  lefts_embs, rights_embs, vals_embs, bool(entity_type), weights)
+                    token_score = get_token_score(
+                        t.embedding,
+                        left.embeddings,
+                        right.embeddings,
+                        lefts_embs,
+                        rights_embs,
+                        vals_embs,
+                        bool(entity_type),
+                        weights)
                     pick_scores.append(token_score)
                 pick_scores = tf.stack(pick_scores)
             else:
@@ -244,7 +253,9 @@ class EntityExtractor(object):
                 for ck in consts:
                     docs = [X[i] for i in consts[ck]]
                     embs = [doc.embeddings for doc in docs]
-                    score = tf.reduce_max(batch_vector_sequence_similarity(embs, x_embs))
+                    score = tf.reduce_max(
+                        batch_vector_sequence_similarity(
+                            embs, x_embs))
                     const_scores.append(score)
                 const_scores = tf.stack(const_scores)
             y[k] = pick, pick_scores, const_scores
@@ -264,7 +275,7 @@ class EntityExtractor(object):
             - `Document` instance (or `list` thereof)
         Y: Target values. `dict` mapping from from entity name (`str`)
           to entity value (`str`)(or list thereof).
-          The entity names should be same throughout all `dict` 
+          The entity names should be same throughout all `dict`
           elements and number of `dict` elements should be
           same as the number of elements of X.
 
@@ -304,7 +315,8 @@ class EntityExtractor(object):
         """Deserializes a `EntityExtractor` config to a `EntityExtractor` instance.
 
         # Arguments
-        config: `dict`. `EntityExtractor` config (generated by `EntityExtractor.serialize`).
+        config:`dict`. `EntityExtractor` config
+                                        (generated by `EntityExtractor.serialize`).
 
         # Returns
         `EntityExtractor` instance
@@ -324,7 +336,7 @@ class EntityExtractor(object):
         assert isinstance(weights, list)
         assert len(weights) == len(self.weights)
         for (w_in, w_curr) in zip(weights, self.weights):
-                w_curr.assign(w_in)
+            w_curr.assign(w_in)
 
     def get_weights(self):
         """Returns weights of the `EntityExtractor`.

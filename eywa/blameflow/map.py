@@ -1,11 +1,14 @@
 from .graph import Node
 from .blame import Blame, BlameType
 
+
 class Map(Node):
     def __init__(self, map, default=None, name=None):
         self.map = map.copy()
-        self.rev_map = {v:k for k, v in self.map.items()}
-        assert len(self.map) == len(self.rev_map), "Map node requires a 1:1 dictionary."
+        self.rev_map = {v: k for k, v in self.map.items()}
+        assert len(
+            self.map) == len(
+            self.rev_map), "Map node requires a 1:1 dictionary."
         self.default = None
         super(Map, self).__init__(name=name)
 
@@ -32,7 +35,8 @@ class Map(Node):
     def blame(self, blame):
         super(Map, self).blame(blame)
         if blame.blame_type == BlameType.CORRECTIVE:
-            self.input_node.blame(blame.fork(expected=self.rev_map[blame.expected]))
+            self.input_node.blame(blame.fork(
+                expected=self.rev_map[blame.expected]))
         else:
             self.input_node.blame(blame.fork())
 

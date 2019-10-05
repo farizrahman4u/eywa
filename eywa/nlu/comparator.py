@@ -6,7 +6,8 @@ import tensorflow as tf
 class Comparator(object):
 
     def __init__(self):
-        self.weights = [tf.Variable(w, dtype='float32') for w in self.__class__.default_weights()]
+        self.weights = [tf.Variable(w, dtype='float32')
+                        for w in self.__class__.default_weights()]
 
     @staticmethod
     def default_weights():
@@ -21,10 +22,20 @@ class Comparator(object):
             return 0.
         weights = self.weights
         w0 = weights[0]
-        score1 = lambda: euclid_similarity(x1.embedding, x2.embedding)
-        score2 = lambda: tf.tensordot(x1.embedding, x2.embedding, 1)
-        score3 = lambda: vector_sequence_similarity(x1.embeddings, x2.embeddings, w0, 'dot')
-        score4 = lambda: vector_sequence_similarity(x1.embeddings, x2.embeddings, w0, 'euclid')
+
+        def score1():
+            return euclid_similarity(x1.embedding, x2.embedding)
+
+        def score2():
+            return tf.tensordot(x1.embedding, x2.embedding, 1)
+
+        def score3():
+            return vector_sequence_similarity(
+                x1.embeddings, x2.embeddings, w0, 'dot')
+
+        def score4():
+            return vector_sequence_similarity(
+                x1.embeddings, x2.embeddings, w0, 'euclid')
         scores = [score1, score2, score3, score4]
         score_weights = weights[1:5]
         score = 0.
@@ -53,7 +64,7 @@ class Comparator(object):
         assert isinstance(weights, list)
         assert len(weights) == len(self.weights)
         for (w_in, w_curr) in zip(weights, self.weights):
-                w_curr.assign(w_in)
+            w_curr.assign(w_in)
 
     def get_weights(self):
         return [w.numpy() for w in self.weights]

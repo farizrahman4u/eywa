@@ -6,7 +6,8 @@ class Graph(Node):
     def __init__(self, input_map, final_node, name=None):
         super(Graph, self).__init__(name)
         # setup inputs
-        self.input_map = self._resolve_input_map(input_map)  # {graph_input_name: (node, node_input_name), ...}
+        # {graph_input_name: (node, node_input_name), ...}
+        self.input_map = self._resolve_input_map(input_map)
         for inp_name in self.input_map:
             self.add_input(inp_name)
         self.final_node = final_node
@@ -24,7 +25,8 @@ class Graph(Node):
                 assert len(v.input_nodes) <= 1
                 input_map_2[k] = (v, None)
             else:
-                raise TypeError("Unexpected type in input map: " + str(type(v)))
+                raise TypeError(
+                    "Unexpected type in input map: " + str(type(v)))
         return input_map_2
 
     def _can_reach_final_node(self, node):
@@ -43,9 +45,14 @@ class Graph(Node):
         for v in self.input_map.values():
             inp_node = v[0]
             if not self._can_reach_final_node(inp_node):
-                raise Exception("Disconnected graph: unable to reach final " +
-                                "node " + self.final_node.name + " from input node" +
-                                inp_node.name + " in graph " + self.name)
+                raise Exception(
+                    "Disconnected graph: unable to reach final " +
+                    "node " +
+                    self.final_node.name +
+                    " from input node" +
+                    inp_node.name +
+                    " in graph " +
+                    self.name)
 
     def _traverse_graph(self):
         self._check_disconnected_inputs()
@@ -95,7 +102,8 @@ class Graph(Node):
         input_map_config = {}
         for k, v in self.input_map.items():
             input_map_config[k] = (node_index[v[0]], v[1])
-        connectome = {i:list() for i in range(len(self.nodes))}  # {node_index1: [(node_index2, input_name), ...]...}
+        # {node_index1: [(node_index2, input_name), ...]...}
+        connectome = {i: list() for i in range(len(self.nodes))}
         for node in self.nodes:
             idx = node_index[node]
             for onode, inp_name in node.output_nodes:
@@ -126,7 +134,8 @@ class Graph(Node):
                 node2 = nodes[idx2]
                 node1.connect(node2, inp_name)
         input_map_config = config['input_map']
-        input_map = {k: (nodes[v[0]], v[1]) for k, v in input_map_config.items()}
+        input_map = {k: (nodes[v[0]], v[1])
+                     for k, v in input_map_config.items()}
         final_node = nodes[config['final_node']]
         name = config['name']
         graph = cls(input_map, final_node, name=name)

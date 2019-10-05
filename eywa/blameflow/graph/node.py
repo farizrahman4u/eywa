@@ -27,7 +27,8 @@ class Node(object):
         return True
 
     def run(self):
-        if  not self.cache or not self.input_nodes or self._inputs_changed and self.inputs_ready():
+        if not self.cache or not self.input_nodes or \
+                self._inputs_changed and self.inputs_ready():
             self.value = self.f(self.input_values)
             self._inputs_changed = False
 
@@ -37,7 +38,8 @@ class Node(object):
         for inp_name, inp_node in self.input_nodes.items():
             if inp_node is None:
                 if self.input_values[inp_name] is None:
-                    raise Exception("Value not provided for input node " + inp_name)
+                    raise Exception(
+                        "Value not provided for input node " + inp_name)
             else:
                 self.input_values[inp_name] = inp_node.pull()
         self.run()

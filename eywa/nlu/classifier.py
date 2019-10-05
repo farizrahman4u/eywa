@@ -9,20 +9,20 @@ import numpy as np
 
 class Classifier(Switch):
     """
-    
+
     Predicts the class of user input.
-    
+
     """
 
     def __init__(self, *args, **kwargs):
-        
-        
+
         super(Classifier, self).__init__(*args, **kwargs)
         self.X = []
         self.Y = []
         self.data = {}
-        self.weights = [tf.Variable(w, dtype='float32') for w in self.__class__.default_weights()]
-        self.grads= {}
+        self.weights = [tf.Variable(w, dtype='float32')
+                        for w in self.__class__.default_weights()]
+        self.grads = {}
         pass
 
     @staticmethod
@@ -74,7 +74,6 @@ class Classifier(Switch):
         clf.fit(input_data, target_labels)
         ```
         """
-        
 
         if isinstance(X, (str, Document)):
             X = [X]
@@ -146,13 +145,13 @@ class Classifier(Switch):
         """
         if type(x) in (list, tuple):
             return [self.predict(i, return_scores) for i in x]
-        if type(x) is not Document:
+        if not isinstance(x, Document):
             x = Document(x)
         classes = list(self.data.keys())
         scores = self.forward(x)
         if return_scores:
-            probs_dist = sorted({z[0]: float(z[1]) for z in zip(classes, scores)}.items(),
-                                key=lambda x:x[1], reverse=True)
+            probs_dist = sorted({z[0]: float(z[1]) for z in zip(
+                classes, scores)}.items(), key=lambda x: x[1], reverse=True)
             return probs_dist
         return classes[np.argmax(scores.numpy())]
 
@@ -161,10 +160,20 @@ class Classifier(Switch):
             return 0.
         weights = self.weights
         w0 = weights[0]
-        score1 = lambda: euclid_similarity(x1.embedding, x2.embedding)
-        score2 = lambda: tf.tensordot(x1.embedding, x2.embedding, (0, 0))
-        score3 = lambda: vector_sequence_similarity(x1.embeddings, x2.embeddings, w0, 'dot')
-        score4 = lambda: vector_sequence_similarity(x1.embeddings, x2.embeddings, w0, 'euclid')
+
+        def score1():
+            return euclid_similarity(x1.embedding, x2.embedding)
+
+        def score2():
+            return tf.tensordot(x1.embedding, x2.embedding, (0, 0))
+
+        def score3():
+            return vector_sequence_similarity(
+                x1.embeddings, x2.embeddings, w0, 'dot')
+
+        def score4():
+            return vector_sequence_similarity(
+                x1.embeddings, x2.embeddings, w0, 'euclid')
         scores = [score1, score2, score3, score4]
         score_weights = weights[1:5]
         score = 0.
@@ -259,7 +268,7 @@ class Classifier(Switch):
         assert isinstance(weights, list)
         assert len(weights) == len(self.weights)
         for (w_in, w_curr) in zip(weights, self.weights):
-                w_curr.assign(w_in)
+            w_curr.assign(w_in)
 
     def get_weights(self):
         """Returns weights of the `Classifier`.
