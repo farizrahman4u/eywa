@@ -7,12 +7,11 @@ matrix:
         - python: 3.6
 
 before_install:
-  - pip install pycodestyle
+  - pip install pytest pytest-pep8
 
 install:
   - pip install -e .[tests]
   - pip install tensorflow==2.0.0-alpha0
   
 script:
-  - pycodestyle .
-  - PYTHONPATH=$PWD:$PYTHONPATH py.test tests/
+  - PYTHONPATH=$PWD:$PYTHONPATH py.test --pep8 -m pep8 && py.test tests/;
