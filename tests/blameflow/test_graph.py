@@ -38,10 +38,11 @@ def test_graph_basic_2():
     a.connect(c, 'x')
     b.connect(c, 'y')
     graph = Graph(
-        input_map = {'a': a, 'b': b},
-        final_node = c
+        input_map={'a': a, 'b': b},
+        final_node=c
     )
     assert graph({'a': 2, 'b': 3}) == 5
+
 
 def test_graph_serde():
     class AddNode(Node):
@@ -57,12 +58,13 @@ def test_graph_serde():
     a.connect(c, 'x')
     b.connect(c, 'y')
     graph = Graph(
-        input_map = {'a': a, 'b': b},
-        final_node = c
+        input_map={'a': a, 'b': b},
+        final_node=c
     )
     config = graph.serialize()
     graph2 = Graph.deserialize(config)
     assert graph2({'a': 2, 'b': 3}) == 5
+
 
 if __name__ == '__main__':
     pytest.main([__file__])

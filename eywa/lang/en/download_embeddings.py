@@ -1,3 +1,4 @@
+import requests
 import os
 import sys
 import math
@@ -17,11 +18,11 @@ if py3:
 else:
     from urllib2 import urlopen
 
-import requests
 
 # script to download and unzip embeddings
 
-url = 'https://github.com/explosion/sense2vec/releases/download/v1.0.0a0/reddit_vectors-1.1.0.tar.gz'
+url = 'https://github.com/explosion/sense2vec/releases/download/' + \
+      'v1.0.0a0/reddit_vectors-1.1.0.tar.gz'
 file_name = url.split('/')[-1]
 dir_name = os.path.join(emb_dir, file_name[:-7])
 file_name = os.path.join(emb_dir, file_name)
@@ -47,7 +48,8 @@ def _download_file(url, file_name):
             os.remove(file_name)
     if not file_exists:
         factor = int(math.floor(math.log(file_size) / math.log(1024)))
-        display_file_size = str(file_size / 1024 ** factor) + ['B', 'KB', 'MB', 'GB', 'TB', 'PB'][factor]
+        display_file_size = str(file_size / 1024 ** factor) + \
+            ['B', 'KB', 'MB', 'GB', 'TB', 'PB'][factor]
         print("Source: " + url)
         print("Destination " + file_name)
         print("Size: " + display_file_size)
@@ -62,7 +64,8 @@ def _download_file(url, file_name):
             file_size_dl += chunk_size
             f.write(chunk)
             pbar.update(chunk_size)
-            # status = r"%10d  [%3.2f%%]" % (file_size_dl, file_size_dl * 100. / file_size)
+            # status = r"%10d  [%3.2f%%]" %
+            #                       (file_size_dl, file_size_dl * 100. / file_size)
             # status = status + chr(8)*(len(status)+1)
             # print(status)
         f.close()
@@ -92,7 +95,13 @@ def download():
     with open(os.path.join(emb_dir, 'vectors.bin'), 'rb') as f:
         num_vectors = struct.unpack('i', f.read(4))[0]
         vector_dim = struct.unpack('i', f.read(4))[0]
-        vectors = [struct.unpack('f' * vector_dim, f.read(4 * vector_dim)) for _ in range(num_vectors)]
+        vectors = [
+            struct.unpack(
+                'f' *
+                vector_dim,
+                f.read(
+                    4 *
+                    vector_dim)) for _ in range(num_vectors)]
         np.save(vectors_file_name, vectors)
         del vectors
     print('Done.')

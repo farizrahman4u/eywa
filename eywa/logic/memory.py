@@ -13,7 +13,7 @@ class Memory(object):
         self.Y = []
         self._changed = False
         self._index_cache = []
-        self._THRESHOLD = 0.4  ## Magic number ?
+        self._THRESHOLD = 0.4  # Magic number ?
 
     def add(self, x):
         if type(x) in (tuple, list):

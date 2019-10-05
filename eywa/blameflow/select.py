@@ -54,7 +54,7 @@ class Select(Node):
 
     def pull_all(self):
         return super(Select, self).pull()
-    
+
     def inrange(self, y):
         for name, node in self.input_nodes.items():
             if name == 'selector':
@@ -76,10 +76,13 @@ class Select(Node):
                     continue
                 if val == blame.expected:
                     if name == self.input_values['selector']:
-                        self.input_nodes['selector'].blame(blame.fork(BlameType.POSITIVE))
+                        self.input_nodes['selector'].blame(
+                            blame.fork(BlameType.POSITIVE))
                     else:
-                        self.input_nodes['selector'].blame(blame.fork(BlameType.CORRECTIVE, name))
-                    self.input_nodes[name].blame(blame.fork(BlameType.POSITIVE))
+                        self.input_nodes['selector'].blame(
+                            blame.fork(BlameType.CORRECTIVE, name))
+                    self.input_nodes[name].blame(
+                        blame.fork(BlameType.POSITIVE))
                     return
             for name, node in self.input_nodes:
                 if node is None:
@@ -88,12 +91,14 @@ class Select(Node):
                     continue
                 if node.inrange(blame.expected):
                     if name == self.input_values['selector']:
-                        self.input_nodes['selector'].blame(blame.fork(BlameType.POSITIVE))
+                        self.input_nodes['selector'].blame(
+                            blame.fork(BlameType.POSITIVE))
                     else:
-                        return self.input_nodes['selector'].blame(blame.fork(BlameType.CORRECTIVE, name))
+                        return self.input_nodes['selector'].blame(
+                            blame.fork(BlameType.CORRECTIVE, name))
                     node.blame(blame.fork())
         elif blame.blame_type == BlameType.NEGATIVE:
             c = blame.confidence * 0.5
             self.input_nodes['selector'].blame(blame.fork(confidence=c))
-            self.input_nodes[self.input_values['selector']].blame(blame.fork(confidence=c))
-            
+            self.input_nodes[self.input_values['selector']].blame(
+                blame.fork(confidence=c))

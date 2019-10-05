@@ -24,6 +24,6 @@ class RegexExtractor(Extractor):
         matches = self.compiled_regex.finditer(text)
         for match in matches:
             start, end = match.start(), match.end()
-            string = text[start : end]
+            string = text[start: end]
             y.append(((start, end), self.entity_type(string, string)))
         return y

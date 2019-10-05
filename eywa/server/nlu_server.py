@@ -5,7 +5,6 @@ import responder
 import asyncio
 import os
 
-    
 
 def _get_media(req):
     try:
@@ -14,9 +13,8 @@ def _get_media(req):
         med = loop.run_until_complete(req.media())
         loop.close()
         return med
-    except:
+    except BaseException:
         return {}
-
 
 
 class NLUServer(object):
@@ -24,7 +22,8 @@ class NLUServer(object):
         s = set([config, path, name])
         s.remove(None)
         if len(s) > 1:
-            raise Exception("More than 1 of config, path and name args were provided.")
+            raise Exception(
+                "More than 1 of config, path and name args were provided.")
         if config:
             self.load_config(config)
             self.path = None
@@ -122,6 +121,7 @@ class NLUServer(object):
 
     def serve(self, port=None, test=False):
         api = responder.API()
+
         @api.route('/models/{model_name}/predict')
         def predict(req, resp, *, model_name):
             model = self.models.get(model_name)
@@ -146,6 +146,7 @@ class NLUServer(object):
             else:
                 resp.media = out
             resp.status_code = 200
+
         @api.route('/models/{model_name}/train')
         def train(req, resp, *, model_name):
             model = self.models.get(model_name)
@@ -167,13 +168,13 @@ class NLUServer(object):
                 targ = data.get('targets')
                 if targ is None:
                     resp.status_code = 400
-                    resp.text = "Key error: targets"                    
+                    resp.text = "Key error: targets"
             else:
                 targ = req.params.get('target')
                 if isinstance(model, EntityExtractor):
                     try:
                         targ = json.loads(targ)
-                    except:
+                    except BaseException:
 
                         resp.status_code = 400
                         resp.text = "Invalid target json."
@@ -188,10 +189,12 @@ class NLUServer(object):
             except Exception as e:
                 resp.status_code = 500
                 resp.text = "Training data verification failed: " + str(e)
+
             @api.background.task
             def train_bg():
                 model.fit(inp, targ)
             train_bg()
+
         @api.route('/config')
         def config(req, resp, *args):
             resp.status_code = 200

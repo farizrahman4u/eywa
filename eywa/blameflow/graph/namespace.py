@@ -1,6 +1,7 @@
 _namespace = {}
 _node_classes = {}
 
+
 def get_node(name):
     try:
         return _namespace[name]
@@ -28,8 +29,9 @@ def register_node(node):
             if _namespace[node.name] == node:
                 raise Exception('Node already registered: ' + node.name)
             else:
-                raise Exception('Another node with the same name (' + node.name + ')'
-                                                                                  ' already exists.')
+                raise Exception(
+                    'Another node with the same name (' + node.name + ')'
+                    ' already exists.')
         node._auto_name = False
     _namespace[node.name] = node
 
