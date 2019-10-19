@@ -85,10 +85,10 @@ def should_pick(x_embs, pick_embs, non_pick_embs, variance, weights):
     s = pick_score + non_pick_score
     pick_score /= s
     non_pick_score /= s
-    pick_score *= pick_bias
+    pick_score += pick_bias
     pick_score *= variance
-    non_pick_score *= 1. - pick_bias
-    non_pick_score += 1. - variance
+    non_pick_score += 1. - pick_bias
+    non_pick_score *= 1. - variance
     return pick_score - non_pick_score
 
 
