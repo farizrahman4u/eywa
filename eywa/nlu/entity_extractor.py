@@ -98,7 +98,7 @@ class EntityExtractor(object):
                         values_app = kk['values'].append
                         for ind in indices:
                             left = x[:ind]
-                            right = x[ind:]
+                            right = x[ind+1:]
                             lefts_app(left)
                             rights_app(right)
                             values_app(Token(v))
