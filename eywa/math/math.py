@@ -40,11 +40,10 @@ def _vector_sequence_similarity_dot(x, y, locality=0.5):
           (y ** 2).sum(1, keepdims=True).T) ** 0.5
     z /= mag
     '''
-    z = z * locality * (soft_identity_matrix(nx, ny) - 1) + 1.
+    z = z * (locality * (soft_identity_matrix(nx, ny) - 1) + 1.)
     m1 = tf.reduce_sum(tf.reduce_max(z, axis=0))
     m2 = tf.reduce_sum(tf.reduce_max(z, axis=1))
     return ((m1 + m2) / (nx + ny))
-
 
 def batch_vector_sequence_similarity(X, y):
     z = []
