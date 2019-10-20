@@ -6,11 +6,12 @@ K = tf.keras.backend
 
 
 def soft_identity_matrix(nx, ny):
-    m = tf.range(nx * ny)
+    mx = max([nx, ny])
+    m = tf.range(mx * mx)
     m = tf.cast(m, 'float32')
-    r = m // ny
-    c = m  % nx
-    return tf.reshape((1./ (1 + K.abs(r - c))), (nx, ny))
+    r = m // mx
+    c = m  % mx
+    return tf.reshape((1./ (1 + K.abs(r - c))), (mx, mx))[:nx, :ny]
 
 
 def vector_sequence_similarity(x, y, locality=0.5, metric='dot'):
@@ -35,12 +36,14 @@ def _vector_sequence_similarity_dot(x, y, locality=0.5):
     nx = len(x)
     ny = len(y)
     z = tf.matmul(x, y, False, True)
+    I = soft_identity_matrix(nx, ny)
     '''
     mag = ((x ** 2).sum(1, keepdims=True) *
           (y ** 2).sum(1, keepdims=True).T) ** 0.5
     z /= mag
     '''
-    z = z * (locality * (soft_identity_matrix(nx, ny) - 1) + 1.)
+    z = (1-locality) * z + locality*z*I
+    #z = z * (locality * (soft_identity_matrix(nx, ny) - 1.)) + 1.
     m1 = tf.reduce_sum(tf.reduce_max(z, axis=0))
     m2 = tf.reduce_sum(tf.reduce_max(z, axis=1))
     return ((m1 + m2) / (nx + ny))
