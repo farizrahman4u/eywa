@@ -22,7 +22,7 @@ class Classifier(Switch):
         self.Y = []
         self.data = {}
         self.weights = [tf.Variable(w, dtype='float32') for w in self.__class__.default_weights()]
-        self.grads= {}
+        self.grads = {}
         pass
 
     @staticmethod

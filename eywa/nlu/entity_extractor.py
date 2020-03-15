@@ -16,8 +16,6 @@ class EntityExtractor(object):
     
 
     def __init__(self):
-
-
         self.X = []
         self.Y = []
         self.keys = {}
