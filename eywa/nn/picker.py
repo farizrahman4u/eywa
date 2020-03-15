@@ -37,7 +37,7 @@ class NNPicker(object):
     def _default_training_config(self):
         return {
             'epochs': 100,
-            'batch_size': 5
+            'batch_size': 4
         }
 
     def _build_vocab(self):
@@ -143,6 +143,7 @@ class NNPicker(object):
         self.X = X
         self.Y = Y
         class_freqs = Y.sum(axis=(0, 1))
+        #print("CLASS FREQS ", class_freqs)
         total = class_freqs.sum()
         mu = 0.15
         class_weight = mu * total / class_freqs
@@ -176,7 +177,7 @@ class NNPicker(object):
         inp_vec = self._vectorize_doc(doc)
         out = self.model.predict(np.expand_dims(inp_vec, 0))[0]
         #out *= self.class_weight
-        print(out)
+        #print(out)
         values = {}
         for word, pred in zip(doc, out):
             k_id = np.argmax(pred)
@@ -191,3 +192,29 @@ class NNPicker(object):
                 else:
                     values[key] = word.text
         return values
+
+
+    def serialize(self):
+        config = {}
+        config['docs'] = [str(doc) for doc in self.docs]
+        config['values'] = self.values
+        config['model'] = self.model.get_config()
+        config['weights'] = [w.tolist() for w in self.model.get_weights()]
+        config['training_config'] = self.training_config
+        return config
+
+    @classmethod
+    def deserialize(cls, config):
+        model_config = config['model']
+        try:
+            model = keras.models.Model.from_config(model_config)
+        except Exception as e:
+            warnings.warn('Model loading failed! ' + e)
+            model = None
+        if model:
+            weights = [np.asarray(w) for w in config['weights']]
+            model.set_weights(weights)
+        return cls(config['docs'],
+                   config['values'],
+                   model=model,
+                   training_config=config['training_config'])
