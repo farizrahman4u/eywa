@@ -25,5 +25,5 @@ class TestNNPIcker:
         y_tests = [{'source': 'chennai', 'destination': 'banglore', 'nop': '2', 'time': '2am', 'date': 'today'},
                    {'source': 'chennai', 'destination': 'banglore', 'time': '2am'}]
         
-        for x,y in zip(x_tests,y_tests):
+        for x,y in zip(x_tests, y_tests):
             assert nnpicker.predict(x) == y
