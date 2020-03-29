@@ -10,7 +10,7 @@ def test_entity_extractor_basic():
     ex = EntityExtractor()
     ex.fit(x, y)
 
-    x_test = 'what is the weather in london like'
+    x_test = 'what is the weather like in london'
     assert ex.predict(x_test) == {'intent': 'weather', 'place': 'london'}
 
 def test_entity_extractor_serialization():

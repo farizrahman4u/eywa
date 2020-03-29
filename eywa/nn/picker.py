@@ -29,15 +29,18 @@ class NNPicker(object):
         else:
             self._build_model()
         if training_config is None:
-            training_config = self._default_training_config()
-        self.training_config = training_config
+            self.training_config = self._default_training_config()
+        else:
+            training_config2 = self._default_training_config()
+            training_config2.update(training_config)
+            self.training_config = training_config2
         if train:
             self.fit()
 
     def _default_training_config(self):
         return {
             'epochs': 100,
-            'batch_size': 4
+            'batch_size': 3
         }
 
     def _build_vocab(self):
@@ -124,14 +127,14 @@ class NNPicker(object):
                             break
         return vector
 
-    def _class_weight_from_freqs(self, labels_dict, mu=0.15):
-        total = np.sum(list(labels_dict.values()))
-        keys = labels_dict.keys()
-        class_weight = dict()
-        for key in keys:
-            score = math.log(mu*total/float(labels_dict[key]))
-            class_weight[key] = score if score > 1.0 else 1.0
-        return class_weight
+    # def _class_weight_from_freqs(self, labels_dict, mu=0.15):
+    #     total = np.sum(list(labels_dict.values()))
+    #     keys = labels_dict.keys()
+    #     class_weight = dict()
+    #     for key in keys:
+    #         score = math.log(mu*total/float(labels_dict[key]))
+    #         class_weight[key] = score if score > 1.0 else 1.0
+    #     return class_weight
 
     def _build_arrays(self):
         X = np.zeros((len(self.docs), self.max_input_length, self._vectorize_doc(self.docs[0]).shape[-1]))
@@ -169,9 +172,9 @@ class NNPicker(object):
             self.model = self._default_model()
 
     def fit(self):
-        self.model.fit(self.X, self.Y, **self.training_config)
+        self.model.fit(self.X, self.Y, verbose=0, **self.training_config)
 
-    def predict(self, doc):
+    def predict(self, doc, multiple=False, keys=None, return_scores=False):
         if not isinstance(doc, Document):
             doc = Document(doc)
         inp_vec = self._vectorize_doc(doc)
@@ -179,18 +182,41 @@ class NNPicker(object):
         #out *= self.class_weight
         #print(out)
         values = {}
-        for word, pred in zip(doc, out):
-            k_id = np.argmax(pred)
-            if k_id:
-                key = self.keys[k_id - 1]
-                if key in values:
-                    v = values[key]
-                    if isinstance(v, str):
-                        values[key] = [v, word.text]
+        if multiple:
+            for word, pred in zip(doc, out):
+                k_id = np.argmax(pred)
+                if k_id:
+                    score = pred[k_id]
+                    new_val = (word.text, score)
+                    key = self.keys[k_id - 1]
+                    if keys and key not in keys:
+                        return
+                    if key in values:
+                        values[key].append(new_val)
                     else:
-                        v.append(word.text)
-                else:
-                    values[key] = word.text
+                        values[key] = [new_val]
+            for k in values:
+                values[k].sort(key=lambda x: -x[1])
+                if not return_scores:
+                    values[k] = [x[0] for x in values[k]]
+        else:
+            for word, pred in zip(doc, out):
+                k_id = np.argmax(pred)
+                if k_id:
+                    score = pred[k_id]
+                    new_val = (word.text, score)
+                    key = self.keys[k_id - 1]
+                    if keys and key not in keys:
+                        return
+                    if key in values:
+                        prev_val = values[key]
+                        if new_val[1] > prev_val[1]:
+                            values[key] = new_val
+                    else:
+                        values[key] = new_val
+            if not return_scores:
+                for k in values:
+                    values[k] = values[k][0]
         return values
 
 

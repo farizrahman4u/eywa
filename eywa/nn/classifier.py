@@ -29,8 +29,11 @@ class NNClassifier(object):
         else:
             self.model = model
         if training_config is None:
-            tarining_config = _default_training_config()
-        self.training_config = training_config
+            self.training_config = self._default_training_config()
+        else:
+            training_config2 = self._default_training_config()
+            training_config2.update(training_config)
+            self.training_config = training_config2
         if train:
             self.fit()
 

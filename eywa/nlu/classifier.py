@@ -78,10 +78,9 @@ class Classifier(Switch):
 
         if isinstance(X, (str, Document)):
             X = [X]
-        if isinstance(Y, str):
+        if not isinstance(Y, (list, tuple)):
             Y = [Y]
         assert isinstance(X, (list, tuple))
-        assert isinstance(Y, (list, tuple))
         if len(Y) == 1:
             # broadcasting
             Y = Y * len(X)
