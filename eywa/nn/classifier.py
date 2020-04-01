@@ -58,7 +58,7 @@ class NNClassifier(object):
             self._get_casing_vector(w.text, vector[i][-3:])
         return vector
 
-    def _get_casing_vector(self, word, vetor=None):
+    def _get_casing_vector(self, word, vector=None):
         vec_size = 3 # ['NoDigits', 'SomeDigits', 'AllDigits']
         if vector is None:
             vector = np.zeros(vec_size)
