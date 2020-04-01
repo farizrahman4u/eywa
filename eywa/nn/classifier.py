@@ -37,7 +37,7 @@ class NNClassifier(object):
         if train:
             self.fit()
 
-    def _default_training_config():
+    def _default_training_config(self):
         return {
             'epochs': 20,
             'batch_size': 3
