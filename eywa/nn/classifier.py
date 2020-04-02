@@ -156,8 +156,8 @@ class NNClassifier(object):
         
         if self.is_binary:
             prob = {
-                    self.classes[0] : out,
-                    self.classes[1] : 1. - out
+                    self.classes[1] : out,
+                    self.classes[0] : 1. - out
             }
         else:
             prob = {
