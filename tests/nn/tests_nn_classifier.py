@@ -1,7 +1,6 @@
 from eywa.nn import NNClassifier
 import pytest
-from eywa.nn import NNClassifier
-import pytest
+
 
 def test_nn_classifier_basic():
     
@@ -22,7 +21,7 @@ def test_nn_classifier_serialize():
     config  =  nnclf1.serialize()
     nnclf2 = NNClassifier.deserialize(config)
 
-    assert nnclf1.values == nnclf2.values
+    assert nnclf1.labels == nnclf2.labels
 
     x_tests = ['book for a place to stay',
                 'rent a holiday place','weather germany','will it rain today']
