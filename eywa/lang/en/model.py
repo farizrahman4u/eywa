@@ -323,7 +323,8 @@ class Token(object):
         try:
             return self._in_vocab
         except AttributeError:
-            _in_vocab = tf.math.count_nonzero(self.embedding).numpy() != 0
+            # TODO this is bad
+            _in_vocab = bool(tf.math.count_nonzero(self.embedding).numpy() != 0)
             self._in_vocab = _in_vocab
             return _in_vocab
 
@@ -340,6 +341,13 @@ class Token(object):
         if type(text) in (Document, Token):
             text = text.text
         return self._lower() == text.lower()
+
+    @property
+    def is_stop_word(self):
+        for sw in stop_words:
+            if sw == self:
+                return True
+        return False
 
 
 class Document(object):
